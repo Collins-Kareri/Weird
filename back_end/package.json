@@ -1,0 +1,22 @@
+{
+  "name": "back_end",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js",
+    "practice": "nodemon practice.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "cloudinary": "^1.29.1",
+    "neo4j-driver": "^4.4.5"
+  }
+}
