@@ -5,10 +5,8 @@ function BrowseUpload({images,setImages,setProgress,isLoading, setDoneStatus}) {
     const fileBrowse=useRef(null),
         [results,setResults]=useState([]);
 
-    console.log(results);
-
     useEffect(()=>{
-        if(images.length>0&&results.length===images.length){
+        if(images.length>0&&results.length===images.length&&results[0]!=="saved"){
             storeInDb(results,setProgress,isLoading,setDoneStatus,setResults);
         }
     },[results])
@@ -33,6 +31,12 @@ function BrowseUpload({images,setImages,setProgress,isLoading, setDoneStatus}) {
         
         if(images.length<1)
         {
+            return;
+        }
+
+        if(images.length>0&&results.length===images.length&&results[0]!=="saved")
+        {
+            storeInDb(results,setProgress,isLoading,setDoneStatus,setResults);
             return;
         }
 

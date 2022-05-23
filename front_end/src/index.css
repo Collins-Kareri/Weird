@@ -537,10 +537,10 @@ input[type="file"] {
 #imagesContainer>#imagePreviewContainer>img{
     position: relative;
     width: 100%;
+    border-radius: 8px;
 }
 
-#progressIndicatorContainer{
-    display: flex;
+#flashMsg{
     position:fixed;
     flex-wrap: wrap;
     flex-direction: row;
@@ -553,26 +553,54 @@ input[type="file"] {
     transition-duration: 1s;
     transition-property: all;
     transition-timing-function: ease-in-out;
-    z-index: 6;
+    z-index: 6;  
 }
 
-#progressIndicatorContainer::before{
+#flashMsg::before{
     content: "";
     display: block;
     position: relative;
     width: 100%;
     height: 100%;
     background-color: var(--backGroundReducedOpacity);
-    opacity: 0.8;
-    filter: blur(5px);
+    opacity: 0.9;
+    filter: blur(2px);
+}
+
+#flashMsg>#flashMsgContent{
+    display: block;
+    position: fixed;
+    z-index:7;
+    width: 50%;
+    top: 50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    font-family: Quicksand,sans-serif;
+}
+
+#successMsgContainer,
+#progressIndicatorContainer{
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+#successMsgTitle,
+#successMsg{
+    margin:10px auto;
+}
+
+#successMsg{
+    font-size:larger;
+    text-align: center;
 }
 
 #progressIndicator{
     display: grid;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform:translate(-50%,-50%);
+    position: relative;
     color:hsla(1,0%,30%,1);
     place-items: center;
     block-size: 200px;
@@ -581,7 +609,6 @@ input[type="file"] {
     min-block-size: 100px;
     font-weight: 500;
     font-size: max(8vmin, 1rem);
-    font-family: Quicksand,sans-serif;
     transition-duration: 1.2s;
     transition-property: all;
     transition-timing-function: ease-in-out;

@@ -80,8 +80,7 @@ function handleProgress(evt,identifier,numberOfImages,setProgress,isLoading){
 }
 
 function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults,RES_ARR){
-    if(url==="/storeImageRef")
-    {
+    if(/\b\.cloudinary\.\b/g.test(url)){
         let public_id=JSON.parse(UPLOAD_RES).public_id;
         let userName=JSON.parse(localStorage.getItem("userData")).userName;
         RES_ARR.push({
@@ -89,12 +88,13 @@ function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults,RES_ARR){
             ownerName:userName,
             name:`${userName}_${public_id}_weird`
         });
-        console.log(RES_ARR);
         if(RES_ARR.length===noOfValuesToUpload)
         {
             setResults(RES_ARR);
         }
+        return;
     }
+    return UPLOAD_RES;
 }
 
 export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setProgress,isLoading,setResults){
@@ -104,14 +104,17 @@ export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setP
         const XHR=new XMLHttpRequest();
 
         XHR.open(method,url,true);
-        XHR.setRequestHeader("Req-Name",identifier);
-        XHR.setRequestHeader("Content-Type","application/json");
+
+        if(/\b\.cloudinary\.\b/g.test(url)==="false")
+        {
+            XHR.setRequestHeader("Req-Name",identifier);
+            XHR.setRequestHeader("Content-Type","application/json");
+        }
+
+        XHR.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
         XHR.upload.onprogress=(evt)=>{
-            if(url==="/storeImageRef")
-            {
-                handleProgress(evt,identifier,noOfValuesToUpload,setProgress,isLoading);
-            }
+            handleProgress(evt,identifier,noOfValuesToUpload,setProgress,isLoading);
         }
 
         XHR.onerror=()=>{
@@ -144,7 +147,22 @@ export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setP
 
         if(data.toString().length>0)
         {
-            XHR.send(JSON.stringify(data));
+            
+            var sendData=JSON.stringify(data);
+
+            if(/\b\.cloudinary\.\b/g.test(url))
+            {
+                sendData=new FormData();
+                sendData.append("file",data.file);
+                sendData.append("api_key",data.api_key);
+                sendData.append("timestamp",data.timestamp);
+                sendData.append("signature",data.signature);
+                sendData.append("upload_preset","weird");
+                sendData.append("detection","lvis_v1");
+            }
+
+            console.log(sendData);
+            XHR.send(sendData);
         }else
         {
             XHR.send();
@@ -154,28 +172,36 @@ export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setP
 }
 
 export async function generateSignature(setProgress,isLoading){
-    let res=await makeReq("/generateSignature","get","","gen_Sig",0,setProgress,isLoading).then(res=>res,err=>err)
-    return res;
+    let {data}=JSON.parse(await makeReq("/generateSignature","get","","gen_Sig",0,setProgress,isLoading).then(res=>res,err=>err))
+    return data;
 }
 
 export async function sendToCloudinary(data){
     const {file,identifier,numberOfImages,signatureObj,setProgress,isLoading,setResults}=data;
 
-    const UPLOAD_DATA={};
+    const UPLOAD_DATA={},
+        CLOUDINARY_URL="https://api.cloudinary.com/v1_1/karerisspace/image/upload";
 
     UPLOAD_DATA.timestamp=signatureObj.timestamp;
-    UPLOAD_DATA.upload_preset="weird";
-    UPLOAD_DATA.api_key=signatureObj.api_key;
+    UPLOAD_DATA.api_key=signatureObj.api_Key;
     UPLOAD_DATA.signature=signatureObj.signature;
     UPLOAD_DATA.file=file;
-    makeReq("/storeImageRef","post",UPLOAD_DATA,identifier,numberOfImages,setProgress,isLoading,setResults);
+
+    // UPLOAD_DATA.append("file",file);
+    // UPLOAD_DATA.append("timestamp",signatureObj.timestamp);
+    // UPLOAD_DATA.append("api_key",signatureObj.api_key);
+    // UPLOAD_DATA.append("signature",signatureObj.signature);
+    // UPLOAD_DATA.append("upload_preset","weird");
+    // UPLOAD_DATA.append("detection","lvis_v1");
+
+    makeReq(CLOUDINARY_URL,"post",UPLOAD_DATA,identifier,numberOfImages,setProgress,isLoading,setResults);
     // const RESULTS=await makeReq("/storeImageRef","post",UPLOAD_DATA,identifier,numberOfImages,setProgress,isLoading);
     // return setResults(currentResults.concat(RESULTS));
 }
 
 export function storeInDb(data,setProgress,isLoading,setDoneStatus,setResults){
 
-    const URL="/storeImgRef"
+    const URL="/storeImageRef"
 
     makeReq(URL,"post",data,"storeImgRefs",`${URL}_${data[0].public_id}`,1,setProgress,isLoading)
     .then((data)=>{

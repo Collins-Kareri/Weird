@@ -20,7 +20,7 @@ function SubmitPageContent({isLoading}) {
             </div>
             <div id="flashMsg">
                 <section id="flashMsgContent">
-                    {progress===100?<></>:<ProgressIndicator progress={progress}/>}
+                    {progress===100||doneStatus==="yes"?<></>:<ProgressIndicator progress={progress}/>}
                     {doneStatus==="yes"?<SuccessMsg/>:<></>}
                 </section>
             </div>
@@ -33,6 +33,10 @@ function SubmitPageContent({isLoading}) {
                         }
                         .separator{
                             display:none;
+                        }
+                        #flashMsg{
+                            display:${(progress>0&&isFinite(progress))||doneStatus==="yes"?"flex":"none"};
+                            opacity:${(progress>0&&isFinite(progress))||doneStatus==="yes"?"1":"0"}
                         }
                         #dragAndDropContainer{
                             display:${images.length>0?"none":"block"};

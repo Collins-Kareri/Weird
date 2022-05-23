@@ -1,0 +1,15 @@
+### Node ###
+
+# Dependency directories
+node_modules/
+cloudinaryResponseSample
+
+### Node Patch ###
+# Serverless Webpack directories
+.webpack/
+
+README.md
+
+practice.js
+
+config.js

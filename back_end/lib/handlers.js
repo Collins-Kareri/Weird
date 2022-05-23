@@ -98,16 +98,6 @@ handlers.createSession=async function(data,callback){
 };
 
 handlers.storeImageRef=async function(data,callback){
-    // requestDelivered.set(data.reqIdentifier,{status:"executing"});
-    //cypher query to create image node
-    // const QUERY=`create (Img:Image {public_id: $data.public_id}) return  img.public_id`,
-    //     QUERYRESULT=await helpers.runDbQuery(QUERY,imageDetails);
-
-    requestDelivered.delete(data.reqIdentifier);
-    callback(200,{msg:"Received",public_id:data.reqIdentifier});
-};
-
-handlers.storeImgRef=async function(data,callback){
     try {
         const QUERY=`UNWIND $data AS properties
         MATCH (usr:User {userName:properties.ownerName})
@@ -128,7 +118,7 @@ handlers.storeImgRef=async function(data,callback){
         requestDelivered.delete(data.reqIdentifier)
         callback(500,{msg:`Error occured: ${err}`})
     }
-}
+};
 
 handlers.generateSignature=function(data,callback){
     /*generate a signature to enable signed uploads to cloudinary*/

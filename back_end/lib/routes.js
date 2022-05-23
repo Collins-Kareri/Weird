@@ -5,7 +5,6 @@ const routeMap={
     "/createSession":handlers.createSession,
     "/generateSignature":handlers.generateSignature,
     "/storeImageRef":handlers.storeImageRef,
-    "/storeImgRef":handlers.storeImgRef,
     "/favicon.ico":""
 };
 
