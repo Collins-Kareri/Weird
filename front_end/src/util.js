@@ -22,6 +22,10 @@ function validateFormat(fileName){
     return /\.(jpeg|jpg|png|gif)$/g.test(fileName);
 }
 
+function isCloudinaryOp(url){
+    return /\b\.cloudiary\.\b/g.test(url);
+}
+
 export async function handleInputData(files){
         const IMAGES=[];
         if(files.length>3)
@@ -80,7 +84,7 @@ function handleProgress(evt,identifier,numberOfImages,setProgress,isLoading){
 }
 
 function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults,RES_ARR){
-    if(/\b\.cloudinary\.\b/g.test(url)){
+    if(isCloudinaryOp(url)){
         let public_id=JSON.parse(UPLOAD_RES).public_id;
         let userName=JSON.parse(localStorage.getItem("userData")).userName;
         RES_ARR.push({
@@ -105,7 +109,7 @@ export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setP
 
         XHR.open(method,url,true);
 
-        if(/\b\.cloudinary\.\b/g.test(url)==="false")
+        if(isCloudinaryOp(url)==="false")
         {
             XHR.setRequestHeader("Req-Name",identifier);
             XHR.setRequestHeader("Content-Type","application/json");
@@ -124,13 +128,13 @@ export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setP
 
         XHR.onabort=()=>{
             isLoading("no")
-            alert("request was not aborted");
+            alert("request was aborted");
         }
 
         XHR.onload=()=>{
             if(XHR.status>=500)
             {
-                alert("Couldn't upload image due to an internal server error.")
+                alert("Couldn't proceed with the request due to an internal server error.")
                 isLoading("no");
                 fail("Server error");
             }
@@ -140,7 +144,7 @@ export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setP
             if(XHR.readyState===XMLHttpRequest.DONE)
             {
                 handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults,RES_ARR);
-                //save the response publicId in an array of ids then send them to backEnd to be saved in the dataBase
+
                 succeed(UPLOAD_RES);
             }
         }
@@ -150,8 +154,9 @@ export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setP
             
             var sendData=JSON.stringify(data);
 
-            if(/\b\.cloudinary\.\b/g.test(url))
+            if(isCloudinaryOp(url))
             {
+                //as cloudinary only accepts form data uploads
                 sendData=new FormData();
                 sendData.append("file",data.file);
                 sendData.append("api_key",data.api_key);
@@ -161,13 +166,11 @@ export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setP
                 sendData.append("detection","lvis_v1");
             }
 
-            console.log(sendData);
             XHR.send(sendData);
         }else
         {
             XHR.send();
         }
-
     });
 }
 
