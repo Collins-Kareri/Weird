@@ -10,16 +10,31 @@ function ProfileHome({toggleEdit}) {
         [active,setActive]=useState("photos"),
         [imagesArr,setImagesArr]=useState([]),
         [collectionsArr,setCollectionsArr]=useState([]);
+    
+    console.log(imagesArr);
 
     useEffect(()=>{
-        let data=JSON.parse(window.localStorage.getItem("userData"));
-        if(data){
-            setuserData(data);
-        };
+     return async ()=>{
+                let data=JSON.parse(window.localStorage.getItem("userData"));
+                if(data){
+                    setuserData(data);
+                    let imgs=await (await fetchPhotos(data.userName)).json();
+                    setImagesArr(imgs.data);
+                }
+        }
     },[]);
 
     async function fetchPhotos(userName){
         //fetch images this user has uploaded
+        //the objects in the image arr will contain public_url,name & description;
+        return await fetch("/retrieveImages",{
+            headers:{
+                "Req-Name":`user_imgs_${userName}`,
+                "Content-Type":"application/json"
+            },
+            method:"post",
+            body:JSON.stringify({userName})
+        });
     };
 
     async function fetchCollections(userName){

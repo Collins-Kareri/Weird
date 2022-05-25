@@ -1,15 +1,13 @@
-import helpers,{requestDelivered} from "./helpers.js";
-
+import helpers from "./helpers.js";
 import {signRequest} from "./cloudinary.js"
-
-const handlers={};
+const HANDLERS={};
 
 /**
  * TAKES CARE OF THE LOGIC NEEDED TO CREATE A NEW USER
  * @Data{data that will be use to create the user}
  * @Callback{used to return the results of the created operation} 
  */
-handlers.createAccount=async function (data,callback){
+HANDLERS.createAccount=async function (data,callback){
     if (data.method.toLowerCase() == "post")
     {
         const {userName,password}=data.payLoad;
@@ -29,8 +27,6 @@ handlers.createAccount=async function (data,callback){
             const QUERY= `create (u:User {userName: $data.userName, email: $data.email, password: $data.password})
                     return u.userName as userName, u.email as email`;
             const USERCREATERES=await helpers.runDbQuery(QUERY,data.payLoad);
-    
-            requestDelivered.delete(data.reqIdentifier)
 
             if(USERCREATERES.length>0)
             {
@@ -61,7 +57,7 @@ handlers.createAccount=async function (data,callback){
  * @param {*} data 
  * @param {*} callback 
  */
-handlers.createSession=async function(data,callback){
+HANDLERS.createSession=async function(data,callback){
     if(data.method.toLowerCase() == "post")
     {
         const {password}=data.payLoad;
@@ -72,8 +68,6 @@ handlers.createSession=async function(data,callback){
             const QUERY = `match (u:User {userName:$data.userName,password:$data.password})
             return u.userName as userName, u.email as email`
             const LOGINRES=await helpers.runDbQuery(QUERY,data.payLoad);
-    
-            requestDelivered.delete(data.reqIdentifier)
     
             if(LOGINRES.length>0)
             {
@@ -86,48 +80,46 @@ handlers.createSession=async function(data,callback){
             }   
         } catch (err) 
         {
-            requestDelivered.delete(data.reqIdentifier)
+            
             callback(500,{msg:`Error occured: ${err}`});
         }  
     }
     else
     {
-        requestDelivered.delete(data.reqIdentifier)
+        
         callback(405,{msg:"Http method not allowed"})
     };
 };
 
-handlers.storeImageRef=async function(data,callback){
+HANDLERS.storeImageRef=async function(data,callback){
     try {
         const QUERY=`UNWIND $data AS properties
         MATCH (usr:User {userName:properties.ownerName})
         MERGE (img:Image {name:properties.name,public_id:properties.public_id})
         CREATE (usr)-[rel:UPLOADED]->(img)
         RETURN img,rel`;
-        const SAVEIMAGERES=await helpers.runDbQuery(QUERY,data.payLoad);
-        if(SAVEIMAGERES.length>0)
+        const SAVE_IMAGE_RES=await helpers.runDbQuery(QUERY,data.payLoad);
+        if(SAVE_IMAGE_RES.length>0)
         {
-            console.log(SAVEIMAGERES);
-            callback(200,{msg:"saved",no_Of_Values_Saved:SAVEIMAGERES.length});
+            console.log(SAVE_IMAGE_RES);
+            callback(200,{msg:"saved",no_Of_Values_Saved:SAVE_IMAGE_RES.length});
         }else
         {
-            callback(200,{msg:`Wrong username or password. Please try again`});
-        }
-        requestDelivered.delete(data.reqIdentifier) 
-    } catch (err) {
-        requestDelivered.delete(data.reqIdentifier)
+            callback(200,{msg:`Images where not stored.`});
+        }     
+    } catch (err) {     
         callback(500,{msg:`Error occured: ${err}`})
     }
 };
 
-handlers.generateSignature=function(data,callback){
+HANDLERS.generateSignature=function(data,callback){
     /*generate a signature to enable signed uploads to cloudinary*/
     try
     {
         signRequest()
         .then((res)=>{
             callback(200,{msg:"Everything is okay",data:res});
-            requestDelivered.delete(data.reqIdentifier);
+            ;
         },
         (err)=>{
             callback(500,{msg:`The signature generation didn't work, error: ${err}`});
@@ -138,9 +130,34 @@ handlers.generateSignature=function(data,callback){
     };
 };
 
-handlers.notFound=function(data,callback){
-    console.log(data.method);
+HANDLERS.retrieveImages=async function(data,callback){
+    try {
+        const QUERY=`MATCH (usr:User {userName:$data.userName})-[rel:UPLOADED]->(img)
+        RETURN img.name AS name, img.public_id as public_id`;
+        const RETRIEVE_IMAGES=await helpers.runDbQuery(QUERY,data.payLoad);
+        const RESULTS=[];
+        if(RETRIEVE_IMAGES.length>0)
+        {
+            for(let image of RETRIEVE_IMAGES)
+            {
+                let name=image.get("name");
+                let public_id=image.get("public_id");
+                RESULTS.push({name,public_id});
+            }
+            
+            callback(200,{msg:"retrieved",data:RESULTS});
+        }else
+        {
+            callback(200,{msg:`No images were found for this user.`});
+        }
+    } catch (err) {
+        
+        callback(500,{msg:`Error occured: ${err}`})
+    }
+}
+
+HANDLERS.notFound=function(data,callback){
     callback(404, {msg:"You have not specified this route in your server. Check the route for spelling errors or capitalization errors."});
 };
 
-export default handlers;
+export default HANDLERS;

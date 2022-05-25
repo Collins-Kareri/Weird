@@ -2,10 +2,10 @@ import dbInstance from "neo4j-driver";
 import crypto from "crypto";
 import config from "./config.js";
 
-const helpers={};
+const HELPERS={};
 export const requestDelivered=new Map();
 
-helpers.runDbQuery=async function(query,data){
+HELPERS.runDbQuery=async function(query,data){
     /**
     * CONNECTION INSTANCE TO NEO4J
     */
@@ -50,16 +50,16 @@ helpers.runDbQuery=async function(query,data){
  * @param {*} userName 
  * @returns A DATABASE RECORD IF USER EXISTS
  */
-helpers.lookUpUser=async function (userName)
+HELPERS.lookUpUser=async function (userName)
 {
     const QUERY=`match(u:User {userName:$data})
     return u.userName as userName`,
-        QUERYRESULT=await helpers.runDbQuery(QUERY,userName);
+        QUERYRESULT=await HELPERS.runDbQuery(QUERY,userName);
 
     return QUERYRESULT;
 };
 
-helpers.hash=function(str){
+HELPERS.hash=function(str){
     if(typeof str == "string" && str.length>0){
         str=crypto.createHmac("sha256",config.hashSecret)
             .update(str)
@@ -70,7 +70,7 @@ helpers.hash=function(str){
     }
 };
 
-helpers.checkIfReqIsDuplicate=function(reqIdentifier){
+HELPERS.checkIfReqIsDuplicate=function(reqIdentifier){
     if(requestDelivered.has(reqIdentifier)){
         let status=requestDelivered.get(reqIdentifier).status;
         return {receiveStatus:"received",executeStatus:status};
@@ -81,8 +81,8 @@ helpers.checkIfReqIsDuplicate=function(reqIdentifier){
 };
 
 //crud functionality for images stored in cloudinary
-helpers.signRequest=async function(){
+HELPERS.signRequest=async function(){
     //upload the files to cloudinary one by one
 };
 
-export default helpers;
+export default HELPERS;

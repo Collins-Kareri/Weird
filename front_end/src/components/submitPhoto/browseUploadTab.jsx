@@ -51,7 +51,7 @@ function BrowseUpload({images,setImages,setProgress,isLoading, setDoneStatus}) {
             {
                 file:image.url,
                 identifier:image.name,
-                numberOfImages:images.length,
+                noOfValuesToUpload:images.length,
                 signatureObj:SIGNATUREOBJ,
                 setProgress,
                 isLoading,

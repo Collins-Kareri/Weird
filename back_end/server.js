@@ -2,15 +2,13 @@
 
 import http from "http";
 import routeMap from "./lib/routes.js";
-import handlers from "./lib/handlers.js";
+import HANDLERS from "./lib/handlers.js";
 import { StringDecoder } from "string_decoder";
-import helpers from "./lib/helpers.js";
+import helpers,{requestDelivered} from "./lib/helpers.js";
+const PORT=3001||process.env.port;
+const SERVER=http.createServer();
 
-const Port=3001||process.env.port;
-
-const server=http.createServer();
-
-server.on("request",(req,res)=>{
+SERVER.on("request",(req,res)=>{
     
     const decoder=new StringDecoder("utf-8"),
         parsedUrl=new URL(req.url,`http://${req.headers.host}`),
@@ -18,8 +16,6 @@ server.on("request",(req,res)=>{
         path=parsedUrl.pathname,
         reqIdentifier=req.headers["req-name".toLowerCase()],
         reqReceivedStatus=helpers.checkIfReqIsDuplicate(reqIdentifier);
-
-    console.log(reqIdentifier);
     let payLoad="";
 
     res.setHeader("Access-Control-Allow-Origin","http://localhost:8080");
@@ -35,8 +31,8 @@ server.on("request",(req,res)=>{
         req.on("end",()=>{
             //finish assembling the payload from the request
             payLoad+=decoder.end();
-    
-            const choosenRouteHandler=Object.keys(routeMap).includes(path)?routeMap[path]:handlers.notFound,
+            
+            const choosenRouteHandler=Object.keys(routeMap).includes(path)?routeMap[path]:HANDLERS.notFound,
                 reqData={
                     method,
                     reqIdentifier,
@@ -55,9 +51,7 @@ server.on("request",(req,res)=>{
                 res.writeHead(statusCode);
                 res.write(resData);
                 res.end();
-    
-                //the response shown
-                // console.log(`StatusCode is: ${statusCode} with responseData: ${resData}`);
+                requestDelivered.delete(reqIdentifier);
             });
         });
     };
@@ -70,6 +64,6 @@ server.on("request",(req,res)=>{
     };
 });
 
-server.listen(Port,()=>{
-    console.log(`Server listening on http://localhost:${Port}`);
+SERVER.listen(PORT,()=>{
+    console.log(`Server listening on http://localhost:${PORT}`);
 });

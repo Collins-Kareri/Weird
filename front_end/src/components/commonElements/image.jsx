@@ -1,8 +1,8 @@
 import Button from "./button";
 
-function Image({public_url,name,containerType,action,description}) {
+function Image({public_url,containerType,action,description}) {
     return (
-        <div key={name} class="photoContainer">
+        <div className="photoContainer">
             {containerType==="profile"?<Button btnClassName={"tertiary"} btnClick={action} btnDisplayText="edit"/>:<></>}
             {containerType==="display"?"user profile pic(not clickable) + user_name(clickable)":<></>}
             {/*Pop up for the edit functionality*/}

@@ -1,10 +1,12 @@
-import handlers from "./handlers.js"
+import HANDLERS from "./handlers.js"
 
 const routeMap={
-    "/createAccount":handlers.createAccount,
-    "/createSession":handlers.createSession,
-    "/generateSignature":handlers.generateSignature,
-    "/storeImageRef":handlers.storeImageRef,
+    "/createAccount":HANDLERS.createAccount,
+    "/createSession":HANDLERS.createSession,
+    "/generateSignature":HANDLERS.generateSignature,
+    "/storeImageRef":HANDLERS.storeImageRef,
+    "/retrieveImages":HANDLERS.retrieveImages,
+    "/retrieveCollection":HANDLERS.retrieveCollection,
     "/favicon.ico":""
 };
 

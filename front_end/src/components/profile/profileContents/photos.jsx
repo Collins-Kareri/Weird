@@ -13,7 +13,7 @@ function PhotosContainer({imagesArr}) {
                 return <Image 
                         action={openEditPopUp} 
                         public_url={public_url} 
-                        name={name} 
+                        key={name} 
                         containerType="profile"
                         description={description?description:""}/>
             }):<NoContent displayMsg="Haven't uploaded any images yet"/>}

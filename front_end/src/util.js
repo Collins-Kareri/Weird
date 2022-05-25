@@ -22,8 +22,8 @@ function validateFormat(fileName){
     return /\.(jpeg|jpg|png|gif)$/g.test(fileName);
 }
 
-function isCloudinaryOp(url){
-    return /\b\.cloudiary\.\b/g.test(url);
+function isCloudinaryUploadOp(url){
+    return /\b\.cloudinary\.\b/g.test(url);
 }
 
 export async function handleInputData(files){
@@ -83,8 +83,8 @@ function handleProgress(evt,identifier,numberOfImages,setProgress,isLoading){
     }
 }
 
-function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults,RES_ARR){
-    if(isCloudinaryOp(url)){
+function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults){
+    if(isCloudinaryUploadOp(url)){
         let public_id=JSON.parse(UPLOAD_RES).public_id;
         let userName=JSON.parse(localStorage.getItem("userData")).userName;
         RES_ARR.push({
@@ -101,41 +101,54 @@ function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults,RES_ARR){
     return UPLOAD_RES;
 }
 
-export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setProgress,isLoading,setResults){
+/**
+ * 
+ * @param {string} url the url to make request to.
+ * @param {string} method  the method of the request
+ * @param {object} options  contains data to send, isLoading function, setProgress function & number of items to upload
+ * @returns a promise.
+ */
+export async function makeReq(url,method,options){
     return new Promise((succeed,fail)=>{
 
-        isLoading("yes");
+        options.isLoading("yes");
+        const IDENTIFIER=options.identifier?options.identifier:`${url.replace("\\","")}_req`;
         const XHR=new XMLHttpRequest();
 
         XHR.open(method,url,true);
 
-        if(isCloudinaryOp(url)==="false")
+        if(!( isCloudinaryUploadOp(url) ))
         {
-            XHR.setRequestHeader("Req-Name",identifier);
+            XHR.setRequestHeader("Req-Name",IDENTIFIER);
             XHR.setRequestHeader("Content-Type","application/json");
         }
 
         XHR.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
         XHR.upload.onprogress=(evt)=>{
-            handleProgress(evt,identifier,noOfValuesToUpload,setProgress,isLoading);
+            if(options.setProgress)
+            {
+                handleProgress(evt,IDENTIFIER,options.noOfValuesToUpload,options.setProgress,options.isLoading);
+            }
         }
 
         XHR.onerror=()=>{
-            isLoading("no")
-            alert(`Error occured making the ${identifier} request`);
+            options.isLoading("no")
+            alert(`Error occured making the ${IDENTIFIER} request`);
+            fail("error occurred while making request");
         }
 
         XHR.onabort=()=>{
-            isLoading("no")
+            options.isLoading("no")
             alert("request was aborted");
+            fail("the request was aborted")
         }
 
         XHR.onload=()=>{
             if(XHR.status>=500)
             {
                 alert("Couldn't proceed with the request due to an internal server error.")
-                isLoading("no");
+                options.isLoading("no");
                 fail("Server error");
             }
 
@@ -143,25 +156,24 @@ export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setP
 
             if(XHR.readyState===XMLHttpRequest.DONE)
             {
-                handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults,RES_ARR);
-
+                handleLoad(url,UPLOAD_RES,options.noOfValuesToUpload,options.setResults);
                 succeed(UPLOAD_RES);
             }
         }
 
-        if(data.toString().length>0)
+        if(options.data&&Object.keys(options.data).length>0)
         {
             
-            var sendData=JSON.stringify(data);
+            var sendData=JSON.stringify(options.data);
 
-            if(isCloudinaryOp(url))
+            if(isCloudinaryUploadOp(url))
             {
                 //as cloudinary only accepts form data uploads
                 sendData=new FormData();
-                sendData.append("file",data.file);
-                sendData.append("api_key",data.api_key);
-                sendData.append("timestamp",data.timestamp);
-                sendData.append("signature",data.signature);
+                sendData.append("file",options.data.file);
+                sendData.append("api_key",options.data.api_key);
+                sendData.append("timestamp",options.data.timestamp);
+                sendData.append("signature",options.data.signature);
                 sendData.append("upload_preset","weird");
                 sendData.append("detection","lvis_v1");
             }
@@ -174,14 +186,15 @@ export async function makeReq(url,method,data,identifier,noOfValuesToUpload,setP
     });
 }
 
-export async function generateSignature(setProgress,isLoading){
-    let {data}=JSON.parse(await makeReq("/generateSignature","get","","gen_Sig",0,setProgress,isLoading).then(res=>res,err=>err))
+export async function generateSignature(isLoading){
+    let options={isLoading}
+    let {data}=JSON.parse(await makeReq("/generateSignature","get",options));
     return data;
 }
 
-export async function sendToCloudinary(data){
-    const {file,identifier,numberOfImages,signatureObj,setProgress,isLoading,setResults}=data;
-
+export function sendToCloudinary(options){
+    const {file,signatureObj,...newOptions}=options;
+    //"https://api.cloudinary.com/v1_1/karerisspace/image/upload"
     const UPLOAD_DATA={},
         CLOUDINARY_URL="https://api.cloudinary.com/v1_1/karerisspace/image/upload";
 
@@ -190,32 +203,28 @@ export async function sendToCloudinary(data){
     UPLOAD_DATA.signature=signatureObj.signature;
     UPLOAD_DATA.file=file;
 
-    // UPLOAD_DATA.append("file",file);
-    // UPLOAD_DATA.append("timestamp",signatureObj.timestamp);
-    // UPLOAD_DATA.append("api_key",signatureObj.api_key);
-    // UPLOAD_DATA.append("signature",signatureObj.signature);
-    // UPLOAD_DATA.append("upload_preset","weird");
-    // UPLOAD_DATA.append("detection","lvis_v1");
+    newOptions.data=UPLOAD_DATA;
 
-    makeReq(CLOUDINARY_URL,"post",UPLOAD_DATA,identifier,numberOfImages,setProgress,isLoading,setResults);
-    // const RESULTS=await makeReq("/storeImageRef","post",UPLOAD_DATA,identifier,numberOfImages,setProgress,isLoading);
-    // return setResults(currentResults.concat(RESULTS));
+    makeReq(CLOUDINARY_URL,"post",newOptions);
 }
 
 export function storeInDb(data,setProgress,isLoading,setDoneStatus,setResults){
 
-    const URL="/storeImageRef"
+    const URL="/storeImageRef";
+    const OPTIONS={data,setProgress,isLoading,identifier:`${URL}_${data[0].public_id}`,setResults};
+    console.log(OPTIONS);
 
-    makeReq(URL,"post",data,"storeImgRefs",`${URL}_${data[0].public_id}`,1,setProgress,isLoading)
+    makeReq(URL,"post",OPTIONS)
     .then((data)=>{
         let res=JSON.parse(data);
-
+        isLoading("no");
         if(res.msg==="saved")
         {
             setResults([res.msg]);
             setDoneStatus("yes");
         }
     },(err)=>{
+        isLoading("no");
         setResults(err);
         setDoneStatus("no");
         RES_ARR.splice(0,RES_ARR.length);
