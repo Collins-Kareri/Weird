@@ -136,16 +136,18 @@ input,
 textarea {
     position: relative;
     width: 100%;
-    padding: 10px;
+    padding: 15px;
     border-radius: 4px;
-    border: 2px ridge var(--backGroundReducedOpacity);
+    border: 2px ridge var(--color);
     border-top: 0;
     border-bottom: 0;
     background-color: var(--backGround);
     box-shadow: 1px 1px 2px 1px var(--backGround);
     outline: none;
     color: var(--color);
-    font: bold 15px Quicksand, sans-serif;
+    font-family: Quicksand,sans-serif;
+    font-weight: bold;
+    font-size: 110%;
 }
 
 input:hover,
@@ -156,9 +158,9 @@ input:valid{
 .inputContainer>label {
     position:relative;
     padding: 0px 10px;
-    color: var(--color);
+    color: var(--hoverColor);
     text-transform: capitalize;
-    font-weight: 500;
+    font-weight: bolder;
 }
 
 input[type="file"] {
@@ -717,11 +719,11 @@ input[type="file"] {
     content: '';
     width: 100%;
     height: 3px;
-    background: var(--backGround);
+    background: var(--hoverColor);
     transition: all 0.52s cubic-bezier(0.755, 0.05, 0.855, 0.06);
 }
 
-/*profile edit styling*/
+/*edit profile details styling*/
 
 #profileEditContent {
     width: 95%;
@@ -749,6 +751,18 @@ input[type="file"] {
 
 #profilePicEdit>section>#editProfilePic {
     margin: 15px 0;
+}
+
+#backProfile{
+    margin-bottom: 15px;
+    font-size: 120%;
+}
+
+/*profile content styling*/
+
+#profileContentContainer{
+    width:95%;
+    margin:0 auto;
 }
 
 /*

@@ -6,8 +6,7 @@ import HomeContents from "./components/home/homeContents";
 import CollectionContainer from "./components/collection/collectionContainer";
 import Account from "./components/account/account";
 import SubmitPageContent from "./components/submitPhoto/submitPageContent";
-import ProfileHome from "./components/profile/profileHome";
-import ProfileEdit from "./components/profile/profileEdit";
+import Profile from "./components/profile/profile";
 import Image from "./components/imagesDisplay/image";
 import Loading from "./components/commonElements/loading";
 import { useEffect, useState } from "react";
@@ -38,11 +37,10 @@ function App() {
                 log in or register form is redirected to profile page
                */}
               <Route path="/account" exact element={loggedIn==="yes"
-                ?<ProfileHome/>
+                ?<Profile/>
                 :<Account isLoading={isLoading}/>}/>
               <Route path="/submit" exact element={<SubmitPageContent isLoading={isLoading}/>}/>
-              <Route path="/profile" exact element={<ProfileHome/>}/>
-              <Route path="/profileEdit" exact element={<ProfileEdit/>}/>
+              <Route path="/profile" exact element={<Profile/>}/>
               <Route path="/images" exact element={<Image/>}/>
             </Routes>
         </main>

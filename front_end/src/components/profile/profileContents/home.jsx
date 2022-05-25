@@ -1,10 +1,9 @@
-import UserDetails from "../commonElements/usrDetails";
-import Tab from "../commonElements/tab";
-import NoContent from "../commonElements/noContent";
-import LoggedInCheck from "../hoc/loggedInRoutes";
+import UserDetails from "../../commonElements/usrDetails";
+import Tab from "../../commonElements/tab";
+import NoContent from "../../commonElements/noContent";
 import { useState,useEffect } from "react";
 
-function ProfileHome() {
+function ProfileHome({toggleEdit}) {
 
     const [userData,setuserData]=useState({userName:"not defined",email:"not defined"});
 
@@ -36,11 +35,13 @@ function ProfileHome() {
 
     return ( 
         <>
-            <UserDetails userName={userData.userName} userEmail={userData.email} profileImgUrl={false} explore={false}/>
+            <UserDetails userName={userData.userName} userEmail={userData.email} profileImgUrl={false} explore={false} toggleEdit={toggleEdit}/>
             <Tab handleClick={handleClick} active={active}/>
-            <NoContent displayMsg={active==="photos"?"Haven't uploaded any images yet":"Haven't created a collection yet"}/>
+            <div id="profileContentContainer">
+                <NoContent displayMsg={active==="photos"?"Haven't uploaded any images yet":"Haven't created a collection yet"}/>
+            </div>
         </>
     );
 };
 
-export default LoggedInCheck(ProfileHome);
+export default ProfileHome;

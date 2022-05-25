@@ -1,16 +1,11 @@
 import Button from "../commonElements/button";
 import {useNavigate} from "react-router-dom";
 
-function UserDetails({userName,userEmail,explore,profileImgUrl}) {
+function UserDetails({userName,userEmail,explore,profileImgUrl,toggleEdit}) {
 
     const redirect=useNavigate();
 
     function handleFollowBtnClick(){};
-
-    function handleEditBtnClick(evt){
-        evt.preventDefault();
-        redirect("/profileEdit",{replace:true});
-    };
 
     return (
         <>
@@ -23,7 +18,7 @@ function UserDetails({userName,userEmail,explore,profileImgUrl}) {
                     <span className="usrName">{userName}</span>
                     <span className="usrEmail">{userEmail}</span>
                 </section>
-                <Button btnClassName={"usrProfileName secondary"} btnDisplayText={explore?"follow":"edit profile"} btnClick={explore?handleFollowBtnClick:handleEditBtnClick}/>
+                <Button btnClassName={"usrProfileName secondary"} btnDisplayText={explore?"follow":"edit profile"} btnClick={explore?handleFollowBtnClick:toggleEdit}/>
             </div>
         </> 
      );
