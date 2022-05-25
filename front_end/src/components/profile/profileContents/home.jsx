@@ -40,7 +40,11 @@ function ProfileHome({toggleEdit}) {
             <UserDetails userName={userData.userName} userEmail={userData.email} profileImgUrl={false} explore={false} toggleEdit={toggleEdit}/>
             <Tab handleClick={handleClick} active={active}/>
             <div id="profileContentContainer">
+<<<<<<< HEAD
                 {active==="photos"?<PhotosContainer imagesArr={imagesArr}/>:<CollectionsContainer collectionsArr={collectionsArr}/>}
+=======
+                <NoContent displayMsg={active==="photos"?"Haven't uploaded any images yet":"Haven't created a collection yet"}/>
+>>>>>>> acab77164017f8f7ca42f91635a71bfa05f8bc17
             </div>
         </>
     );
