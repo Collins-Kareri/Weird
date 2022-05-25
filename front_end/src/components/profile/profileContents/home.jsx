@@ -2,6 +2,7 @@ import UserDetails from "../../commonElements/usrDetails";
 import Tab from "../../commonElements/tab";
 import PhotosContainer from "./photos";
 import CollectionsContainer from "./collections";
+import {makeReq} from "../../../util"
 import { useState,useEffect } from "react";
 
 function ProfileHome({toggleEdit}) {
@@ -10,15 +11,14 @@ function ProfileHome({toggleEdit}) {
         [active,setActive]=useState("photos"),
         [imagesArr,setImagesArr]=useState([]),
         [collectionsArr,setCollectionsArr]=useState([]);
-    
-    console.log(imagesArr);
+
 
     useEffect(()=>{
      return async ()=>{
                 let data=JSON.parse(window.localStorage.getItem("userData"));
                 if(data){
                     setuserData(data);
-                    let imgs=await (await fetchPhotos(data.userName)).json();
+                    let imgs=await fetchPhotos(data.userName);
                     setImagesArr(imgs.data);
                 }
         }
@@ -27,15 +27,9 @@ function ProfileHome({toggleEdit}) {
     async function fetchPhotos(userName){
         //fetch images this user has uploaded
         //the objects in the image arr will contain public_url,name & description;
-        return await fetch("/retrieveImages",{
-            headers:{
-                "Req-Name":`user_imgs_${userName}`,
-                "Content-Type":"application/json"
-            },
-            method:"post",
-            body:JSON.stringify({userName})
-        });
-    };
+        const RESULTS=await makeReq("/retrieveImages","post",{data:{userName}});
+        return JSON.parse(RESULTS);
+    }
 
     async function fetchCollections(userName){
         //fetches the collections associated with this user

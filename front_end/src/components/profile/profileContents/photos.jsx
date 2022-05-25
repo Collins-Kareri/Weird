@@ -9,7 +9,7 @@ function PhotosContainer({imagesArr}) {
     //we display the images if a available if not display a msg
     return (
         <>
-            {imagesArr.length>0?imagesArr.map(({public_url,name,description})=>{
+            {Array.isArray(imagesArr)&&imagesArr.length>0?imagesArr.map(({public_url,name,description})=>{
                 return <Image 
                         action={openEditPopUp} 
                         public_url={public_url} 

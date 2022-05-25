@@ -111,7 +111,11 @@ function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults){
 export async function makeReq(url,method,options){
     return new Promise((succeed,fail)=>{
 
-        options.isLoading("yes");
+        if(options.isLoading)
+        {
+            options.isLoading("yes")
+        }
+        
         const IDENTIFIER=options.identifier?options.identifier:`${url.replace("\\","")}_req`;
         const XHR=new XMLHttpRequest();
 
