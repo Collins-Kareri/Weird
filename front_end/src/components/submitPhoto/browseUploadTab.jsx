@@ -1,23 +1,21 @@
 import { useEffect, useRef,useState} from "react";
 import {handleInputData,sendToCloudinary,generateSignature,storeInDb} from "../../util"
 
-function BrowseUpload({images,setImages,setProgress,isLoading, setDoneStatus}) {
+function BrowseUpload({images,setImages,setProgress}) {
     const fileBrowse=useRef(null),
         [results,setResults]=useState([]);
 
     useEffect(()=>{
         if(images.length>0&&results.length===images.length&&results[0]!=="saved"){
-            storeInDb(results,setProgress,isLoading,setDoneStatus,setResults);
+            storeInDb(results,setProgress,setResults);
         }
     },[results])
 
     async function onChange(evt){
-        isLoading("yes");
         const FILES=evt.target.files,
             IMAGES=await handleInputData(FILES);
             
         setImages(IMAGES);
-        isLoading("no");
         return;
     }
 
@@ -36,11 +34,11 @@ function BrowseUpload({images,setImages,setProgress,isLoading, setDoneStatus}) {
 
         if(images.length>0&&results.length===images.length&&results[0]!=="saved")
         {
-            storeInDb(results,setProgress,isLoading,setDoneStatus,setResults);
+            storeInDb(results,setProgress,setResults);
             return;
         }
 
-        const SIGNATUREOBJ=await generateSignature(setProgress,isLoading);
+        const SIGNATUREOBJ=await generateSignature();
 
         for(let image of images)
         {
@@ -54,7 +52,6 @@ function BrowseUpload({images,setImages,setProgress,isLoading, setDoneStatus}) {
                 noOfValuesToUpload:images.length,
                 signatureObj:SIGNATUREOBJ,
                 setProgress,
-                isLoading,
                 setResults
             }
             sendToCloudinary(REQ_DATA)

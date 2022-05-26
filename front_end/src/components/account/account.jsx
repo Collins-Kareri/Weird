@@ -2,22 +2,21 @@ import { useState} from "react";
 import { useNavigate} from "react-router-dom";
 import Register from "./register";
 import Login from "./login";
-import {saveToLocalStorage} from "../../util.js"
+import {saveToClientStorage} from "../../util.js"
 
-function Account({isLoading}) {
+function Account() {
     const redirect=useNavigate(),
         [registerUiActiveStatus,setRegisterUiActiveStatus]=useState(true);
 
     function handleResults(parsedRes)
     {
-        isLoading("no");
         let msg=parsedRes.msg;
         if(msg === "Log in successful" || msg === "Account created successfully")
         {
            
             const USERDATA=parsedRes.userData;
 
-            saveToLocalStorage([{key:"userData",value:JSON.stringify(USERDATA)},
+            saveToClientStorage("localStorage",[{key:"userData",value:JSON.stringify(USERDATA)},
             {key:"loggedIn",value:"yes"}]);
 
             //redirect to profile page on successful log in or register
@@ -44,8 +43,6 @@ function Account({isLoading}) {
     async function handleFormSubmit(evt)
     {
         evt.preventDefault();
-
-        isLoading("yes");
 
         const data={},
             form=evt.target,

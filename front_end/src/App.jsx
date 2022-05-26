@@ -8,23 +8,25 @@ import Account from "./components/account/account";
 import SubmitPageContent from "./components/submitPhoto/submitPageContent";
 import Profile from "./components/profile/profile";
 import Image from "./components/imagesDisplay/image";
-import Loading from "./components/commonElements/loading";
+import PageState from "./components/commonElements/pageStates/pageState";
 import { useEffect, useState } from "react";
+import {saveToClientStorage} from "./util";
 
 function App() {
-
-  const [loading,isLoading]=useState("no");
+  
   const [loggedIn,setLoggedIn]=useState(localStorage.getItem("loggedIn")?localStorage.getItem("loggedIn"):"no");
+  const [currentProgress,setCurrentProgress]=useState(0);
 
   useEffect(()=>{
     window.addEventListener("storage",()=>{
       setLoggedIn(localStorage.getItem("loggedIn"));
     });
+    saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}])
   },[loggedIn]);
   
   return (
       <BrowserRouter>
-        <Loading loading={loading}/>
+        <PageState currentProgress={currentProgress}/>
         <Header/>  
         <MenuContents loggedIn={loggedIn}/>
         <Separator/>
@@ -36,10 +38,8 @@ function App() {
                 check if the user if logged in if so a request for the
                 log in or register form is redirected to profile page
                */}
-              <Route path="/account" exact element={loggedIn==="yes"
-                ?<Profile/>
-                :<Account isLoading={isLoading}/>}/>
-              <Route path="/submit" exact element={<SubmitPageContent isLoading={isLoading}/>}/>
+              <Route path="/account" exact element={loggedIn==="yes"?<Profile/>:<Account/>}/>
+              <Route path="/submit" exact element={<SubmitPageContent setCurrentProgress={setCurrentProgress}/>}/>
               <Route path="/profile" exact element={<Profile/>}/>
               <Route path="/images" exact element={<Image/>}/>
             </Routes>

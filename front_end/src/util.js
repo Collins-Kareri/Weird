@@ -236,12 +236,13 @@ export function storeInDb(data,setProgress,isLoading,setDoneStatus,setResults){
 }
 
 /**
- * Take an array of objects to store in the localStorage
- * @param {*} data 
+ * Take the storage type ie. sessionStorage/localStorage and an array of objects with a key and a value to store.
+ * @param {*} storageType STRING
+ * @param {*} data ARRAY
  */
-export function saveToLocalStorage (data){
+export function saveToClientStorage(storageType,data){    
     for(let item of data){
-        window.localStorage.setItem(item.key,item.value);
+        window[storageType].setItem(item.key,item.value);
         window.dispatchEvent(new Event("storage"));
     };
 }

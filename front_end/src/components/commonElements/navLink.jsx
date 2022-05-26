@@ -1,6 +1,6 @@
 import {Link,useNavigate} from "react-router-dom";
 import Button from "./button";
-import {saveToLocalStorage} from "../../util.js"
+import {saveToClientStorage} from "../../util.js"
 
 function NavLink({url,linkId,linkName,clickHandler}) {
 
@@ -9,7 +9,7 @@ function NavLink({url,linkId,linkName,clickHandler}) {
     function handleLogout(evt){
         evt.preventDefault();   
         let loggedOutUserData={userName:"",email:""};
-        saveToLocalStorage([{key:"userData",value:JSON.stringify(loggedOutUserData)},
+        saveToClientStorage("localStorage",[{key:"userData",value:JSON.stringify(loggedOutUserData)},
             {key:"loggedIn",value:"no"}]);
         redirect("/",{replace:true});
     };
