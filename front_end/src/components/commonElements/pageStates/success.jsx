@@ -4,7 +4,7 @@ function Success({handleClick}) {
     return ( 
         <>
             <div className="pageStateContent" id="successMsgContainer">
-                <span id="successMsg">Thank you for uploading. We will redirect to your profile where you will confirm the tags where generated for you.</span>
+                <span id="successMsg">Thank you for uploading.<br/> We will redirect to your profile where you will confirm that the correct tags where generated for you.</span>
                 <Button btnClassName={"primary"} btnClick={handleClick} btnDisplayText="ok"/>
             </div>
 

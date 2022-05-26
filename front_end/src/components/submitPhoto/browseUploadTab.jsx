@@ -1,13 +1,14 @@
 import { useEffect, useRef,useState} from "react";
 import {handleInputData,sendToCloudinary,generateSignature,storeInDb} from "../../util"
 
-function BrowseUpload({images,setImages,setProgress}) {
+function BrowseUpload({images,setImages,setCurrentProgress}) {
     const fileBrowse=useRef(null),
         [results,setResults]=useState([]);
 
     useEffect(()=>{
-        if(images.length>0&&results.length===images.length&&results[0]!=="saved"){
-            storeInDb(results,setProgress,setResults);
+        if( images.length>0 && results.length===images.length && results[0]!=="saved" )
+        {
+            storeInDb(results,setCurrentProgress,setResults);
         }
     },[results])
 
@@ -34,7 +35,7 @@ function BrowseUpload({images,setImages,setProgress}) {
 
         if(images.length>0&&results.length===images.length&&results[0]!=="saved")
         {
-            storeInDb(results,setProgress,setResults);
+            storeInDb(results,setCurrentProgress,setResults);
             return;
         }
 
@@ -51,7 +52,7 @@ function BrowseUpload({images,setImages,setProgress}) {
                 identifier:image.name,
                 noOfValuesToUpload:images.length,
                 signatureObj:SIGNATUREOBJ,
-                setProgress,
+                setProgress: setCurrentProgress,
                 setResults
             }
             sendToCloudinary(REQ_DATA)

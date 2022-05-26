@@ -2,7 +2,7 @@ import { useState} from "react";
 import { useNavigate} from "react-router-dom";
 import Register from "./register";
 import Login from "./login";
-import {saveToClientStorage} from "../../util.js"
+import {saveToClientStorage,makeReq} from "../../util.js"
 
 function Account() {
     const redirect=useNavigate(),
@@ -58,17 +58,8 @@ function Account() {
         };
 
         try{
-            const response= await fetch(route,
-            {
-                method:method,
-                body:JSON.stringify(data),
-                headers:
-                {
-                    "Content-Type":"application/json",
-                    "Req-Name":`${route}_${data.userName}`
-                }
-            }),
-                parsedRes=await response.json();
+            const response= await makeReq(route,method,{data,identifier:`${route}_${data.userName}`}),
+                parsedRes=JSON.parse(response);
 
                 handleResults(parsedRes);
         }catch(err){

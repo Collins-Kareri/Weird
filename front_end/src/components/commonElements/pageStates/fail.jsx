@@ -5,7 +5,7 @@ function Fail({handleClick}) {
     return ( 
         <>
             <div className="pageStateContent" id="failMsgContainer">
-                <span id="failMsg">Couldn't perform your action.Please try again.</span>
+                <span id="failMsg">Couldn't perform action.Please try again.</span>
                 <Button btnClassName={"primary"} btnClick={handleClick} btnDisplayText="ok"/>
             </div>
 

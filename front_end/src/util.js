@@ -49,7 +49,7 @@ export async function handleInputData(files){
         return IMAGES;
 }
 
-function handleProgress(evt,identifier,numberOfImages,setProgress,isLoading){
+function handleProgress(evt,identifier,numberOfImages,setProgress){
     const ISPRESENT=currentProgress.findIndex(({imgId})=>{
         return imgId===identifier;
     });
@@ -78,7 +78,7 @@ function handleProgress(evt,identifier,numberOfImages,setProgress,isLoading){
 
     if(currentProgress.length===numberOfImages)
     {
-        isLoading("no");
+        saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"progress"}]);
         setProgress(Math.min.apply(null,CURRENT_PROGRESS_ARR));
     }
 }
@@ -95,29 +95,30 @@ function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults){
         if(RES_ARR.length===noOfValuesToUpload)
         {
             setResults(RES_ARR);
+            saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}])
         }
         return;
     }
+    saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}]);
     return UPLOAD_RES;
 }
 
 /**
  * 
- * @param {string} url the url to make request to.
- * @param {string} method  the method of the request
- * @param {object} options  contains data to send, isLoading function, setProgress function & number of items to upload
+ * @param {STRING} url the url to make request to.
+ * @param {STRING} method  the method of the request
+ * @param {OBJECT} options  contains data to send, setProgress function & number of items to upload
  * @returns a promise.
  */
-export async function makeReq(url,method,options){
+export async function makeReq(url,method,options={}){
     return new Promise((succeed,fail)=>{
-
-        if(options.isLoading)
-        {
-            options.isLoading("yes")
-        }
         
+        saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"loading"}]);
+
         const IDENTIFIER=options.identifier?options.identifier:`${url.replace("\\","")}_req`;
         const XHR=new XMLHttpRequest();
+
+        console.log(IDENTIFIER);
 
         XHR.open(method,url,true);
 
@@ -130,20 +131,17 @@ export async function makeReq(url,method,options){
         XHR.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
         XHR.upload.onprogress=(evt)=>{
-            if(options.setProgress)
-            {
-                handleProgress(evt,IDENTIFIER,options.noOfValuesToUpload,options.setProgress,options.isLoading);
-            }
+            handleProgress(evt,IDENTIFIER,options.noOfValuesToUpload,options.setProgress);
         }
 
         XHR.onerror=()=>{
-            options.isLoading("no")
-            alert(`Error occured making the ${IDENTIFIER} request`);
+            saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
+            // alert(`Error occured making the ${IDENTIFIER} request`);
             fail("error occurred while making request");
         }
 
         XHR.onabort=()=>{
-            options.isLoading("no")
+            saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
             alert("request was aborted");
             fail("the request was aborted")
         }
@@ -151,8 +149,8 @@ export async function makeReq(url,method,options){
         XHR.onload=()=>{
             if(XHR.status>=500)
             {
-                alert("Couldn't proceed with the request due to an internal server error.")
-                options.isLoading("no");
+                // alert("Couldn't proceed with the request due to an internal server error.")
+                saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
                 fail("Server error");
             }
 
@@ -190,10 +188,16 @@ export async function makeReq(url,method,options){
     });
 }
 
-export async function generateSignature(isLoading){
-    let options={isLoading}
-    let {data}=JSON.parse(await makeReq("/generateSignature","get",options));
-    return data;
+export async function generateSignature(){
+    let response;
+    try {
+        response=JSON.parse(await makeReq("/generateSignature","get"));
+    } catch (error) {
+        saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
+        console.error(error);
+    }finally{
+        return response.data;
+    }
 }
 
 export function sendToCloudinary(options){
@@ -209,28 +213,30 @@ export function sendToCloudinary(options){
 
     newOptions.data=UPLOAD_DATA;
 
-    makeReq(CLOUDINARY_URL,"post",newOptions);
+    try {
+        makeReq(CLOUDINARY_URL,"post",newOptions);
+    } catch (error) {
+        saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
+        console.error("yap",error);  
+    }
 }
 
-export function storeInDb(data,setProgress,isLoading,setDoneStatus,setResults){
+export function storeInDb(data,setProgress,setResults){
 
     const URL="/storeImageRef";
-    const OPTIONS={data,setProgress,isLoading,identifier:`${URL}_${data[0].public_id}`,setResults};
+    const OPTIONS={data,setProgress,identifier:`${URL}_${data[0].public_id}`,setResults};
     console.log(OPTIONS);
 
     makeReq(URL,"post",OPTIONS)
     .then((data)=>{
         let res=JSON.parse(data);
-        isLoading("no");
         if(res.msg==="saved")
         {
+            saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"success"}]);
             setResults([res.msg]);
-            setDoneStatus("yes");
         }
     },(err)=>{
-        isLoading("no");
         setResults(err);
-        setDoneStatus("no");
         RES_ARR.splice(0,RES_ARR.length);
     });
 }

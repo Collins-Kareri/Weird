@@ -10,7 +10,6 @@ import Profile from "./components/profile/profile";
 import Image from "./components/imagesDisplay/image";
 import PageState from "./components/commonElements/pageStates/pageState";
 import { useEffect, useState } from "react";
-import {saveToClientStorage} from "./util";
 
 function App() {
   
@@ -21,7 +20,6 @@ function App() {
     window.addEventListener("storage",()=>{
       setLoggedIn(localStorage.getItem("loggedIn"));
     });
-    saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}])
   },[loggedIn]);
   
   return (

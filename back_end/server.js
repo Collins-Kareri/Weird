@@ -52,6 +52,7 @@ SERVER.on("request",(req,res)=>{
                 res.write(resData);
                 res.end();
                 requestDelivered.delete(reqIdentifier);
+                console.log(reqIdentifier);
             });
         });
     };
