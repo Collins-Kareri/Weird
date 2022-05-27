@@ -1,6 +1,32 @@
 import Button from "./button";
+import {AdvancedImage,lazyload,placeholder} from '@cloudinary/react';
+import {Cloudinary} from "@cloudinary/url-gen";
+import {fill} from "@cloudinary/url-gen/actions/resize";
+import MagicGrid from "magic-grid";
 
-function Image({public_url,containerType,action,description}) {
+function Image({public_id,noOfImgs,containerType,action,description}) {
+
+    const CLD = new Cloudinary({
+        cloud: {
+          cloudName: 'karerisspace'
+        }
+    });
+    
+    const MYIMAGE = CLD.image(public_id);
+
+    MYIMAGE.resize(fill().width(300)).format("auto").quality("auto");
+
+    function onLoad(){
+        let magicGrid = new MagicGrid({
+            container: "#profileContentContainer", // Required. Can be a class, id, or an HTMLElement.
+            items: noOfImgs,
+            gutter: 30
+        });
+
+        magicGrid.listen();
+        magicGrid.positionItems(); 
+    }
+
     return (
         <div className="photoContainer">
             {containerType==="profile"?<Button btnClassName={"tertiary"} btnClick={action} btnDisplayText="edit"/>:<></>}
@@ -8,7 +34,8 @@ function Image({public_url,containerType,action,description}) {
             {/*Pop up for the edit functionality*/}
             {/*container for action you can take i.e edit*/}
             {/*image display*/}
-            <img src={public_url} alt={description.length>0?description:"an image from weird site from username"}/>
+            <AdvancedImage onLoad={onLoad} cldImg={MYIMAGE} description={description?description:"some user image"}
+            plugins={[lazyload(), placeholder({mode:"predominant"})]}/>
             {containerType==="display"?"download, like and add to collection actions":<></>}
         </div>
     );
