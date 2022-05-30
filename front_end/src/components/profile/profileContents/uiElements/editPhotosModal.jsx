@@ -4,7 +4,7 @@ import Tab from "../../../commonElements/tab";
 import InputContainer from "../../../commonElements/inputContainer";
 import { useState } from "react";
 
-function EditPhotosModal({url,allImgs,modalstatus,setModalStatus}) {
+function EditPhotosModal({assetUrl,assetTags,modalstatus,setModalStatus}) {
 
 
     const TAB_ARR=[{outputName:"tags",active:true},{outputName:"description",active:false}],
@@ -29,16 +29,43 @@ function EditPhotosModal({url,allImgs,modalstatus,setModalStatus}) {
                     <Button btnClassName={"secondary"} btnDisplayText="save changes"/>
                     <Button btnClassName={"tertiary"} btnDisplayText="close" btnClick={close}/>
                 </section>
-                <div id="modal-imgContainer" style={{width:"300px",height:"300px",backgroundColor:"steelblue",margin:"0 auto"}}>
-                    <img src="" alt="to edit"/>
+                <div id="modal-imgContainer" style={{height:"300px",backgroundColor:"steelblue",margin:"0 auto"}}>
+                    <img src={assetUrl} alt="to edit"/>
+                </div>
+                <div id="next-previous-imgBtns">
+                    <Button btnClassName={"secondary"} btnDisplayText="previous" btnId={"previous"}/>
+                    <Button btnClassName={"secondary"} btnDisplayText="next" btnId={"next"}/>
                 </div>
                 <Tab tab_arr={TAB_ARR} setActive={setActive}/>
-                {active==="tags"?<InputContainer inputType={"text"} inputValue={"tags"} onChange={onChange}/>:<textarea placeholder={"enter a description"}></textarea>}
+                {active==="tags"?<InputContainer inputType={"text"} inputValue={assetTags} onChange={onChange}/>:<textarea placeholder={"enter a description"}></textarea>}
             </div>
 
             <style>
                 {
                     `
+                        #modal-imgContainer{
+                            display:flex;
+                            width:min(300px,80%);
+                            flex-direction: row;
+                            flex-wrap: wrap;
+                            align-content: center;
+                            justify-content: center;
+                        }
+
+                        #modal-imgContainer img{
+                            position:relative;
+                            width:80%;
+                            height:fit-content;
+                        }
+
+                        #next-previous-imgBtns{
+                            display:flex;
+                            width:100%;
+                            flex-direction: row;
+                            flex-wrap: wrap;
+                            justify-content: space-evenly;
+                            margin-top:15px;
+                        }
                         .editPhotosModal{
                             display:${modalstatus==="open"?"block":"none"};
                             opacity:${modalstatus==="open"?"1":"0"};
@@ -48,14 +75,15 @@ function EditPhotosModal({url,allImgs,modalstatus,setModalStatus}) {
                             display: block;
                             position: fixed;
                             z-index:7;
-                            width: 50%;
-                            top: 10%;
+                            width: 90%;
+                            top: 12%;
                             left:50%;
                             transform: translate(-50%,-10%);
                             font-family: Quicksand,sans-serif;
                             background-color:white;
-                            border:2px solid black;
+                            border:0.2px solid black;
                             padding:15px 30px;
+                            border-radius:8px;
                         }
 
                         #editImageActions{

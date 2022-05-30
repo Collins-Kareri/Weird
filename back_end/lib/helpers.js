@@ -1,6 +1,7 @@
 import dbInstance from "neo4j-driver";
 import crypto from "crypto";
 import config from "./config.js";
+import cloudinary from "./cloudinary.js";
 
 const HELPERS={};
 export const requestDelivered=new Map();
@@ -81,8 +82,20 @@ HELPERS.checkIfReqIsDuplicate=function(reqIdentifier){
 };
 
 //crud functionality for images stored in cloudinary
-HELPERS.signRequest=async function(){
-    //upload the files to cloudinary one by one
-};
+HELPERS.getTags=async function(public_id){
+    let results= await cloudinary.api.resource(public_id,{tags:true,resource_type:"image"});
+    return results.tags;
+}
+
+HELPERS.transformImage=async function(public_id){
+    //retrieve the url only
+    let results= cloudinary.image(public_id,{
+        transformation:[{width:512,crop:"scale"},
+        {radius:10},
+        {quality:"auto",fetch_format:"auto"}]
+    }).match(/(?<=').+(?=')/g).join();
+
+    return results;
+}
 
 export default HELPERS;

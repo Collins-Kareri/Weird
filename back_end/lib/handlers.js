@@ -43,7 +43,7 @@ HANDLERS.createAccount=async function (data,callback){
         {
             callback(500,{msg:`Error occured error:${error}`})
             return;  
-        };
+        }
     }
     else
     {
@@ -142,7 +142,9 @@ HANDLERS.retrieveImages=async function(data,callback){
             {
                 let name=image.get("name");
                 let public_id=image.get("public_id");
-                RESULTS.push({name,public_id});
+                const TAGS=await helpers.getTags(public_id).then(res=>{ return res},err=>err);
+                const TRANSFORMEDIMG=await helpers.transformImage(public_id)
+                RESULTS.push({name,public_id:TRANSFORMEDIMG,tags:TAGS});
             }
             
             callback(200,{msg:"retrieved",data:RESULTS});
