@@ -1,9 +1,9 @@
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import Progress from "./progress";
-import Loading from "./loading";
-import Success from "./success"
-import Fail from "./fail";
+import Progress from "./states/progress";
+import Loading from "./states/loading";
+import Success from "./states/success"
+import Fail from "./states/fail";
 import {saveToClientStorage} from "../../../util";
 
 function PageState({currentProgress}) {
@@ -28,7 +28,7 @@ function PageState({currentProgress}) {
 
     return (
         <>
-            <div className="pageStateContainer">
+            <div className="modalContainer statesContainer">
                 {pageState==="progress"?<Progress currentProgress={currentProgress}/>:<></>}
                 {pageState==="loading"?<Loading/>:<></>}
                 {pageState==="success"?<Success handleClick={()=>{redirectToProfile("success")}}/>:<></>}
@@ -37,35 +37,11 @@ function PageState({currentProgress}) {
             <style>
             {
                 `
-                    .pageStateContainer{
+                    .statesContainer{
                         display:${typeof pageState === "string" && pageState.length>0?"block":"none"};
-                        position:fixed;
-                        flex-wrap: wrap;
-                        flex-direction: row;
-                        justify-content: center;
-                        align-items: center;
-                        width: 100%;
-                        height: 100vh;
-                        top:0;
-                        left: 0;
-                        transition-duration: 1s;
-                        transition-property: all;
-                        transition-timing-function: ease-in-out;
-                        z-index: 6;  
                     }
                 
-                    .pageStateContainer::before{
-                        content: "";
-                        display: block;
-                        position: relative;
-                        width: 100%;
-                        height: 100%;
-                        background-color: var(--backGroundReducedOpacity);
-                        opacity: 0.9;
-                        filter: blur(2px);
-                    }
-                
-                    .pageStateContainer>.pageStateContent{
+                    .statesContainer>.pageStateContent{
                         display: block;
                         position: fixed;
                         z-index:7;

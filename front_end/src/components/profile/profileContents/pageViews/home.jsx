@@ -1,9 +1,10 @@
-import UserDetails from "../../commonElements/usrDetails";
-import Tab from "../../commonElements/tab";
-import PhotosContainer from "./photos";
-import CollectionsContainer from "./collections";
-import {makeReq} from "../../../util"
+import UserDetails from "../../../commonElements/usrDetails";
+import Tab from "../../../commonElements/tab";
+import PhotosContainer from ".././uiElements/photos";
+import CollectionsContainer from ".././uiElements/collections";
+import {makeReq} from "../../../../util"
 import { useState,useEffect } from "react";
+import EditPhotosModal from "../uiElements/editPhotosModal";
 
 function ProfileHome({toggleEdit}) {
 
@@ -14,7 +15,9 @@ function ProfileHome({toggleEdit}) {
         [active,setActive]=useState("photos"),
         [imagesArr,setImagesArr]=useState([]),
         [collectionsArr,setCollectionsArr]=useState([]),
-        [fetchStatus,setFetchStatus]=useState(null);
+        [fetchStatus,setFetchStatus]=useState(null),
+        [modalstatus,setModalStatus]=useState("close"),
+        TAB_ARR=[{outputName:"photos",active:true},{outputName:"collections",active:false}];
   
 
     useEffect(()=>{
@@ -46,26 +49,19 @@ function ProfileHome({toggleEdit}) {
         return JSON.parse(RESULTS);
     }
 
-    async function fetchCollections(userName){
-        //fetches the collections associated with this user
-    }
+    // async function fetchCollections(userName){
+    //     //fetches the collections associated with this user
+    // }
 
-    function handleClick(evt){
-        evt.preventDefault();
-        if(evt.target.id==="photosTab"){
-            setActive("photos");
-        }else if(evt.target.id==="collectionsTab"){
-            setActive("collections");
-        };
-    };
 
     return ( 
         <>
             <UserDetails userName={userData.userName} userEmail={userData.email} profileImgUrl={false} explore={false} toggleEdit={toggleEdit}/>
-            <Tab handleClick={handleClick} active={active}/>
+            <Tab tab_arr={TAB_ARR} setActive={setActive}/>
             <div id="profileContentContainer">
-                {active==="photos"?<PhotosContainer imagesArr={imagesArr}/>:<CollectionsContainer collectionsArr={collectionsArr}/>}
+                {active==="photos"?<PhotosContainer imagesArr={imagesArr} setModalStatus={setModalStatus}/>:<CollectionsContainer collectionsArr={collectionsArr}/>}
             </div>
+            <EditPhotosModal setModalStatus={setModalStatus} modalstatus={modalstatus}/>
         </>
     );
 };

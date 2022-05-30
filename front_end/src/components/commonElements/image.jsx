@@ -1,10 +1,10 @@
 import Button from "./button";
-import {AdvancedImage,lazyload,placeholder} from '@cloudinary/react';
+import {AdvancedImage,lazyload,placeholder, responsive} from '@cloudinary/react';
 import {Cloudinary} from "@cloudinary/url-gen";
-import {fill} from "@cloudinary/url-gen/actions/resize";
-import MagicGrid from "magic-grid";
+import {scale} from "@cloudinary/url-gen/actions/resize";
+import { byRadius } from "@cloudinary/url-gen/actions/roundCorners";
 
-function Image({public_id,noOfImgs,containerType,action,description}) {
+function Image({public_id,containerType,action,description}) {
 
     const CLD = new Cloudinary({
         cloud: {
@@ -14,28 +14,20 @@ function Image({public_id,noOfImgs,containerType,action,description}) {
     
     const MYIMAGE = CLD.image(public_id);
 
-    MYIMAGE.resize(fill().width(300)).format("auto").quality("auto");
-
-    function onLoad(){
-        let magicGrid = new MagicGrid({
-            container: "#profileContentContainer", // Required. Can be a class, id, or an HTMLElement.
-            items: noOfImgs,
-            gutter: 30
-        });
-
-        magicGrid.listen();
-        magicGrid.positionItems(); 
-    }
+    MYIMAGE.resize(scale().width(512)).format("auto").quality("auto").roundCorners(byRadius(10));
 
     return (
-        <div className="photoContainer">
-            {containerType==="profile"?<Button btnClassName={"tertiary"} btnClick={action} btnDisplayText="edit"/>:<></>}
+        <div className="photo">
+            {containerType==="profile"?<Button btnClassName={"secondary"} btnClick={action} btnDisplayText="edit"/>:<></>}
+            {containerType==="profile"?<Button btnClassName={"tertiary"} btnClick={action} btnDisplayText="delete"/>:<></>}
             {containerType==="display"?"user profile pic(not clickable) + user_name(clickable)":<></>}
             {/*Pop up for the edit functionality*/}
             {/*container for action you can take i.e edit*/}
             {/*image display*/}
-            <AdvancedImage onLoad={onLoad} cldImg={MYIMAGE} description={description?description:"some user image"}
-            plugins={[lazyload(), placeholder({mode:"predominant"})]}/>
+            <AdvancedImage
+            cldImg={MYIMAGE} 
+            description={description?description:"some user image"}
+            plugins={[lazyload(), responsive({steps:300}), placeholder({mode:"predominant"})]}/>
             {containerType==="display"?"download, like and add to collection actions":<></>}
         </div>
     );

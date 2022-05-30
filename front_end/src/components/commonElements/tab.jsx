@@ -1,9 +1,47 @@
-function Tab({handleClick,active}) {
+import {useEffect, useState} from "react";
+
+function Tab({tab_arr,setActive}) {
+
+    const [currentTabs,setCurrentTabs]=useState(tab_arr);
+
+    useEffect(()=>{
+        // eslint-disable-next-line array-callback-return
+        const ACTIVE_OBJ=currentTabs.find(((val)=>{
+            if(val.active)
+            {
+                return val;
+            }
+        }));
+
+        setActive(ACTIVE_OBJ.outputName);
+    })
+
+    function handleClick(evt){
+        //get id from element then match the word before Tab. ie the id are written as "nameTab"...etc
+        const ID=(evt.target.id).match(/(\w)+(?=tab)/gi).join();
+
+        let results=currentTabs.map(({outputName,active})=>{
+            if(ID===outputName && !(active) )
+            {
+                active=true;
+                return {outputName,active};
+            }
+                active=false;
+                return {outputName,active}
+        });
+        
+        setCurrentTabs(results);
+    }
 
     return ( 
-        <div className="tab">
-            <span id="photosTab" className={active==="photos"?"active":""} onClick={handleClick}>Photos</span>
-            <span id="collectionsTab" className={active==="collections"?"active":""} onClick={handleClick}>Collections</span>
+        <div className="tab" style={{"textTransform":"capitalize"}}>
+            {currentTabs.map(({outputName,active})=>{
+                return <span
+                        className={active?"active":""}
+                        id={`${outputName}Tab`} 
+                        key={`${outputName}Tab`}
+                        onClick={handleClick}>{outputName}</span>
+            })}
         </div>
      );
 };

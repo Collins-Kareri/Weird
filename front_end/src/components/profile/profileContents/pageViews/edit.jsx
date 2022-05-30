@@ -1,5 +1,5 @@
-import InputContainer from "../../commonElements/inputContainer";
-import Button from "../../commonElements/button";
+import InputContainer from "../../../commonElements/inputContainer";
+import Button from "../../../commonElements/button";
 
 function ProfileEdit({profileImgUrl,toggleEdit}) {
 

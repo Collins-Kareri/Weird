@@ -1,6 +1,6 @@
 import {useState} from "react";
-import Home from "./profileContents/home";
-import Edit from "./profileContents/edit";
+import Home from "./profileContents/pageViews/home";
+import Edit from "./profileContents/pageViews/edit";
 import LoggedInCheck from "../hoc/loggedInRoutes";
 
 function Profile() {

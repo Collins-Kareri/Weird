@@ -1,4 +1,4 @@
-import NoContent from "../../commonElements/noContent";
+import NoContent from "../../../commonElements/noContent";
 
 function CollectionsContainer({collectionsArr}) {
     return ( 
