@@ -6,7 +6,7 @@ function PhotosContainer({imagesArr,setModalStatus,setAssetUrl,setAssetTags}) {
 
     const breakpointColumnsObj = {
         default: 3,
-        900: 2,
+        1000: 2,
         500: 1
     };
 

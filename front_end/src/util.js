@@ -99,8 +99,12 @@ function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults){
         }
         return;
     }
-    saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}]);
-    return UPLOAD_RES;
+
+    if(JSON.parse(UPLOAD_RES).msg !== "Request was already received await reponse.")
+    {
+        saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}]);
+    }
+        return UPLOAD_RES;
 }
 
 /**

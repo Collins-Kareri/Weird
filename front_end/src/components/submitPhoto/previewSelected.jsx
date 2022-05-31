@@ -1,5 +1,3 @@
-import RemoveIcon from "./close.svg";
-
 function PreviewSelected({setImages,images}) {
     function deleteImg(imageName){
         const RESULTS=images.filter(({_,name})=>{
@@ -17,16 +15,6 @@ function PreviewSelected({setImages,images}) {
                         <img src={image.url} alt="user generated"/>
                     </div>)
             })}
-
-            <style>
-                {
-                    `
-                    #imagesContainer>#imagePreviewContainer>.removeBtn{
-                        background-image:url(${RemoveIcon});
-                    }
-                    `
-                }
-            </style>
         </>
      );
 }
