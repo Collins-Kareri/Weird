@@ -16,7 +16,7 @@ function ProfileHome({toggleEdit}) {
         [imagesArr,setImagesArr]=useState([]),
         [collectionsArr,setCollectionsArr]=useState([]),
         [fetchStatus,setFetchStatus]=useState(null),
-        [modalstatus,setModalStatus]=useState("close"),
+        [modalStatus,setModalStatus]=useState("close"),
         [assetUrl,setAssetUrl]=useState(""),
         [assetTags,setAssetTags]=useState([]),
         TAB_ARR=[{outputName:"photos",active:true},{outputName:"collections",active:false}];
@@ -63,7 +63,7 @@ function ProfileHome({toggleEdit}) {
             <div id="profileContentContainer">
                 {active==="photos"?<PhotosContainer imagesArr={imagesArr} setModalStatus={setModalStatus} setAssetTags={setAssetTags} setAssetUrl={setAssetUrl}/>:<CollectionsContainer collectionsArr={collectionsArr}/>}
             </div>
-            <EditPhotosModal setModalStatus={setModalStatus} modalstatus={modalstatus} assetUrl={assetUrl} assetTags={assetTags}/>
+            <EditPhotosModal setModalStatus={setModalStatus} modalStatus={modalStatus} assetUrl={assetUrl} assetTags={assetTags}/>
         </>
     );
 };

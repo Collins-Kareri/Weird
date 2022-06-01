@@ -4,11 +4,12 @@ import Tab from "../../../commonElements/tab";
 import TagsInput from "./tagsInput";
 import { useEffect, useState} from "react";
 
-function EditPhotosModal({assetUrl,assetTags,modalstatus,setModalStatus}) {
+function EditPhotosModal({assetUrl,assetTags,modalStatus,setModalStatus}) {
 
     const TAB_ARR=[{outputName:"tags",active:true},{outputName:"description",active:false}],
         [active,setActive]=useState("tags"),
-        [currentWidth,setCurrentWidth]=useState(window.innerWidth);
+        [currentWidth,setCurrentWidth]=useState(window.innerWidth),
+        [isModified,setIsModified]=useState("no");
 
     useEffect(()=>{
 
@@ -23,6 +24,17 @@ function EditPhotosModal({assetUrl,assetTags,modalstatus,setModalStatus}) {
     },[]);
 
     function close(){
+        if(isModified === "yes")
+        {
+            if(window.confirm("You haven't saved your changes are you sure you want to leave?"))
+            {
+                setIsModified("no");
+                setModalStatus("close");
+            }
+
+            return;
+        }
+
         setModalStatus("close");
         return;
     }
@@ -45,7 +57,7 @@ function EditPhotosModal({assetUrl,assetTags,modalstatus,setModalStatus}) {
 
                     <section style={{display:"flex",position:"relative",width:`${currentWidth>900?"70%":"100%"}`, padding:"15px",flexDirection: "column", justifyContent: "flex-start",alignItems: "stretch"}}>
                         <Tab tab_arr={TAB_ARR} setActive={setActive}/>
-                        {active==="tags"?<TagsInput tags={assetTags}/>:<textarea placeholder={"A good description makes a photo more discoverable."} spellCheck={true}></textarea>}
+                        {active==="tags"?<TagsInput tags={assetTags} modalStatus={modalStatus} setIsModified={setIsModified}/>:<textarea placeholder={"A good description makes a photo more discoverable."} spellCheck={true}></textarea>}
                     </section>
 
                 </div>
@@ -54,14 +66,14 @@ function EditPhotosModal({assetUrl,assetTags,modalstatus,setModalStatus}) {
             <style>
                 {`
                         .editPhotosModal{
-                            display:${modalstatus==="open"?"block":"none"};
-                            opacity:${modalstatus==="open"?"1":"0"};
+                            display:${modalStatus==="open"?"block":"none"};
+                            opacity:${modalStatus==="open"?"1":"0"};
                         }
 
                         #photoEdit{
-                            width:${currentWidth>900?"50vw":"90%"};
-                            top:${currentWidth>600?"50%":"150px"};
-                            transform:translateY(${currentWidth>600?"calc(-50.5%)":"calc(-50)"}) translateX(${currentWidth>600?"calc(-49.5%)":"-102px"});
+                            width:${currentWidth>900?"60vw":"90%"};
+                            top:${currentWidth>900?"50%":"150px"};
+                            transform:translateY(${currentWidth>900?"calc(-50%)":"calc(-102px)"}) translateX(-50%);
                         }
 
                         #modal-contents{
