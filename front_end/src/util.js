@@ -122,8 +122,6 @@ export async function makeReq(url,method,options={}){
         const IDENTIFIER=options.identifier?options.identifier:`${url.replace("\\","")}_req`;
         const XHR=new XMLHttpRequest();
 
-        console.log(IDENTIFIER);
-
         XHR.open(method,url,true);
 
         if(!( isCloudinaryUploadOp(url) ))

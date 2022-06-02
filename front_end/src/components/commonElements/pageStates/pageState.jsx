@@ -39,12 +39,13 @@ function PageState({currentProgress}) {
                 `
                     .statesContainer{
                         display:${typeof pageState === "string" && pageState.length>0?"block":"none"};
+                        z-index:8;
                     }
                 
                     .statesContainer>.pageStateContent{
                         display: block;
                         position: fixed;
-                        z-index:7;
+                        z-index:9;
                         width: 50%;
                         top: 50%;
                         left:50%;

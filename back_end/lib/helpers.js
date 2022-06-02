@@ -35,7 +35,7 @@ HELPERS.runDbQuery=async function(query,data){
     } 
     catch (error) 
     {
-        console.error('Something went wrong: ', error)
+        console.error('Couldn\'t run you\'re query: ', error)
         throw error;
     } 
     finally 
@@ -84,6 +84,10 @@ HELPERS.checkIfReqIsDuplicate=function(reqIdentifier){
 //crud functionality for images stored in cloudinary
 HELPERS.getTags=async function(public_id){
     let results= await cloudinary.api.resource(public_id,{tags:true,resource_type:"image"});
+    let rate={rate_Limit_Remaining:results.rate_limit_remaining,
+                rate_Limit_ResetAt:results.rate_limit_reset_at,
+                rate_Limit_Allowed:results.rate_limit_allowed}
+    console.log(rate);
     return results.tags;
 }
 

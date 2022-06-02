@@ -1,5 +1,5 @@
 import helpers from "./helpers.js";
-import {signRequest} from "./cloudinary.js"
+import cloudinary,{signRequest} from "./cloudinary.js"
 const HANDLERS={};
 
 /**
@@ -101,7 +101,6 @@ HANDLERS.storeImageRef=async function(data,callback){
         const SAVE_IMAGE_RES=await helpers.runDbQuery(QUERY,data.payLoad);
         if(SAVE_IMAGE_RES.length>0)
         {
-            console.log(SAVE_IMAGE_RES);
             callback(200,{msg:"saved",no_Of_Values_Saved:SAVE_IMAGE_RES.length});
         }else
         {
@@ -144,7 +143,7 @@ HANDLERS.retrieveImages=async function(data,callback){
                 let public_id=image.get("public_id");
                 const TAGS=await helpers.getTags(public_id).then(res=>{ return res},err=>err);
                 const TRANSFORMEDIMG=await helpers.transformImage(public_id)
-                RESULTS.push({name,public_id:TRANSFORMEDIMG,tags:TAGS});
+                RESULTS.push({name,public_id,imgURL:TRANSFORMEDIMG,tags:TAGS});
             }
             
             callback(200,{msg:"retrieved",data:RESULTS});
@@ -152,9 +151,36 @@ HANDLERS.retrieveImages=async function(data,callback){
         {
             callback(200,{msg:`No images were found for this user.`});
         }
-    } catch (err) {
-        
+    } catch (err) { 
         callback(500,{msg:`Error occured: ${err}`})
+    }
+};
+
+HANDLERS.replaceTags=async function(data,callback){
+    try {
+        let {tags,public_id}=data.payLoad;
+        cloudinary.api.update(public_id,{tags:tags,context:[]},(err,res)=>{
+            if(err)
+            {
+                console.log(err);
+                callback(304,{msg: `${err}`});
+            }else
+            {
+                callback(200,{msg:`successfully updated`,data:{tags:res.tags}});
+            }
+        })   
+    } catch (error) {
+        console.log(error);
+        callback(500,{msg:`Edit request failed error: ${error}`});
+    }
+}
+
+HANDLERS.deleteImg=async function(data,callback){
+    try {
+        callback(200,{msg:"ok"});
+    } catch (error) {
+        console.log(error);
+        callback(500,{msg:`Cannot delete image error: ${error}`})
     }
 }
 

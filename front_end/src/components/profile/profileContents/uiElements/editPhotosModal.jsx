@@ -4,28 +4,30 @@ import TagsInput from "./tagsInput";
 import { useEffect, useState,useReducer} from "react";
 import {makeReq} from "../../../../util"
 
-function EditPhotosModal({assetUrl,assetTags,modalStatus,setModalStatus}) {
+function EditPhotosModal({assetResource,modalStatus,setModalStatus,imagesArr,setImagesArr}) {
 
     const TAB_ARR=[{outputName:"tags",active:true},{outputName:"description",active:false}];
     const [active,setActive]=useState("tags");
     const [currentWidth,setCurrentWidth]=useState(window.innerWidth);
-    const [currentState,dispatch]=useReducer(reducer,{tags:[]});
+    const [currentState,dispatch]=useReducer(reducer,{tags:[],saved:"no"});
 
     function reducer(currentState,action){
         let alteretedState;
         switch (action.type){
             case("init"):
-                return {tags:action.payload};
+                return {...currentState,tags:action.payload};
             case("rmTag"):
                 alteretedState=action.payload.filter((tag)=>{
                     return tag !== action.tag;
                 });
-                return {tags:alteretedState};
+                return {...currentState,tags:alteretedState};
             case("reset"):
-                return {tags:action.payload};
+                return {saved:"no",tags:action.payload};
             case("addTag"):
                 alteretedState=action.payload.concat(action.tag);
-                return {tags:alteretedState};
+                return {...currentState,tags:alteretedState};
+            case("saved"):
+                return {...currentState,saved:"yes"}
             default:
                 return currentState
         }
@@ -33,31 +35,29 @@ function EditPhotosModal({assetUrl,assetTags,modalStatus,setModalStatus}) {
       
     useEffect(()=>{
     
-        dispatch({type:"init",payload:assetTags});
+        dispatch({type:"init",payload:assetResource.tags});
 
         return ()=>{
             if(modalStatus === "close")
             {
-                dispatch({type:"reset",payload:assetTags});
+                dispatch({type:"reset",payload:assetResource.tags});
             }
         } 
-    },[assetTags,modalStatus]);
+    },[assetResource.tags,modalStatus]);
 
     useEffect(()=>{
-
         const updateDimensions=()=>{
             setCurrentWidth(window.innerWidth);
         }
         window.addEventListener("resize",updateDimensions)
-
         return ()=>{
             window.removeEventListener("resize",updateDimensions);
         }
     },[]);
 
     function close(){
-        //check if current tags is equal to assetTags
-        if( !(JSON.stringify(currentState.tags) === JSON.stringify(assetTags)) )
+        //check if current tags is equal to assetResource.tags
+        if( !(JSON.stringify(currentState.tags) === JSON.stringify(assetResource.tags)) && currentState.saved==="no" )
         {
             if(window.confirm("You haven't saved your changes are you sure you want to leave?"))
             {
@@ -70,10 +70,17 @@ function EditPhotosModal({assetUrl,assetTags,modalStatus,setModalStatus}) {
         return;
     }
 
-    function saveChanges(evt){
-        if( !(JSON.stringify(currentState.tags) === JSON.stringify(assetTags)) )
+    async function saveChanges(){
+        let{public_id}=assetResource;
+        if( !(JSON.stringify(currentState.tags) === JSON.stringify(assetResource.tags)) )
         {
-            makeReq()
+            let {data}=JSON.parse( await makeReq("/updateImgInfo","put",{data:{public_id,tags:currentState.tags}}) );
+            let newImgArr=imagesArr.map((val)=>{
+                return val.public_id===public_id?{...val,tags:data.tags}:val;
+            });
+            dispatch({type:"saved"});
+            setImagesArr(newImgArr);
+            return;
         }
 
         return;
@@ -89,7 +96,7 @@ function EditPhotosModal({assetUrl,assetTags,modalStatus,setModalStatus}) {
                 <div id="modal-contents" style={{display:"flex"}}>
 
                     <div id="modal-imgContainer" style={{height:"fit-content",margin:"0 auto",width:`${currentWidth>900?"30%":"100%"}`}}>
-                        <img src={assetUrl} alt="to edit"/>
+                        <img src={assetResource.imgURL} alt="to edit"/>
                     </div>
 
                     <section style={{display:"flex",position:"relative",width:`${currentWidth>900?"70%":"100%"}`, padding:"15px",flexDirection: "column", justifyContent: "flex-start",alignItems: "stretch"}}>
