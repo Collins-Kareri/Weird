@@ -92,6 +92,28 @@ HANDLERS.createSession=async function(data,callback){
     };
 };
 
+HANDLERS.updateUserCredentials=async function(data,callback){
+    try {
+        const {userName,updatedCredentials}=data.payLoad;
+        let updateRes;
+        const QUERY=`MATCH (usr:User {userName:$data.userName})
+                    SET usr += $data.updatedCredentials RETURN usr.userName as userName,usr.email as email`;
+        const RESULTS=await HELPERS.runDbQuery(QUERY,data.payLoad);
+        if(RESULTS.length>0)
+        {
+            RESULTS.map((res)=>{
+                updateRes=res.toObject();
+            })
+            callback(200,{msg:"Successfully updated",data:updateRes});
+            return; 
+        };
+        callback(304,{msg:"Not updated"});
+    } catch (error) {
+        callback(500,{msg:`${error}`});
+    }
+};
+
+//CRUD IMAGE FUNCTIONALITY
 HANDLERS.storeImageRef=async function(data,callback){
     try {
         const QUERY=`UNWIND $data AS properties

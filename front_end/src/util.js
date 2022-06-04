@@ -244,6 +244,7 @@ export function storeInDb(data,setProgress,setResults){
 
 /**
  * Take the storage type ie. sessionStorage/localStorage and an array of objects with a key and a value to store.
+ * YOU MUST MAKE SURE YOUR VALUES AND KEYS IN THE DATA ARE IN STRING FORMAT
  * @param {*} storageType STRING
  * @param {*} data ARRAY
  */
