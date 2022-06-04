@@ -18,7 +18,7 @@ function ProfileHome({toggleEdit}) {
         [fetchStatus,setFetchStatus]=useState(null),
         [modalStatus,setModalStatus]=useState("close"),
         [assetResource,setAssetResource]=useState({imgURL:"",tags:[],public_id:""}),
-        TAB_ARR=[{outputName:"photos",active:true},{outputName:"collections",active:false}];
+        ARR_OF_TABS=[{outputName:"photos",active:true},{outputName:"collections",active:false}];
 
     useEffect(()=>{
         window.addEventListener("storage",()=>{
@@ -38,6 +38,7 @@ function ProfileHome({toggleEdit}) {
         {
             func();
         }
+
         return ()=>{};
     },[fetchStatus, imagesArr.length, userData.userName]);
     
@@ -57,7 +58,7 @@ function ProfileHome({toggleEdit}) {
     return ( 
         <>
             <UserDetails userName={userData.userName} userEmail={userData.email} profileImgUrl={false} explore={false} toggleEdit={toggleEdit}/>
-            <Tab tab_arr={TAB_ARR} setActive={setActive}/>
+            <Tab arr_of_tabs={ARR_OF_TABS} setActive={setActive}/>
             <div id="profileContentContainer">
                 {active==="photos"?<PhotosContainer imagesArr={imagesArr} setModalStatus={setModalStatus} setAssetResource={setAssetResource}/>:<CollectionsContainer collectionsArr={collectionsArr}/>}
             </div>

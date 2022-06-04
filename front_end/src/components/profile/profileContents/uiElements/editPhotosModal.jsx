@@ -6,44 +6,47 @@ import {makeReq} from "../../../../util"
 
 function EditPhotosModal({assetResource,modalStatus,setModalStatus,imagesArr,setImagesArr}) {
 
-    const TAB_ARR=[{outputName:"tags",active:true},{outputName:"description",active:false}];
+    const ARR_OF_TABS=[{outputName:"tags",active:true},{outputName:"description",active:false}];
     const [active,setActive]=useState("tags");
     const [currentWidth,setCurrentWidth]=useState(window.innerWidth);
-    const [currentState,dispatch]=useReducer(reducer,{tags:[],saved:"no"});
+    const [currentState,dispatch]=useReducer(reducer,{tags:[],saved:"no",description:""});
 
     function reducer(currentState,action){
         let alteretedState;
         switch (action.type){
             case("init"):
-                return {...currentState,tags:action.payload};
+                return {...currentState, tags:action.payload.tags, description:action.payload.description};
+            case("reset"):
+                return { saved:"no", tags:action.payload.tags, description:action.payload.description};
             case("rmTag"):
                 alteretedState=action.payload.filter((tag)=>{
                     return tag !== action.tag;
                 });
                 return {...currentState,tags:alteretedState};
-            case("reset"):
-                return {saved:"no",tags:action.payload};
             case("addTag"):
                 alteretedState=action.payload.concat(action.tag);
                 return {...currentState,tags:alteretedState};
+            case("descriptionChange"):
+                alteretedState=action.payload;
+                return {...currentState,description:alteretedState};
             case("saved"):
-                return {...currentState,saved:"yes"}
+                return {...currentState,saved:"yes"};
             default:
-                return currentState
+                return currentState;
         }
     }
       
     useEffect(()=>{
     
-        dispatch({type:"init",payload:assetResource.tags});
+        dispatch({ type:"init",payload:{tags:assetResource.tags,description:assetResource.description} });
 
         return ()=>{
             if(modalStatus === "close")
             {
-                dispatch({type:"reset",payload:assetResource.tags});
+                dispatch({ type:"reset",payload:{tags:assetResource.tags,description:assetResource.description} });
             }
         } 
-    },[assetResource.tags,modalStatus]);
+    },[assetResource.tags,assetResource.description,modalStatus]);
 
     useEffect(()=>{
         const updateDimensions=()=>{
@@ -55,9 +58,23 @@ function EditPhotosModal({assetResource,modalStatus,setModalStatus,imagesArr,set
         }
     },[]);
 
+    function checks(){
+        if(!(JSON.stringify(currentState.tags) === JSON.stringify(assetResource.tags)))
+        {
+            return true;
+        }
+
+        if( currentState.description !== assetResource.description )
+        {
+            return true;
+        }
+
+        return false
+    }
+
     function close(){
         //check if current tags is equal to assetResource.tags
-        if( !(JSON.stringify(currentState.tags) === JSON.stringify(assetResource.tags)) && currentState.saved==="no" )
+        if( checks() && currentState.saved==="no" )
         {
             if(window.confirm("You haven't saved your changes are you sure you want to leave?"))
             {
@@ -72,17 +89,23 @@ function EditPhotosModal({assetResource,modalStatus,setModalStatus,imagesArr,set
 
     async function saveChanges(){
         let{public_id}=assetResource;
-        if( !(JSON.stringify(currentState.tags) === JSON.stringify(assetResource.tags)) )
+        if( checks() )
         {
-            let {data}=JSON.parse( await makeReq("/updateImgInfo","put",{data:{public_id,tags:currentState.tags}}) );
+            let {data}=JSON.parse( await makeReq("/updateImgInfo","put",{data:{public_id,tags:currentState.tags,context:`alt=${currentState.description}`} }) );
             let newImgArr=imagesArr.map((val)=>{
-                return val.public_id===public_id?{...val,tags:data.tags}:val;
+                return val.public_id===public_id?{...val,tags:data.tags,description:data.context}:val;
             });
             dispatch({type:"saved"});
             setImagesArr(newImgArr);
             return;
         }
 
+        return;
+    }
+
+    function handle_Textarea_Val_Change(evt){
+        let value=evt.target.value;
+        dispatch({type:"descriptionChange",payload:value});
         return;
     }
 
@@ -99,9 +122,9 @@ function EditPhotosModal({assetResource,modalStatus,setModalStatus,imagesArr,set
                         <img src={assetResource.imgURL} alt="to edit"/>
                     </div>
 
-                    <section style={{display:"flex",position:"relative",width:`${currentWidth>900?"70%":"100%"}`, padding:"15px",flexDirection: "column", justifyContent: "flex-start",alignItems: "stretch"}}>
-                        <Tab tab_arr={TAB_ARR} setActive={setActive}/>
-                        {active==="tags"?<TagsInput tags={currentState.tags} dispatch={dispatch}/>:<textarea placeholder={"A good description makes a photo more discoverable."} spellCheck={true}></textarea>}
+                    <section style={{display:"flex",position:"relative",width:`${currentWidth>900?"70%":"100%"}`, padding:"0px 15px",flexDirection: "column", justifyContent: "flex-start",alignItems: "stretch"}}>
+                        <Tab arr_of_tabs={ARR_OF_TABS} setActive={setActive}/>
+                        {active==="tags"?<TagsInput tags={currentState.tags} dispatch={dispatch}/>:<textarea value={currentState.description} onChange={handle_Textarea_Val_Change} placeholder={"A good description makes a photo more discoverable."} spellCheck={true}></textarea>}
                     </section>
 
                 </div>

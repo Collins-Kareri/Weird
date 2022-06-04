@@ -7,7 +7,7 @@ const routeMap={
     "storeImageRef":HANDLERS.storeImageRef,
     "retrieveImages":HANDLERS.retrieveImages,
     "retrieveCollection":HANDLERS.retrieveCollection,
-    "updateImgInfo":HANDLERS.replaceTags,
+    "updateImgInfo":HANDLERS.updateImgInfo,
     "deleteImg":HANDLERS.deleteImg,
     "favicon.ico":""
 };

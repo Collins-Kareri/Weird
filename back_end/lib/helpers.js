@@ -24,8 +24,7 @@ HELPERS.runDbQuery=async function(query,data){
     } 
     catch (error) 
     {
-        console.log(`🤯 ${error}`);
-        return;
+        throw new Error(`🤯 ${error}`);
     };
 
     //runs the query and returns the results of the query
@@ -83,21 +82,21 @@ HELPERS.checkIfReqIsDuplicate=function(reqIdentifier){
 
 //crud functionality for images stored in cloudinary
 HELPERS.getTags=async function(public_id){
-    let results= await cloudinary.api.resource(public_id,{tags:true,resource_type:"image"});
+    let results= await cloudinary.api.resource(public_id,{tags:true,context:true,resource_type:"image"});
     let rate={rate_Limit_Remaining:results.rate_limit_remaining,
                 rate_Limit_ResetAt:results.rate_limit_reset_at,
                 rate_Limit_Allowed:results.rate_limit_allowed}
-    console.log(rate);
-    return results.tags;
+    let alt=typeof results.context !== "undefined" ?results.context.custom.alt:"";
+    return {tags:results.tags,context:alt};
 }
 
-HELPERS.transformImage=async function(public_id){
+HELPERS.transformImage=function(public_id){
     //retrieve the url only
     let results= cloudinary.image(public_id,{
         transformation:[{width:512,crop:"scale"},
         {radius:10},
         {quality:"auto",fetch_format:"auto"}]
-    }).match(/(?<=').+(?=')/g).join();
+    }).match(/(?<=').+(?=')/g).join();//extract the url from the response.
 
     return results;
 }

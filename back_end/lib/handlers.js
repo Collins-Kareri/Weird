@@ -141,9 +141,9 @@ HANDLERS.retrieveImages=async function(data,callback){
             {
                 let name=image.get("name");
                 let public_id=image.get("public_id");
-                const TAGS=await helpers.getTags(public_id).then(res=>{ return res},err=>err);
-                const TRANSFORMEDIMG=await helpers.transformImage(public_id)
-                RESULTS.push({name,public_id,imgURL:TRANSFORMEDIMG,tags:TAGS});
+                const {tags,context}=await helpers.getTags(public_id).then(res=>{ return res},err=>{throw err});
+                const TRANSFORMEDIMG=helpers.transformImage(public_id)
+                RESULTS.push({name,public_id,imgURL:TRANSFORMEDIMG,tags:tags,description:context});
             }
             
             callback(200,{msg:"retrieved",data:RESULTS});
@@ -151,27 +151,29 @@ HANDLERS.retrieveImages=async function(data,callback){
         {
             callback(200,{msg:`No images were found for this user.`});
         }
-    } catch (err) { 
-        callback(500,{msg:`Error occured: ${err}`})
+    } catch (err) {
+        console.log(err); 
+        callback(400,{msg:`Error occured: ${JSON.stringify(err)}`})
     }
 };
 
-HANDLERS.replaceTags=async function(data,callback){
+HANDLERS.updateImgInfo=async function(data,callback){
     try {
-        let {tags,public_id}=data.payLoad;
-        cloudinary.api.update(public_id,{tags:tags,context:[]},(err,res)=>{
+        let {tags,public_id,context}=data.payLoad;
+        cloudinary.uploader.explicit(public_id,{type:"upload",tags:tags,context:context},(err,res)=>{
             if(err)
             {
                 console.log(err);
-                callback(304,{msg: `${err}`});
+                callback(500,{msg: `${JSON.stringify(err)}`});
             }else
             {
-                callback(200,{msg:`successfully updated`,data:{tags:res.tags}});
+                console.log(res);
+                callback(200,{msg:`successfully updated`,data:{tags:res.tags,context:res.context.custom.alt}});
             }
-        })   
+        })  
     } catch (error) {
         console.log(error);
-        callback(500,{msg:`Edit request failed error: ${error}`});
+        callback(400,{msg:`Edit request failed error: ${error}`});
     }
 }
 

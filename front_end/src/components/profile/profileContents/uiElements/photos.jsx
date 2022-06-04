@@ -11,9 +11,9 @@ function PhotosContainer({imagesArr,setModalStatus,setAssetResource}) {
         500: 1
     };
 
-    function openEditPopUp(imgURL,public_id,tags){
+    function openEditPopUp(imgURL,public_id,tags,description){
         setModalStatus("open");
-        setAssetResource({imgURL,public_id,tags})
+        setAssetResource({imgURL,public_id,tags,description});
         return;
     }
 
@@ -39,11 +39,11 @@ function PhotosContainer({imagesArr,setModalStatus,setAssetResource}) {
             {Array.isArray(imagesArr)&&imagesArr.length>0?imagesArr.map(({public_id,imgURL,name,description,tags})=>{
                 return <Image
                         deleteAction={()=>{deleteImg(public_id)}}
-                        editAction={()=>{openEditPopUp(imgURL,public_id,tags)}} 
+                        editAction={()=>{openEditPopUp(imgURL,public_id,tags,description)}} 
                         imgURL={imgURL} 
                         key={name} 
                         containerType="profile"
-                        description={description?description:""}/>
+                        description={description}/>
             }):<NoContent displayMsg="Haven't uploaded any images yet"/>}
         </Masonry>
      );

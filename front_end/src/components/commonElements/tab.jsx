@@ -1,8 +1,8 @@
 import {useEffect, useState} from "react";
 
-function Tab({tab_arr,setActive}) {
+function Tab({arr_of_tabs,setActive}) {
 
-    const [currentTabs,setCurrentTabs]=useState(tab_arr);
+    const [currentTabs,setCurrentTabs]=useState(arr_of_tabs);
 
     useEffect(()=>{
         // eslint-disable-next-line array-callback-return
