@@ -1,5 +1,6 @@
 import helpers from "./helpers.js";
 import cloudinary,{signRequest} from "./cloudinary.js"
+import HELPERS from "./helpers.js";
 const HANDLERS={};
 
 /**
@@ -160,6 +161,10 @@ HANDLERS.retrieveImages=async function(data,callback){
 HANDLERS.updateImgInfo=async function(data,callback){
     try {
         let {tags,public_id,context}=data.payLoad;
+        if( !(/^\w+=\b/gi.test(context)) )
+        {
+            throw new Error("The context is not properly formatted. Expected a string in the format (context name = context value) eg alt = image description.")
+        } 
         cloudinary.uploader.explicit(public_id,{type:"upload",tags:tags,context:context},(err,res)=>{
             if(err)
             {
@@ -179,7 +184,35 @@ HANDLERS.updateImgInfo=async function(data,callback){
 
 HANDLERS.deleteImg=async function(data,callback){
     try {
-        callback(200,{msg:"ok"});
+        const {public_id}=data.payLoad;
+
+        async function _delete_ref_from_db(){
+            return new Promise( async (resolve,reject)=>{
+                const DELETE_IMG_QUERY =`MATCH (img:Image {public_id:$data.public_id}) DETACH DELETE img`;
+                const RESULTS= await HELPERS.runDbQuery(DELETE_IMG_QUERY,data.payLoad);
+
+                if(RESULTS.length>0)
+                {
+                    reject("not deleted")
+                    return;
+                }
+
+                resolve("ok")
+                return;
+            })
+        }
+
+        const DELETE_FROM_CLOUDINARY=await cloudinary.uploader.destroy(public_id,{resource_type:"image",invalidate:true});
+        const DELETE_REF=await _delete_ref_from_db();
+
+        if(DELETE_FROM_CLOUDINARY.result === DELETE_REF)
+        {
+            callback(200,{msg:"ok"});
+            return;
+        }
+
+        callback(304,{msg:"not deleted"});
+        return;
     } catch (error) {
         console.log(error);
         callback(500,{msg:`Cannot delete image error: ${error}`})

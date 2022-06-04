@@ -60,7 +60,7 @@ function ProfileHome({toggleEdit}) {
             <UserDetails userName={userData.userName} userEmail={userData.email} profileImgUrl={false} explore={false} toggleEdit={toggleEdit}/>
             <Tab arr_of_tabs={ARR_OF_TABS} setActive={setActive}/>
             <div id="profileContentContainer">
-                {active==="photos"?<PhotosContainer imagesArr={imagesArr} setModalStatus={setModalStatus} setAssetResource={setAssetResource}/>:<CollectionsContainer collectionsArr={collectionsArr}/>}
+                {active==="photos"?<PhotosContainer imagesArr={imagesArr} setImagesArr={setImagesArr} setModalStatus={setModalStatus} setAssetResource={setAssetResource}/>:<CollectionsContainer collectionsArr={collectionsArr}/>}
             </div>
             <EditPhotosModal setModalStatus={setModalStatus} modalStatus={modalStatus} assetResource={assetResource} setImagesArr={setImagesArr} imagesArr={imagesArr}/>
         </>

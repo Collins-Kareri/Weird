@@ -3,7 +3,7 @@ import Image from "../../../commonElements/image";
 import {makeReq} from "../../../../util"
 import Masonry from "react-masonry-css";
 
-function PhotosContainer({imagesArr,setModalStatus,setAssetResource}) {
+function PhotosContainer({imagesArr,setImagesArr,setModalStatus,setAssetResource}) {
 
     const breakpointColumnsObj = {
         default: 3,
@@ -20,11 +20,23 @@ function PhotosContainer({imagesArr,setModalStatus,setAssetResource}) {
     async function deleteImg(public_id){
         if(window.confirm("You are about to delete an image."))
         {
-            let {msg}=JSON.parse(await makeReq("deleteImg","delete",{public_id}) );
+            let {msg}=JSON.parse(await makeReq("deleteImg","delete",{data:{public_id}}) );
+
+            let newImgArr=imagesArr.filter((val)=>{
+                return val.public_id !== public_id;
+            });
+
             if(msg === "ok")
             {
+                setImagesArr(newImgArr);
                 alert("Successfully deleted");
             }
+
+            if(msg === "not deleted")
+            {
+                alert("couldn't delete image.")
+            }
+            
             return;
         }
         return; 

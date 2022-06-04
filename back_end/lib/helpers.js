@@ -40,7 +40,8 @@ HELPERS.runDbQuery=async function(query,data){
     finally 
     {
         await SESSION.close();
-        await DRIVER.close();        
+        await DRIVER.close();
+        console.log(queryResult);      
         return queryResult.records;
     };
 }

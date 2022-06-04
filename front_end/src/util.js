@@ -227,7 +227,6 @@ export function storeInDb(data,setProgress,setResults){
 
     const URL="/storeImageRef";
     const OPTIONS={data,setProgress,identifier:`${URL}_${data[0].public_id}`,setResults};
-    console.log(OPTIONS);
 
     makeReq(URL,"post",OPTIONS)
     .then((data)=>{
