@@ -1,4 +1,5 @@
 import {BrowserRouter,Routes,Route} from "react-router-dom";
+import ErrorBoundary from "./components/errorBoundary";
 import Header from "./components/header/Header";
 import Separator from "./components/commonElements/separator";
 import MenuContents from "./components/commonElements/menuContents";
@@ -23,6 +24,7 @@ function App() {
   },[loggedIn]);
   
   return (
+    <ErrorBoundary>
       <BrowserRouter>
         <PageState currentProgress={currentProgress}/>
         <Header/>  
@@ -43,6 +45,7 @@ function App() {
             </Routes>
         </main>
       </BrowserRouter>
+    </ErrorBoundary>
   );
 };
 
