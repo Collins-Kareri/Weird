@@ -52,8 +52,8 @@ HELPERS.runDbQuery=async function(query,data){
  */
 HELPERS.lookUpUser=async function (userName)
 {
-    const QUERY=`match(u:User {userName:$data})
-    return u.userName as userName`,
+    const QUERY=`MATCH (u:User {userName:$data})
+    RETURN u.userName as userName`,
         QUERYRESULT=await HELPERS.runDbQuery(QUERY,userName);
 
     return QUERYRESULT;
@@ -68,7 +68,7 @@ HELPERS.hash=function(str){
     }else{
         throw "Cannot hash this string please look at it again and try again."
     }
-};
+}
 
 HELPERS.checkIfReqIsDuplicate=function(reqIdentifier){
     if(requestDelivered.has(reqIdentifier)){
@@ -78,7 +78,7 @@ HELPERS.checkIfReqIsDuplicate=function(reqIdentifier){
         requestDelivered.set(reqIdentifier,{status:"received"});
         return {receiveStatus:"not received"};
     };
-};
+}
 
 //crud functionality for images stored in cloudinary
 HELPERS.getTags=async function(public_id){

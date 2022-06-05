@@ -655,6 +655,15 @@ input[type="file"] {
     height: 120px;
 }
 
+.profileImg>img{
+    position:relative;
+    width: 100%;
+    height:100%;
+    object-fit: cover;
+    object-position:center;
+    border-radius: 50%;
+}
+
 #profilePicEdit>section>#editProfilePic {
     margin: 15px 0;
 }

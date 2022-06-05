@@ -11,7 +11,7 @@ function PhotosContainer({imagesArr,setImagesArr,setModalStatus,setAssetResource
         500: 1
     };
 
-    function openEditPopUp(imgURL,public_id,tags,description){
+    function openEditPopUp(imgURL,public_id,tags=[],description=""){
         setModalStatus("open");
         setAssetResource({imgURL,public_id,tags,description});
         return;

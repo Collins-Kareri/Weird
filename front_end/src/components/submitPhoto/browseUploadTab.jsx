@@ -1,5 +1,5 @@
 import { useEffect, useRef,useState} from "react";
-import {handleInputData,sendToCloudinary,generateSignature,storeInDb} from "../../util"
+import {handleFileData,sendToCloudinary,generateSignature,storeInDb} from "../../util"
 
 function BrowseUpload({images,setImages,setCurrentProgress}) {
     const fileBrowse=useRef(null),
@@ -10,11 +10,11 @@ function BrowseUpload({images,setImages,setCurrentProgress}) {
         {
             storeInDb(results,setCurrentProgress,setResults);
         }
-    },[results])
+    },[images.length, results, setCurrentProgress])
 
     async function onChange(evt){
         const FILES=evt.target.files,
-            IMAGES=await handleInputData(FILES);
+            IMAGES=await handleFileData(FILES,true);
             
         setImages(IMAGES);
         return;
@@ -39,7 +39,7 @@ function BrowseUpload({images,setImages,setCurrentProgress}) {
             return;
         }
 
-        const SIGNATUREOBJ=await generateSignature();
+        const SIGNATUREOBJ=await generateSignature({uploadType:"image"});
 
         for(let image of images)
         {
@@ -52,6 +52,7 @@ function BrowseUpload({images,setImages,setCurrentProgress}) {
                 identifier:image.name,
                 noOfValuesToUpload:images.length,
                 signatureObj:SIGNATUREOBJ,
+                uploadType:"image",
                 setProgress: setCurrentProgress,
                 setResults
             }

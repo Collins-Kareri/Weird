@@ -35,7 +35,7 @@ function EditPhotosModal({assetResource,modalStatus,setModalStatus,imagesArr,set
                 return currentState;
         }
     }
-      
+    
     useEffect(()=>{
     
         dispatch({ type:"init",payload:{tags:assetResource.tags,description:assetResource.description} });

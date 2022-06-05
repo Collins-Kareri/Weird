@@ -19,7 +19,7 @@ function PageState({currentProgress}) {
 
     function redirectToProfile(typeOfAction){
         saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}]);
-        if(typeOfAction==="success")
+        if(typeOfAction.toLowerCase() === "success_redirect")
         {
             REDIRECT("/profile",{replace:true});
         }
@@ -31,7 +31,8 @@ function PageState({currentProgress}) {
             <div className="modalContainer statesContainer">
                 {pageState==="progress"?<Progress currentProgress={currentProgress}/>:<></>}
                 {pageState==="loading"?<Loading/>:<></>}
-                {pageState==="success"?<Success handleClick={()=>{redirectToProfile("success")}}/>:<></>}
+                {pageState==="success_profile"?<Success msg="Profile Pic Successfully updated." handleClick={()=>{redirectToProfile("success_redirect")}}/>:<></>}
+                {pageState==="success_redirect"?<Success handleClick={()=>{redirectToProfile("success_Redirect")}}/>:<></>}
                 {pageState==="fail"?<Fail handleClick={()=>{redirectToProfile("fail")}}/>:<></>}
             </div>
             <style>

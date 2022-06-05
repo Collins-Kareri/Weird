@@ -26,9 +26,14 @@ function isCloudinaryUploadOp(url){
     return /\b\.cloudinary\.\b/g.test(url);
 }
 
-export async function handleInputData(files){
+/**
+ * @param {ARRAY} files files to process
+ * @param {BOOLEAN} allowMultiple if the input allows multiple file updload 
+ * @returns 
+ */
+export async function handleFileData(files,allowMultiple){
         const IMAGES=[];
-        if(files.length>3)
+        if(allowMultiple && files.length>3)
         {
             alert("You can only upload three images at a time.");
             return IMAGES;
@@ -94,10 +99,11 @@ function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults){
         });
         if(RES_ARR.length===noOfValuesToUpload)
         {
-            setResults(RES_ARR);
+            setResults(RES_ARR)
             saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}])
         }
-        return;
+
+        return RES_ARR;
     }
 
     if(JSON.parse(UPLOAD_RES).msg !== "Request was already received await reponse.")
@@ -133,27 +139,33 @@ export async function makeReq(url,method,options={}){
         XHR.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
         XHR.upload.onprogress=(evt)=>{
-            handleProgress(evt,IDENTIFIER,options.noOfValuesToUpload,options.setProgress);
+            if(typeof options.setProgress === "function")
+            {
+                handleProgress(evt,IDENTIFIER,options.noOfValuesToUpload,options.setProgress);
+            }
         }
 
         XHR.onerror=()=>{
             saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
             // alert(`Error occured making the ${IDENTIFIER} request`);
             fail("error occurred while making request");
+            return;
         }
 
         XHR.onabort=()=>{
             saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
             alert("request was aborted");
-            fail("the request was aborted")
+            fail("the request was aborted");
+            return;
         }
 
         XHR.onload=()=>{
-            if(XHR.status>=500)
+            if(XHR.status>=500 || XHR.status>=400)
             {
                 // alert("Couldn't proceed with the request due to an internal server error.")
                 saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
                 fail("Server error");
+                return;
             }
 
             const UPLOAD_RES=XHR.response;
@@ -162,6 +174,7 @@ export async function makeReq(url,method,options={}){
             {
                 handleLoad(url,UPLOAD_RES,options.noOfValuesToUpload,options.setResults);
                 succeed(UPLOAD_RES);
+                return;
             }
         }
 
@@ -172,13 +185,25 @@ export async function makeReq(url,method,options={}){
 
             if(isCloudinaryUploadOp(url))
             {
+                let upload_preset;
+
+                if(options.uploadType==="image")
+                {
+                    upload_preset="trialToUpload";
+                }
+
+                if(options.uploadType==="profile")
+                {
+                    upload_preset="profile";
+                }
+
                 //as cloudinary only accepts form data uploads
                 sendData=new FormData();
                 sendData.append("file",options.data.file);
                 sendData.append("api_key",options.data.api_key);
                 sendData.append("timestamp",options.data.timestamp);
                 sendData.append("signature",options.data.signature);
-                sendData.append("upload_preset","weird");
+                sendData.append("upload_preset",upload_preset);
                 sendData.append("detection","lvis_v1");
             }
 
@@ -190,10 +215,11 @@ export async function makeReq(url,method,options={}){
     });
 }
 
-export async function generateSignature(){
+export async function generateSignature(data){
     let response;
+    let {uploadType}=data;
     try {
-        response=JSON.parse(await makeReq("/generateSignature","get"));
+        response=JSON.parse(await makeReq(`/generateSignature?uploadType=${uploadType}`,"get"));
     } catch (error) {
         saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
         console.error(error);
@@ -226,18 +252,37 @@ export function sendToCloudinary(options){
 export function storeInDb(data,setProgress,setResults){
 
     const URL="/storeImageRef";
-    const OPTIONS={data,setProgress,identifier:`${URL}_${data[0].public_id}`,setResults};
+    const OPTIONS={data,setProgress,identifier:`${URL}_${data[0].ownerName}`,setResults};
 
     makeReq(URL,"post",OPTIONS)
     .then((data)=>{
         let res=JSON.parse(data);
         if(res.msg==="saved")
         {
-            saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"success"}]);
+            saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"success_Redirect"}]);
             setResults([res.msg]);
         }
     },(err)=>{
         setResults(err);
+        RES_ARR.splice(0,RES_ARR.length);
+    });
+}
+
+export function saveProfilePic(data,setMsg){
+    const URL="/updateProfilePic";
+    const OPTIONS={data:data[0],identifier:`${URL}_${data[0].ownerName}`};
+
+    makeReq(URL,"put",OPTIONS)
+    .then((data)=>{
+        let res=JSON.parse(data);
+        if(res.msg.toLowerCase() === "saved")
+        {
+            saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"success_Profile"}]);
+            setMsg(res.msg)
+        }
+    },(err)=>{
+        console.log(err);
+        setMsg(err);
         RES_ARR.splice(0,RES_ARR.length);
     });
 }

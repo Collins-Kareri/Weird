@@ -9,49 +9,44 @@ const HANDLERS={};
  * @Callback{used to return the results of the created operation} 
  */
 HANDLERS.createAccount=async function (data,callback){
-    if (data.method.toLowerCase() == "post")
+    if(data.method.toLowerCase() !== "post")
     {
-        const {userName,password}=data.payLoad;
-        try 
-        {
-            let lookUpResult=await helpers.lookUpUser(userName);
-
-            if(lookUpResult.length>0)
-            {
-                //tell the client the user exists in the database
-                callback(200,{msg:"Username already exists"});
-                return; 
-            };
-                
-            data.payLoad.password=helpers.hash(password);
-
-            const QUERY= `create (u:User {userName: $data.userName, email: $data.email, password: $data.password})
-                    return u.userName as userName, u.email as email`;
-            const USERCREATERES=await helpers.runDbQuery(QUERY,data.payLoad);
-
-            if(USERCREATERES.length>0)
-            {
-                const resObj=USERCREATERES[0],
-                resName=resObj.get("userName"),
-                resEmail=resObj.get("email");
-                callback(201,{msg: "Account created successfully",userData:{userName:resName,email:resEmail}});
-                return;
-            };
-
-            callback(200, {msg: "Account not created"});
-            return;
-        } catch (error) 
-        {
-            callback(500,{msg:`Error occured error:${error}`})
-            return;  
-        }
-    }
-    else
-    {
-        callback(405,{msg:"Http method not allowed"});
+        callback(405,{msg:"The method used is not allowed"});
         return;
-    };
-};
+    }
+    
+    const {userName,password}=data.payLoad;
+
+    try 
+    {
+        let lookUpResult=await helpers.lookUpUser(userName);
+        if(lookUpResult.length>0)
+        {
+            //tell the client the user exists in the database
+            callback(200,{msg:"Username already exists"});
+            return; 
+        };
+            
+        data.payLoad.password=helpers.hash(password);
+        const QUERY= `create (u:User {userName: $data.userName, email: $data.email, password: $data.password})
+                return u.userName as userName, u.email as email`;
+        const USER_CREATE_RES=await helpers.runDbQuery(QUERY,data.payLoad);
+        if(USER_CREATE_RES.length>0)
+        {
+            const resObj=USER_CREATE_RES[0],
+            resName=resObj.get("userName"),
+            resEmail=resObj.get("email");
+            callback(201,{msg: "Account created successfully",userData:{userName:resName,email:resEmail}});
+            return;
+        };
+        callback(200, {msg: "Account not created"});
+        return;
+    } catch (error) 
+    {
+        callback(500,{msg:`Error occured error:${error}`})
+        return;  
+    }
+}
 
 /**
  * LOGS IN A USER
@@ -59,42 +54,59 @@ HANDLERS.createAccount=async function (data,callback){
  * @param {*} callback 
  */
 HANDLERS.createSession=async function(data,callback){
-    if(data.method.toLowerCase() == "post")
+    if(data.method.toLowerCase() !== "post")
     {
-        const {password}=data.payLoad;
-        try 
-        {
-            data.payLoad.password=helpers.hash(password);
-
-            const QUERY = `match (u:User {userName:$data.userName,password:$data.password})
-            return u.userName as userName, u.email as email`
-            const LOGINRES=await helpers.runDbQuery(QUERY,data.payLoad);
-    
-            if(LOGINRES.length>0)
-            {
-                const RESNAME=LOGINRES[0].get("userName"),
-                RESEMAIL=LOGINRES[0].get("email");
-                callback(200,{msg:"Log in successful",userData:{userName:RESNAME,email:RESEMAIL}});
-            }else
-            {
-                callback(200,{msg:`Wrong username or password. Please try again`});
-            }   
-        } catch (err) 
-        {
-            
-            callback(500,{msg:`Error occured: ${err}`});
-        }  
+        callback(405,{msg:"The method used is not allowed"});
+        return;
     }
-    else
+    
+    const {password}=data.payLoad;
+
+    try 
+    {
+        data.payLoad.password=helpers.hash(password);
+        const QUERY = `match (u:User {userName:$data.userName,password:$data.password})
+        return u.userName as userName, u.email as email`
+        const LOGINRES=await helpers.runDbQuery(QUERY,data.payLoad);
+
+        if(LOGINRES.length>0)
+        {
+            const RESNAME=LOGINRES[0].get("userName"),
+            RESEMAIL=LOGINRES[0].get("email");
+            callback(200,{msg:"Log in successful",userData:{userName:RESNAME,email:RESEMAIL}});
+        }else
+        {
+            callback(200,{msg:`Wrong username or password. Please try again`});
+        }   
+    } catch (err) 
     {
         
-        callback(405,{msg:"Http method not allowed"})
-    };
+        callback(500,{msg:`Error occured: ${err}`});
+    }  
 };
 
 HANDLERS.updateUserCredentials=async function(data,callback){
-    try {
-        const {userName,updatedCredentials}=data.payLoad;
+
+    const {userName,updatedCredentials}=data.payLoad;
+
+    if(data.method.toLowerCase() !== "put")
+    {
+        callback(405,{msg:"The method used is not allowed"});
+        return;
+    }
+
+    if(updatedCredentials.userName !== userName)
+    {
+        const LOOK_UP_USER=await HELPERS.lookUpUser(updatedCredentials.userName);
+        if(LOOK_UP_USER.length>0)
+        {
+            //tell the client the user exists in the database
+            callback(200,{msg:"Username already exists"});
+            return; 
+        };
+    }
+
+    try {     
         let updateRes;
         const QUERY=`MATCH (usr:User {userName:$data.userName})
                     SET usr += $data.updatedCredentials RETURN usr.userName as userName,usr.email as email`;
@@ -115,12 +127,20 @@ HANDLERS.updateUserCredentials=async function(data,callback){
 
 //CRUD IMAGE FUNCTIONALITY
 HANDLERS.storeImageRef=async function(data,callback){
+
+    if(data.method.toLowerCase() !== "post")
+    {
+        callback(405,{msg:"The method used is not allowed"});
+        return;
+    }
+
     try {
         const QUERY=`UNWIND $data AS properties
         MATCH (usr:User {userName:properties.ownerName})
         MERGE (img:Image {name:properties.name,public_id:properties.public_id})
         CREATE (usr)-[rel:UPLOADED]->(img)
         RETURN img,rel`;
+        console.log(data)
         const SAVE_IMAGE_RES=await helpers.runDbQuery(QUERY,data.payLoad);
         if(SAVE_IMAGE_RES.length>0)
         {
@@ -134,42 +154,107 @@ HANDLERS.storeImageRef=async function(data,callback){
     }
 };
 
+HANDLERS.updateProfilePic=async function(data,callback){
+    if(data.method.toLowerCase() !== "put")
+    {
+        callback(405,{msg:"Method not allowed"});
+        return;
+    }
+
+    try {
+        const {ownerName}=data.payLoad;
+        let profile_pic;
+
+        console.log(data);
+
+        const QUERY=`MATCH (usr:User {userName:$data.ownerName})
+                        SET usr.profile_pic=$data.public_id
+                        RETURN  usr.profile_pic AS profile_pic`;
+        
+        const RESULTS=await HELPERS.runDbQuery(QUERY,data.payLoad);
+
+        RESULTS.map((res)=>{
+            profile_pic=res.get("profile_pic");
+        });
+
+        if( !(Boolean(profile_pic)) )
+        {
+            callback(417,{msg:"Couldn't update the profile_pic."});
+            return;
+        }
+
+        callback(200,{msg:"Saved",data:{userName:ownerName,profile_pic}})
+        return;   
+    } catch (error) {
+        callback(500,{msg:error});
+    }
+}
+
 HANDLERS.generateSignature=function(data,callback){
     /*generate a signature to enable signed uploads to cloudinary*/
+    if(data.method.toLowerCase() !== "get")
+    {
+        callback(405,{msg:"The method used is not allowed"});
+        return;
+    }
+
+    const {searchParams}=data;
+
+    if(!searchParams.get("uploadType"))
+    {
+        callback(400,{msg:"Missing query param: (uploadType)"});
+        return;
+    }
+
     try
     {
-        signRequest()
+        signRequest(searchParams.get("uploadType"))
         .then((res)=>{
             callback(200,{msg:"Everything is okay",data:res});
-            ;
         },
         (err)=>{
             callback(500,{msg:`The signature generation didn't work, error: ${err}`});
         });   
     } catch (error) 
     {
-        callback(501,{msg:`Error occured error ${error}`});
+        callback(400,{msg:`Error occured error ${error}`});
     };
 };
 
 HANDLERS.retrieveImages=async function(data,callback){
+    if(data.method.toLowerCase() !== "get")
+    {
+        callback(405,{msg:"The method used is not allowed"});
+        return;
+    };
+
+    const {searchParams}=data;
+
+    if(!searchParams.get("userName"))
+    {
+        callback(400,{msg:"Missing query param: (userName)"});
+        return;
+    }
+
     try {
         const QUERY=`MATCH (usr:User {userName:$data.userName})-[rel:UPLOADED]->(img)
-        RETURN img.name AS name, img.public_id as public_id`;
-        const RETRIEVE_IMAGES=await helpers.runDbQuery(QUERY,data.payLoad);
+        RETURN usr.profile_pic AS profile_pic, img.name AS name, img.public_id as public_id`;
+        const RETRIEVE_IMAGES=await helpers.runDbQuery(QUERY,{userName:searchParams.get("userName")});
         const RESULTS=[];
+        let profile_pic;
         if(RETRIEVE_IMAGES.length>0)
         {
             for(let image of RETRIEVE_IMAGES)
             {
+                profile_pic= !(Boolean(image.get("profile_pic")))?"":image.get("profile_pic");
                 let name=image.get("name");
                 let public_id=image.get("public_id");
                 const {tags,context}=await helpers.getTags(public_id).then(res=>{ return res},err=>{throw err});
                 const TRANSFORMEDIMG=helpers.transformImage(public_id)
                 RESULTS.push({name,public_id,imgURL:TRANSFORMEDIMG,tags:tags,description:context});
             }
-            
-            callback(200,{msg:"retrieved",data:RESULTS});
+
+            callback(200,{msg:"retrieved",data:{imagesArr:RESULTS,profile_pic}});
         }else
         {
             callback(200,{msg:`No images were found for this user.`});
@@ -181,6 +266,13 @@ HANDLERS.retrieveImages=async function(data,callback){
 };
 
 HANDLERS.updateImgInfo=async function(data,callback){
+
+    if(data.method.toLowerCase() !== "put")
+    {
+        callback(405,{msg:"The method used is not allowed"});
+        return;
+    }
+
     try {
         let {tags,public_id,context}=data.payLoad;
         if( !(/^\w+=\b/gi.test(context)) )
@@ -205,6 +297,11 @@ HANDLERS.updateImgInfo=async function(data,callback){
 }
 
 HANDLERS.deleteImg=async function(data,callback){
+    if(data.method.toLowerCase() !== "delete")
+    {
+        callback(405,{msg:"The method used is not allowed"});
+        return;
+    }
     try {
         const {public_id}=data.payLoad;
 

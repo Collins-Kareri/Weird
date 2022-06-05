@@ -5,6 +5,7 @@ import routeMap from "./lib/routes.js";
 import HANDLERS from "./lib/handlers.js";
 import { StringDecoder } from "string_decoder";
 import helpers,{requestDelivered} from "./lib/helpers.js";
+
 const PORT=3001||process.env.port;
 const SERVER=http.createServer();
 
@@ -12,6 +13,7 @@ SERVER.on("request",(req,res)=>{
     
     const decoder=new StringDecoder("utf-8"),
         parsedUrl=new URL(req.url,`http://${req.headers.host}`),
+        searchParams=parsedUrl.searchParams,
         method=req.method,
         path=parsedUrl.pathname.replace(/(^\/\b)+?/,""),
         reqIdentifier=req.headers["req-name".toLowerCase()],
@@ -36,6 +38,7 @@ SERVER.on("request",(req,res)=>{
                 reqData={
                     method,
                     reqIdentifier,
+                    searchParams,
                     payLoad:payLoad.length>0?JSON.parse(payLoad):{}};
     
             choosenRouteHandler(reqData,function(statusCode,resData){

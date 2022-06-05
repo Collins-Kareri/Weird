@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {handleInputData,saveToClientStorage} from "../../util"
+import {handleFileData,saveToClientStorage} from "../../util"
 
 function DragAndDrop({setImages}) {
 
@@ -11,7 +11,7 @@ function DragAndDrop({setImages}) {
         {
             saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"loading"}])
             const FILES=evt.dataTransfer.files,
-                IMAGES=await handleInputData(FILES);
+                IMAGES=await handleFileData(FILES,true);
             setImages(IMAGES);
             saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}])
             return;

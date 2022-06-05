@@ -10,6 +10,7 @@ const routeMap={
     "retrieveCollection":HANDLERS.retrieveCollection,
     "updateImgInfo":HANDLERS.updateImgInfo,
     "deleteImg":HANDLERS.deleteImg,
+    "updateProfilePic":HANDLERS.updateProfilePic,
     "favicon.ico":""
 };
 

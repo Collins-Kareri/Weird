@@ -12,16 +12,29 @@ cloudinary.config({
 });
 
 /**
- * Provides a signature for requests
- * @returns a signature to sign requests on the front
+ * provides a signature to sign a cloudinary request
+ * @param {STRING} uploadType determines the upload preset to be signed
+ * @returns an object with the timestamp, signature & api key
  */
-export async function signRequest(){
+export async function signRequest(uploadType){
     //upload the files to cloudinary one by one
     const API_KEY=config.cloudinaryConfigurations.api_Key
     const TIMESTAMP=Math.round((new Date).getTime()/1000);
+    let upload_preset;
+
+    if(uploadType === "image")
+    {
+        upload_preset="trialToUpload";
+    }
+
+    if(uploadType === "profile")
+    {
+        upload_preset="profile";
+    }
+
     const SIGNATURE=cloudinary.utils.api_sign_request({
         timestamp:TIMESTAMP,
-        upload_preset:"weird",
+        upload_preset,
         detection:"lvis_v1"
     },config.cloudinaryConfigurations.api_Secret);
     return {timestamp: TIMESTAMP,signature: SIGNATURE,api_Key: API_KEY};

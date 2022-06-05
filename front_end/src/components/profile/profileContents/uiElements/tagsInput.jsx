@@ -41,11 +41,11 @@ function TagsInput({tags,dispatch}) {
     return (
         <>
             <div onClick={startInput} id="tagsInputContainer">
-                {tags.map((tag)=>{
-                    return (<span key={`${tag}_tag`} data-within="tags">
-                        {tag} <span ref={TAG_REMOVEBTN} onClick={()=>{dispatch({type:"rmTag",tag:`${tag}`,payload:tags})}} className="removeBtn"></span>
+                {tags.length>0? tags.map((tag)=>{
+                                return (<span key={`${tag}_tag`} data-within="tags">
+                            {tag} <span ref={TAG_REMOVEBTN} onClick={()=>{dispatch({type:"rmTag",tag:`${tag}`,payload:tags})}} className="removeBtn"></span>
                     </span>);
-                })}
+                }):<></>}
                 <input ref={TAGS_INPUT} onKeyDown={handleKeyDown} placeholder="enter tag" type="text"/>
             </div>
         </> 

@@ -1,10 +1,10 @@
 import Button from "../../button";
 
-function Success({handleClick}) {
+function Success({handleClick,msg}) {
     return ( 
         <>
             <div className="pageStateContent" id="successMsgContainer">
-                <span id="successMsg">Thank you for uploading.<br/> We will redirect to your profile where you will confirm that the correct tags where generated for you.</span>
+                <span id="successMsg">{typeof msg !== "undefined"? msg :"UPLOAD WAS SUCCESSFUL. YOU WILL BE REDIRECTED TO YOUR PROFILE"}</span>
                 <Button btnClassName={"primary"} btnClick={handleClick} btnDisplayText="ok"/>
             </div>
 
