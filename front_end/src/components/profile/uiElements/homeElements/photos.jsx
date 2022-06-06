@@ -1,6 +1,6 @@
-import NoContent from "../../../commonElements/noContent";
-import Image from "../../../commonElements/image";
-import {makeReq} from "../../../../util"
+import NoContent from "components/commonElements/noContent";
+import Image from "components/commonElements/image";
+import {makeReq} from "util"
 import Masonry from "react-masonry-css";
 
 function PhotosContainer({imagesArr,setImagesArr,setModalStatus,setAssetResource}) {

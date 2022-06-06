@@ -1,10 +1,10 @@
-import UserDetails from "../../../commonElements/usrDetails";
-import Tab from "../../../commonElements/tab";
-import PhotosContainer from ".././uiElements/photos";
-import CollectionsContainer from ".././uiElements/collections";
-import {makeReq} from "../../../../util"
+import UserDetails from "components/commonElements/usrDetails";
+import Tab from "components/commonElements/tab";
+import PhotosContainer from "components/profile/uiElements/homeElements/photos";
+import CollectionsContainer from "components/profile/uiElements/homeElements/collections";
+import {makeReq} from "util"
 import { useState,useEffect } from "react";
-import EditPhotosModal from "../uiElements/editPhotosModal";
+import EditPhotosModal from "components/profile/uiElements/homeElements/editPhotosModal";
 
 function ProfileHome({toggleEdit,imagesArr,setImagesArr,userData,profilePic}) {
 

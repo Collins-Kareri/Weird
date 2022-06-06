@@ -1,8 +1,8 @@
 import {useState,useEffect} from "react";
-import {makeReq} from "../../util"
-import Home from "./profileContents/pageViews/home";
-import Edit from "./profileContents/pageViews/edit";
-import LoggedInCheck from "../hoc/loggedInRoutes";
+import {makeReq} from "util"
+import Home from "components/profile/pageViews/home";
+import Edit from "components/profile/pageViews/edit";
+import LoggedInCheck from "components/hoc/loggedInRoutes";
 import {Cloudinary} from "@cloudinary/url-gen";
 import { scale } from "@cloudinary/url-gen/actions/resize";
 

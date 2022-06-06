@@ -1,8 +1,8 @@
-import Button from "../../../commonElements/button";
-import Tab from "../../../commonElements/tab";
-import TagsInput from "./tagsInput";
+import Button from "components/commonElements/button";
+import Tab from "components/commonElements/tab";
+import TagsInput from "components/profile/uiElements/homeElements/tagsInput";
 import { useEffect, useState,useReducer} from "react";
-import {makeReq} from "../../../../util"
+import {makeReq} from "util"
 
 function EditPhotosModal({assetResource,modalStatus,setModalStatus,imagesArr,setImagesArr}) {
 
