@@ -1,5 +1,5 @@
 function PreviewSelected({setImages,images}) {
-    function deleteImg(imageName){
+    function removeImg(imageName){
         const RESULTS=images.filter(({_,name})=>{
             return name!==imageName
         });
@@ -11,7 +11,7 @@ function PreviewSelected({setImages,images}) {
         <>
             {images.map((image)=>{
              return(<div id="imagePreviewContainer" key={image.name}>
-                        <span className="removeBtn"  onClick={()=>{deleteImg(image.name)}}></span>
+                        <span className="removeBtn"  onClick={()=>{removeImg(image.name)}}></span>
                         <img src={image.url} alt="user generated"/>
                     </div>)
             })}

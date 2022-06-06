@@ -8,7 +8,7 @@ function reducer(currentState,action){
     switch(action.type){
         case("init"):
             const {userName,email}=JSON.parse(window.localStorage.getItem("userData"));
-            return {...currentState,userName,email}; 
+            return {...currentState,userName,email,currentPublicId:action.payload.currentPublicId}; 
         case("userNameChange"):
             return {...currentState,userName:action.payload};
         case("emailChange"):
@@ -17,6 +17,8 @@ function reducer(currentState,action){
             return {...currentState,results:action.payload};
         case("msg"):
             return {...currentState,msg:action.payload};
+        case("change_Current_PublicId"):
+            return {...currentState,currentPublicId:action.payload.currentPublicId};
         default:
             return currentState;
     }
@@ -25,8 +27,7 @@ function reducer(currentState,action){
 function ProfileEdit({profilePic,toggleEdit,setProfilePic}) {
 
     const imgInput=useRef(null);
-    const [currentState,dispatch]=useReducer(reducer,{userName:"",email:"",results:[],msg:""});
-
+    const [currentState,dispatch]=useReducer(reducer,{userName:"",email:"",results:[],msg:"",currentPublicId:""});
 
     function setResults(res){
         dispatch({type:"results",payload:res});
@@ -39,22 +40,27 @@ function ProfileEdit({profilePic,toggleEdit,setProfilePic}) {
     }
 
     useEffect(()=>{
-        dispatch({type:"init"});
+        dispatch({type:"init",payload:{currentPublicId:profilePic.publicID}});
         if(currentState.results.length>0 && currentState.msg === "changed"){
-            saveProfilePic(currentState.results,setMsg)
+            saveProfilePic(currentState.results,currentState.currentPublicId,setMsg)
         }
 
         if(currentState.msg.toLowerCase() === "saved")
         {
-            setProfilePic(currentState.results[0].public_id)
+            setProfilePic(currentState.results[0].public_id);
+            dispatch({type:"change_Current_PublicId",payload:{currentPublicId:profilePic.publicID}})
         }
-        return ()=>{}
-    },[currentState.results, currentState.msg, setProfilePic]);
+        
+        return ()=>{};
+    },[currentState.results, currentState.msg, setProfilePic, profilePic.publicID, currentState.currentPublicId]);
 
     function profilePictureEdit(evt){
-        evt.preventDefault();
-        imgInput.current.click();
-        return;
+        if(window.confirm("You are about to change the profile picture"))
+        {
+            evt.preventDefault();
+            imgInput.current.click();
+            return;
+        }
     }
 
     async function handle_User_Credentials_Submit(evt){
@@ -108,31 +114,43 @@ function ProfileEdit({profilePic,toggleEdit,setProfilePic}) {
     }
 
     async function profile_Pic_On_Change(evt){
-        const FILES=evt.target.files,
-            profilePicUrl=await handleFileData(FILES,false),
-            SIGNATUREOBJ=await generateSignature({uploadType:"profile"});
-        
-        dispatch({type:"msg",payload:"changed"});
-
-        if(SIGNATUREOBJ === "server error"){
-            return;
-        }
-        const REQ_DATA=
+        if(window.confirm("You are about to change the profile picture"))
         {
-            file:profilePicUrl[0].url,
-            identifier:profilePicUrl[0].name,
-            noOfValuesToUpload:FILES.length,
-            signatureObj:SIGNATUREOBJ,
-            uploadType:"profile",
-            setResults
-        }
-        sendToCloudinary(REQ_DATA)
+            const FILES=evt.target.files,
+                profilePicUrl=await handleFileData(FILES,false),
+                SIGNATUREOBJ=await generateSignature({uploadType:"profile"});
+        
+            dispatch({type:"msg",payload:"changed"});
+
+            if(SIGNATUREOBJ === "server error"){
+                return;
+            }
+
+            const REQ_DATA=
+            {
+                file:profilePicUrl[0].url,
+                identifier:profilePicUrl[0].name,
+                noOfValuesToUpload:FILES.length,
+                signatureObj:SIGNATUREOBJ,
+                uploadType:"profile",
+                setResults
+            }
+
+            sendToCloudinary(REQ_DATA);
+        };
     }
 
     function user_Credentials_On_Change(evt){
         let value=evt.target.value;
         let name=evt.target.name;
         dispatch({type:`${name}Change`,payload:value});
+    }
+
+    function deleteProfilePic(evt){
+        if(window.confirm("You are about to delete your profile picture."))
+        {
+        }
+        return;
     }
 
     return ( 
@@ -145,8 +163,9 @@ function ProfileEdit({profilePic,toggleEdit,setProfilePic}) {
             <div id="profilePicEdit">
                 <section>
                     <span 
-                        className="profileImg"
-                        style={{backgroundImage:`url(${Boolean(profilePic)?"/icons/profilePicturePlaceholder.svg":""})`}}>
+                    className="profileImg"
+                    style={{position:"relative",backgroundImage:`url(${Boolean(profilePic)?"":"/icons/profilePicturePlaceholder.svg"})`}}>
+                        {Boolean(profilePic)?<span className="deleteBtn" onClick={deleteProfilePic}></span>:<></>}
                         {Boolean(profilePic)?<AdvancedImage cldImg={profilePic}/>:<></>}
                     </span>
 

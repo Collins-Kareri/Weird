@@ -268,10 +268,10 @@ export function storeInDb(data,setProgress,setResults){
     });
 }
 
-export function saveProfilePic(data,setMsg){
+export function saveProfilePic(data,currentProfilePic,setMsg){
     const URL="/updateProfilePic";
     const OPTIONS={data:data[0],identifier:`${URL}_${data[0].ownerName}`};
-
+    OPTIONS.data.currentProfilePic=currentProfilePic;
     makeReq(URL,"put",OPTIONS)
     .then((data)=>{
         let res=JSON.parse(data);

@@ -147,7 +147,7 @@ HANDLERS.storeImageRef=async function(data,callback){
             callback(200,{msg:"saved",no_Of_Values_Saved:SAVE_IMAGE_RES.length});
         }else
         {
-            callback(200,{msg:`Images where not stored.`});
+            callback(200,{msg:`Image refs where not saved to db.`});
         }     
     } catch (err) {     
         callback(500,{msg:`Error occured: ${err}`})
@@ -162,10 +162,14 @@ HANDLERS.updateProfilePic=async function(data,callback){
     }
 
     try {
-        const {ownerName}=data.payLoad;
+        const {ownerName,public_id,currentProfilePic}=data.payLoad;
         let profile_pic;
+        let delete_current_profile_pic_reponse=null;
 
-        console.log(data);
+        if(Boolean(currentProfilePic))
+        {
+            delete_current_profile_pic_reponse=await cloudinary.uploader.destroy(currentProfilePic,{resource_type:"image",invalidate:true}); 
+        };
 
         const QUERY=`MATCH (usr:User {userName:$data.ownerName})
                         SET usr.profile_pic=$data.public_id
@@ -177,8 +181,9 @@ HANDLERS.updateProfilePic=async function(data,callback){
             profile_pic=res.get("profile_pic");
         });
 
-        if( !(Boolean(profile_pic)) )
+        if( Boolean(public_id) && !(Boolean(profile_pic)) )
         {
+            //check if public_id is a truthy that is we had a public id to change and check if profile_pic is not a falsy ie undefined or an empty string
             callback(417,{msg:"Couldn't update the profile_pic."});
             return;
         }
@@ -324,7 +329,7 @@ HANDLERS.deleteImg=async function(data,callback){
         const DELETE_FROM_CLOUDINARY=await cloudinary.uploader.destroy(public_id,{resource_type:"image",invalidate:true});
         const DELETE_REF=await _delete_ref_from_db();
 
-        if(DELETE_FROM_CLOUDINARY.result === DELETE_REF)
+        if( (DELETE_FROM_CLOUDINARY.result === "ok") && (DELETE_REF === "ok") )
         {
             callback(200,{msg:"ok"});
             return;

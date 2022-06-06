@@ -29,7 +29,6 @@ function Profile() {
             const myProfilePic=cld.image(profile_pic);
         
             myProfilePic.resize(scale().width(512).height(512));
-            console.log(myProfilePic);
             return myProfilePic;
         }
 
