@@ -1,9 +1,10 @@
 import Button from "components/commonElements/button";
 import {AdvancedImage} from "@cloudinary/react";
 import {useRef} from "react";
-import {handleFileData,generateSignature, sendToCloudinary} from "util";
+import {makeReq, handleFileData, generateSignature, sendToCloudinary,saveProfilePic} from "util";
+import { saveToClientStorage } from "util";
 
-function ProfilePicEdit({profilePic,dispatch}) {
+function ProfilePicEdit({profilePic,checkForPublicId,dispatch}) {
 
     const imgInput=useRef(null);
 
@@ -22,37 +23,30 @@ function ProfilePicEdit({profilePic,dispatch}) {
     }
 
     async function profile_Pic_On_Change(evt){
-        if(window.confirm("You are about to change the profile picture"))
-        {
-            const FILES=evt.target.files,
-                profilePicUrl=await handleFileData(FILES,false),
-                SIGNATUREOBJ=await generateSignature({uploadType:"profile"});
-        
-            dispatch({type:"msg",payload:"changed"});
+        const FILE_DATA=await handleFileData(evt.target.files,false);
+        const SIGNATURE_OBJ=await generateSignature({uploadType:"profile"});
 
-            if(SIGNATUREOBJ === "server error"){
-                return;
-            }
+        const REQ_DATA={
+            file:FILE_DATA[0].url,
+            signatureObj:SIGNATURE_OBJ,
+            uploadType:"profile",
+            noOfValuesToUpload:evt.target.files.length,
+            setResults
+        }
 
-            const REQ_DATA=
-            {
-                file:profilePicUrl[0].url,
-                identifier:profilePicUrl[0].name,
-                noOfValuesToUpload:FILES.length,
-                signatureObj:SIGNATUREOBJ,
-                uploadType:"profile",
-                setResults
-            }
-
-            sendToCloudinary(REQ_DATA);
-        };
+        sendToCloudinary(REQ_DATA)
+        .then((res)=>{
+            console.log(res);
+            // saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}]);
+            saveProfilePic(res,profilePic,dispatch);
+        })
+        .catch((err)=>{
+            console.log(err);
+            alert("Error cannot update your profilePicture");
+        })
     }
 
-    function deleteProfilePic(evt){
-        if(window.confirm("You are about to delete your profile picture."))
-        {
-        }
-        return;
+    async function deleteProfilePic(){
     }
 
     return (
@@ -60,9 +54,9 @@ function ProfilePicEdit({profilePic,dispatch}) {
             <section>
                 <span 
                 className="profileImg"
-                style={{position:"relative",backgroundImage:`url(${Boolean(profilePic)?"":"/icons/profilePicturePlaceholder.svg"})`}}>
-                    {Boolean(profilePic)?<span className="deleteBtn" onClick={deleteProfilePic}></span>:<></>}
-                    {Boolean(profilePic)?<AdvancedImage cldImg={profilePic}/>:<></>}
+                style={{position:"relative",backgroundImage:`url(${checkForPublicId?"":"/icons/profilePicturePlaceholder.svg"})`}}>
+                    {checkForPublicId?<span className="deleteBtn" onClick={deleteProfilePic}></span>:<></>}
+                    {checkForPublicId?<AdvancedImage cldImg={profilePic}/>:<></>}
                 </span>
                 <input ref={imgInput} type="file" accept="image/*" onChange={profile_Pic_On_Change}/>
                 <Button 

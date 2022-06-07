@@ -99,10 +99,9 @@ function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults){
         });
         if(RES_ARR.length===noOfValuesToUpload)
         {
-            setResults(RES_ARR)
-            saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}])
+            setResults(RES_ARR);
+            saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}]);
         }
-
         return RES_ARR;
     }
 
@@ -149,14 +148,12 @@ export async function makeReq(url,method,options={}){
             saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
             // alert(`Error occured making the ${IDENTIFIER} request`);
             fail("error occurred while making request");
-            return;
         }
 
         XHR.onabort=()=>{
             saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
             alert("request was aborted");
             fail("the request was aborted");
-            return;
         }
 
         XHR.onload=()=>{
@@ -172,9 +169,7 @@ export async function makeReq(url,method,options={}){
 
             if(XHR.readyState===XMLHttpRequest.DONE)
             {
-                handleLoad(url,UPLOAD_RES,options.noOfValuesToUpload,options.setResults);
-                succeed(UPLOAD_RES);
-                return;
+                succeed(handleLoad(url,UPLOAD_RES,options.noOfValuesToUpload,options.setResults));
             }
         }
 
@@ -228,7 +223,7 @@ export async function generateSignature(data){
     }
 }
 
-export function sendToCloudinary(options){
+export async function sendToCloudinary(options){
     const {file,signatureObj,...newOptions}=options;
     //"https://api.cloudinary.com/v1_1/karerisspace/image/upload"
     const UPLOAD_DATA={},
@@ -242,10 +237,11 @@ export function sendToCloudinary(options){
     newOptions.data=UPLOAD_DATA;
 
     try {
-        makeReq(CLOUDINARY_URL,"post",newOptions);
+        return makeReq(CLOUDINARY_URL,"post",newOptions);
     } catch (error) {
         saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"fail"}]);
-        console.error("yap",error);  
+        console.error("yap",error);
+        throw error;
     }
 }
 
@@ -275,14 +271,16 @@ export function saveProfilePic(data,currentProfilePic,setMsg){
     makeReq(URL,"put",OPTIONS)
     .then((data)=>{
         let res=JSON.parse(data);
+      
         if(res.msg.toLowerCase() === "saved")
         {
             saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"success_Profile"}]);
-            setMsg(res.msg)
+            setMsg({type:"msg",payload:res.msg});
         }
+        RES_ARR.splice(0,RES_ARR.length);
     },(err)=>{
         console.log(err);
-        setMsg(err);
+        setMsg({type:"msg",payload:"couldn't save error"});
         RES_ARR.splice(0,RES_ARR.length);
     });
 }

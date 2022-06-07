@@ -11,6 +11,7 @@ const routeMap={
     "updateImgInfo":HANDLERS.updateImgInfo,
     "deleteImg":HANDLERS.deleteImg,
     "updateProfilePic":HANDLERS.updateProfilePic,
+    "deleteProfilePic":HANDLERS.deleteProfilePic,
     "favicon.ico":""
 };
 

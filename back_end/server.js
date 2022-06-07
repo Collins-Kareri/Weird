@@ -20,6 +20,8 @@ SERVER.on("request",(req,res)=>{
         reqReceivedStatus=helpers.checkIfReqIsDuplicate(reqIdentifier);
     let payLoad="";
 
+    console.log(parsedUrl);
+
     res.setHeader("Access-Control-Allow-Origin","http://localhost:8080");
     res.setHeader("Access-Control-Allow-Methods","GET,POST,PUT,DELETE");
     res.setHeader("Access-Control-Allow-Headers",["Content-Type","Req-Name"]);
@@ -65,6 +67,7 @@ SERVER.on("request",(req,res)=>{
         let resData={msg:"Request was already received await reponse."};
         res.write(JSON.stringify(resData));
         res.end();
+        console.log(parsedUrl);
     };
 });
 

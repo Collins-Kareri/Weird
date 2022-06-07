@@ -3,10 +3,10 @@ import Tab from "components/commonElements/tab";
 import PhotosContainer from "components/profile/uiElements/homeElements/photos";
 import CollectionsContainer from "components/profile/uiElements/homeElements/collections";
 import {makeReq} from "util"
-import { useState,useEffect } from "react";
+import { useState} from "react";
 import EditPhotosModal from "components/profile/uiElements/homeElements/editPhotosModal";
 
-function ProfileHome({toggleEdit,imagesArr,setImagesArr,userData,profilePic}) {
+function ProfileHome({toggleEdit,imagesArr,checkForPublicId,setImagesArr,userData,profilePic}) {
 
     const [active,setActive]=useState("photos");
     const [collectionsArr,setCollectionsArr]=useState([]);
@@ -20,7 +20,7 @@ function ProfileHome({toggleEdit,imagesArr,setImagesArr,userData,profilePic}) {
 
     return ( 
         <>
-            <UserDetails userName={userData.userName} userEmail={userData.email} profilePic={profilePic} explore={false} toggleEdit={toggleEdit}/>
+            <UserDetails userName={userData.userName} checkForPublicId={checkForPublicId} userEmail={userData.email} profilePic={profilePic} explore={false} toggleEdit={toggleEdit}/>
             <Tab arr_of_tabs={ARR_OF_TABS} setActive={setActive}/>
             <div id="profileContentContainer">
                 {active==="photos"?<PhotosContainer imagesArr={imagesArr} setImagesArr={setImagesArr} setModalStatus={setModalStatus} setAssetResource={setAssetResource}/>:<CollectionsContainer collectionsArr={collectionsArr}/>}

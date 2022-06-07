@@ -1,14 +1,9 @@
 import Button from "../commonElements/button";
-import {useNavigate} from "react-router-dom";
 import {AdvancedImage} from "@cloudinary/react";
 
-function UserDetails({userName,userEmail,explore,profilePic,toggleEdit}) {
-
-    const redirect=useNavigate();
+function UserDetails({userName,userEmail,checkForPublicId,explore,profilePic,toggleEdit}) {
 
     function handleFollowBtnClick(){};
-
-    console.log(profilePic);
 
     return (
         <>
@@ -16,9 +11,9 @@ function UserDetails({userName,userEmail,explore,profilePic,toggleEdit}) {
                 <section>
                     <span 
                         className="profileImg"
-                        style={{backgroundImage:`url(${Boolean(profilePic)?"/icons/profilePicturePlaceholder.svg":""})`}}
+                        style={{backgroundImage:`url(${checkForPublicId?"":"/icons/profilePicturePlaceholder.svg"})`}}
                     >
-                        {Boolean(profilePic)?<AdvancedImage cldImg={profilePic}/>:<></>}
+                        {checkForPublicId?<AdvancedImage cldImg={profilePic}/>:<></>}
                     </span>
                     <span className="usrName">{userName}</span>
                     <span className="usrEmail">{userEmail}</span>

@@ -10,12 +10,16 @@ function Profile() {
 
     const [editActive,setEditActive]=useState(false);
     const [imagesArr,setImagesArr]=useState([]);
-    const [profile_pic,setProfilePic]=useState(null);
+    const [profile_pic,setProfilePic]=useState({public_Id:""});
     const [fetchStatus,setFetchStatus]=useState(null);
     const [userData,setUserData]=useState(()=>{
         let initVal=JSON.parse(localStorage.getItem("userData")) || {userName:"not defined",email:"not defined"} ;
         return initVal;
     });
+
+    function checkForPublicId(){
+        return (Boolean(profile_pic.public_Id))?true:false;
+    }
 
     function cloudinaryImg(){
         if( Boolean(profile_pic) )
@@ -26,7 +30,7 @@ function Profile() {
                 }
             });
             
-            const myProfilePic=cld.image(profile_pic);
+            const myProfilePic=cld.image(profile_pic.public_Id);
         
             myProfilePic.resize(scale().width(512).height(512));
             return myProfilePic;
@@ -42,15 +46,15 @@ function Profile() {
 
         const func=async()=>{
             const {data,msg}=await fetchPhotos(userData.userName);
-            if(imagesArr.length===0 && userData.userName !== "not defined" && msg==="retrieved" )
+            if(imagesArr.length===0 && userData.userName !== "not defined" && msg === "retrieved" )
             {
                 setFetchStatus(msg);
-                setProfilePic(data.profile_pic);
+                setProfilePic({public_Id:data.profile_pic});
                 setImagesArr(data.imagesArr);
             }
         }
 
-        if(fetchStatus!=="retrieved")
+        if(fetchStatus !== "retrieved")
         {
             func();
         }
@@ -71,7 +75,7 @@ function Profile() {
 
     return ( 
         <>
-            {editActive?<Edit toggleEdit={toggleEdit} profilePic={cloudinaryImg()} setProfilePic={setProfilePic}/>:<Home toggleEdit={toggleEdit} imagesArr={imagesArr} setImagesArr={setImagesArr} userData={userData} profilePic={cloudinaryImg()}/>} 
+            {editActive?<Edit toggleEdit={toggleEdit} profilePic={cloudinaryImg()} setProfilePic={setProfilePic} checkForPublicId={checkForPublicId()}/>:<Home toggleEdit={toggleEdit} imagesArr={imagesArr} setImagesArr={setImagesArr} userData={userData} profilePic={cloudinaryImg()} checkForPublicId={checkForPublicId()}/>} 
         </>
      );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef,useState} from "react";
-import {handleFileData,sendToCloudinary,generateSignature,storeInDb} from "../../util"
+import {handleFileData,sendToCloudinary,generateSignature,storeInDb} from "util"
 
 function BrowseUpload({images,setImages,setCurrentProgress}) {
     const fileBrowse=useRef(null),

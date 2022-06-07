@@ -1,15 +1,15 @@
 import {BrowserRouter,Routes,Route} from "react-router-dom";
-import ErrorBoundary from "./components/errorBoundary";
-import Header from "./components/header/Header";
-import Separator from "./components/commonElements/separator";
-import MenuContents from "./components/commonElements/menuContents";
-import HomeContents from "./components/home/homeContents";
-import CollectionContainer from "./components/collection/collectionContainer";
-import Account from "./components/account/account";
-import SubmitPageContent from "./components/submitPhoto/submitPageContent";
-import Profile from "./components/profile/profile";
-import Image from "./components/imagesDisplay/image";
-import PageState from "./components/commonElements/pageStates/pageState";
+import ErrorBoundary from "components/errorBoundary";
+import Header from "components/header/Header";
+import Separator from "components/commonElements/separator";
+import MenuContents from "components/commonElements/menuContents";
+import HomeContents from "components/home/homeContents";
+import CollectionContainer from "components/collection/collectionContainer";
+import Account from "components/account/account";
+import SubmitPage from "components/submitPhoto/submitPage";
+import Profile from "components/profile/profile";
+import Image from "components/imagesDisplay/image";
+import PageState from "components/commonElements/pageStates/pageState";
 import { useEffect, useState } from "react";
 
 function App() {
@@ -39,7 +39,7 @@ function App() {
                 log in or register form is redirected to profile page
                */}
               <Route path="/account" exact element={loggedIn==="yes"?<Profile/>:<Account/>}/>
-              <Route path="/submit" exact element={<SubmitPageContent setCurrentProgress={setCurrentProgress}/>}/>
+              <Route path="/submit" exact element={<SubmitPage setCurrentProgress={setCurrentProgress}/>}/>
               <Route path="/profile" exact element={<Profile/>}/>
               <Route path="/images" exact element={<Image/>}/>
             </Routes>

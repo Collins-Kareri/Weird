@@ -1,8 +1,12 @@
 import helpers from "./helpers.js";
 import cloudinary,{signRequest} from "./cloudinary.js"
 import HELPERS from "./helpers.js";
+/**
+ * CONTAINS LOGIC TO HANDLE REQUESTS
+ */
 const HANDLERS={};
 
+//USER FUNCTIONALITY.
 /**
  * TAKES CARE OF THE LOGIC NEEDED TO CREATE A NEW USER
  * @Data{data that will be use to create the user}
@@ -125,7 +129,7 @@ HANDLERS.updateUserCredentials=async function(data,callback){
     }
 };
 
-//CRUD IMAGE FUNCTIONALITY
+//IMAGE FUNCTIONALITY
 HANDLERS.storeImageRef=async function(data,callback){
 
     if(data.method.toLowerCase() !== "post")
@@ -152,78 +156,6 @@ HANDLERS.storeImageRef=async function(data,callback){
     } catch (err) {     
         callback(500,{msg:`Error occured: ${err}`})
     }
-};
-
-HANDLERS.updateProfilePic=async function(data,callback){
-    if(data.method.toLowerCase() !== "put")
-    {
-        callback(405,{msg:"Method not allowed"});
-        return;
-    }
-
-    try {
-        const {ownerName,public_id,currentProfilePic}=data.payLoad;
-        let profile_pic;
-        let delete_current_profile_pic_reponse=null;
-
-        if(Boolean(currentProfilePic))
-        {
-            delete_current_profile_pic_reponse=await cloudinary.uploader.destroy(currentProfilePic,{resource_type:"image",invalidate:true}); 
-        };
-
-        const QUERY=`MATCH (usr:User {userName:$data.ownerName})
-                        SET usr.profile_pic=$data.public_id
-                        RETURN  usr.profile_pic AS profile_pic`;
-        
-        const RESULTS=await HELPERS.runDbQuery(QUERY,data.payLoad);
-
-        RESULTS.map((res)=>{
-            profile_pic=res.get("profile_pic");
-        });
-
-        if( Boolean(public_id) && !(Boolean(profile_pic)) )
-        {
-            //check if public_id is a truthy that is we had a public id to change and check if profile_pic is not a falsy ie undefined or an empty string
-            callback(417,{msg:"Couldn't update the profile_pic."});
-            return;
-        }
-
-        callback(200,{msg:"Saved",data:{userName:ownerName,profile_pic}})
-        return;   
-    } catch (error) {
-        callback(500,{msg:error});
-    }
-}
-
-HANDLERS.generateSignature=function(data,callback){
-    /*generate a signature to enable signed uploads to cloudinary*/
-    if(data.method.toLowerCase() !== "get")
-    {
-        callback(405,{msg:"The method used is not allowed"});
-        return;
-    }
-
-    const {searchParams}=data;
-
-    if(!searchParams.get("uploadType"))
-    {
-        callback(400,{msg:"Missing query param: (uploadType)"});
-        return;
-    }
-
-    try
-    {
-        signRequest(searchParams.get("uploadType"))
-        .then((res)=>{
-            callback(200,{msg:"Everything is okay",data:res});
-        },
-        (err)=>{
-            callback(500,{msg:`The signature generation didn't work, error: ${err}`});
-        });   
-    } catch (error) 
-    {
-        callback(400,{msg:`Error occured error ${error}`});
-    };
 };
 
 HANDLERS.retrieveImages=async function(data,callback){
@@ -280,10 +212,12 @@ HANDLERS.updateImgInfo=async function(data,callback){
 
     try {
         let {tags,public_id,context}=data.payLoad;
-        if( !(/^\w+=\b/gi.test(context)) )
+
+        if(context.length>0 && !(/^\w+=\b/gi.test(context)) )
         {
             throw new Error("The context is not properly formatted. Expected a string in the format (context name = context value) eg alt = image description.")
         } 
+
         cloudinary.uploader.explicit(public_id,{type:"upload",tags:tags,context:context},(err,res)=>{
             if(err)
             {
@@ -301,6 +235,12 @@ HANDLERS.updateImgInfo=async function(data,callback){
     }
 }
 
+/**
+ * Delete image functionality
+ * @param {OBJECT} data 
+ * @param {FUNCTION} callback 
+ * @returns 
+ */
 HANDLERS.deleteImg=async function(data,callback){
     if(data.method.toLowerCase() !== "delete")
     {
@@ -342,6 +282,129 @@ HANDLERS.deleteImg=async function(data,callback){
         callback(500,{msg:`Cannot delete image error: ${error}`})
     }
 }
+
+//PROFILE PICTURE FUNCTIONALITY
+HANDLERS.updateProfilePic=async function(data,callback){
+    if(data.method.toLowerCase() !== "put")
+    {
+        callback(405,{msg:"Method not allowed"});
+        return;
+    }
+
+    try {
+        const {public_id,currentProfilePic}=data.payLoad;
+        let profile_pic;
+        let delete_current_profile_pic_reponse=null;
+
+        if(Boolean(currentProfilePic))
+        {
+            delete_current_profile_pic_reponse=await cloudinary.uploader.destroy(currentProfilePic,{resource_type:"image",invalidate:true}); 
+        };
+
+        const QUERY=`MATCH (usr:User {userName:$data.ownerName})
+                        SET usr.profile_pic=$data.public_id
+                        RETURN  usr.profile_pic AS profile_pic`;
+        
+        const RESULTS=await HELPERS.runDbQuery(QUERY,data.payLoad);
+
+        RESULTS.map((res)=>{
+            profile_pic=res.get("profile_pic");
+        });
+
+        if(profile_pic.toLowerCase()== public_id.toLowerCase())
+        {
+            callback(200,{msg:"Saved",data:{profile_pic}})
+            return;
+        }
+
+        callback(400,{msg:"cannot change"})
+        return;
+    } catch (error) {
+        callback(500,{msg:error});
+    }
+}
+
+HANDLERS.deleteProfilePic=async function(data,callback){
+    if(data.method.toLowerCase() !== "delete")
+    {
+        callback(405,{msg:"Method not allowed"});
+        return;
+    }
+
+    const {public_id}=data.payLoad;
+    data.payLoad.profile_pic="";
+
+    try {
+        let db_delete_res;
+        const QUERY=`MATCH (usr:User {userName:$data.ownerName}) 
+                    SET usr.profile_pic=$data.profile_pic
+                    RETURN usr.profile_pic AS profile_pic`;
+
+        const RESULTS=await HELPERS.runDbQuery(QUERY,data.payLoad);
+
+        RESULTS.map((val)=>{
+            db_delete_res=val.get("profile_pic");
+        })
+
+        if( Boolean(db_delete_res) )
+        {
+            callback(500,{msg:"Didn't delete profile picture."});
+            return;
+        }
+
+        const DELETE_FROM_CLOUDINARY=await cloudinary.uploader.destroy(public_id,{resource_type:"image",invalidate:true});
+
+        if(DELETE_FROM_CLOUDINARY.result.toLowerCase() === "ok")
+        {
+            callback(200,{msg:"deleted successfully"});
+            return;
+        }
+
+        callback(400,{msg:"not deleted"});
+        return;
+    } catch (error) {
+       callback(500,{msg:`Couldn't delete profile picture as a error occured:\n${error}`}) 
+    }
+};
+
+/**
+ * Cloudinary generate signature functionality
+ * @param {OBJECT} data 
+ * @param {FUNCTION} callback 
+ * @returns 
+ */
+HANDLERS.generateSignature=function(data,callback){
+    /*generate a signature to enable signed uploads to cloudinary*/
+    if(data.method.toLowerCase() !== "get")
+    {
+        callback(405,{msg:"The method used is not allowed"});
+        return;
+    }
+
+    const {searchParams}=data;
+
+    let uploadType=searchParams.get("uploadType").toLowerCase();
+
+    if( !(/^(profile|image)$/gi.test(uploadType)) )
+    {
+        callback(400,{msg:"Check that you have a query param of uploadType and it's value is either image or profile."});
+        return;
+    }
+
+    try
+    {
+        signRequest(uploadType)
+        .then((res)=>{
+            callback(200,{msg:"Everything is okay",data:res});
+        },
+        (err)=>{
+            callback(500,{msg:`The signature generation didn't work, error: ${err}`});
+        });   
+    } catch (error) 
+    {
+        callback(400,{msg:`Error occured error ${error}`});
+    };
+};
 
 HANDLERS.notFound=function(data,callback){
     callback(404, {msg:"You have not specified this route in your server. Check the route for spelling errors or capitalization errors."});

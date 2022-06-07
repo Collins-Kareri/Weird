@@ -1,9 +1,9 @@
 import {useState} from "react";
-import BrowseUpload from "./browseUploadTab";
-import DragAndDrop from "./dragAndDrop";
-import PreviewSelected from "./previewSelected";
+import BrowseUpload from "components/submitPhoto/uiElements/browseUploadTab";
+import DragAndDrop from "components/submitPhoto/uiElements/dragAndDrop";
+import PreviewSelected from "components/submitPhoto/uiElements/previewSelected";
 
-function SubmitPageContent({setCurrentProgress}) {
+function SubmitPage({setCurrentProgress}) {
 
     const [images,setImages]=useState([]);
 
@@ -30,4 +30,4 @@ function SubmitPageContent({setCurrentProgress}) {
      );
 };
  
-export default SubmitPageContent;
+export default SubmitPage;
