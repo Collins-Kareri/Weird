@@ -10,11 +10,7 @@ function Image({imgURL,containerType,editAction,deleteAction,description}) {
             {/*Pop up for the edit functionality*/}
             {/*container for action you can take i.e edit*/}
             {/*image display*/}
-            <img src={imgURL} alt={description?description:"some user image"} loading="lazy"/>
-            {/* <AdvancedImage
-            cldImg={MYIMAGE} 
-            description={description?description:"some user image"}
-            plugins={[lazyload(), responsive({steps:300}), placeholder({mode:"predominant"})]}/> */}
+            {imgURL.length>0?<img src={imgURL} alt={description?description:"some user image"} loading="lazy"/>:<></>}
             {containerType==="display"?"download, like and add to collection actions":<></>}
         </div>
     );

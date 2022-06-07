@@ -174,7 +174,8 @@ HANDLERS.retrieveImages=async function(data,callback){
     }
 
     try {
-        const QUERY=`MATCH (usr:User {userName:$data.userName})-[rel:UPLOADED]->(img)
+        const QUERY=`MATCH (usr:User {userName:$data.userName})
+        OPTIONAL MATCH (usr)-[rel:UPLOADED]->(img:Image)
         RETURN usr.profile_pic AS profile_pic, img.name AS name, img.public_id as public_id`;
         const RETRIEVE_IMAGES=await helpers.runDbQuery(QUERY,{userName:searchParams.get("userName")});
         const RESULTS=[];
@@ -184,11 +185,13 @@ HANDLERS.retrieveImages=async function(data,callback){
             for(let image of RETRIEVE_IMAGES)
             {
                 profile_pic= !(Boolean(image.get("profile_pic")))?"":image.get("profile_pic");
-                let name=image.get("name");
-                let public_id=image.get("public_id");
+                let name=Boolean(image.get("name"))?image.get("name"):"";
+                let public_id=Boolean(image.get("public_id"))?image.get("public_id"):"";
                 const {tags,context}=await helpers.getTags(public_id).then(res=>{ return res},err=>{throw err});
-                const TRANSFORMEDIMG=helpers.transformImage(public_id)
-                RESULTS.push({name,public_id,imgURL:TRANSFORMEDIMG,tags:tags,description:context});
+                const TRANSFORMEDIMG=public_id.length>0?helpers.transformImage(public_id):"";
+                if(public_id.length>0){
+                    RESULTS.push({name,public_id,imgURL:TRANSFORMEDIMG,tags:tags,description:context});
+                }
             }
 
             callback(200,{msg:"retrieved",data:{imagesArr:RESULTS,profile_pic}});

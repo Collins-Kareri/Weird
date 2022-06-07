@@ -20,7 +20,7 @@ SERVER.on("request",(req,res)=>{
         reqReceivedStatus=helpers.checkIfReqIsDuplicate(reqIdentifier);
     let payLoad="";
 
-    console.log(parsedUrl);
+    // console.log(parsedUrl);
 
     res.setHeader("Access-Control-Allow-Origin","http://localhost:8080");
     res.setHeader("Access-Control-Allow-Methods","GET,POST,PUT,DELETE");

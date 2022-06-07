@@ -25,14 +25,14 @@ function ProfileEdit({profilePic,checkForPublicId,toggleEdit,setProfilePic}) {
 
     const [currentState,dispatch]=useReducer(reducer,{userName:"",email:"",msg:"",currentPublicId:""});
 
-    // useEffect(()=>{
-    //      if(currentState.msg.length<=0)
-    //     { dispatch({type:"init",payload:profilePic.publicID}) }
-    //     if(currentState.msg.toLowerCase()==="saved")
-    //     {
-    //         setProfilePic(currentState.currentPublicId)
-    //     }
-    // },[currentState.msg])
+    useEffect(()=>{
+         if(currentState.msg.length<=0)
+        { dispatch({type:"init",payload:profilePic.publicID}) }
+        if(currentState.msg.toLowerCase()==="saved")
+        {
+            setProfilePic({public_Id:currentState.currentPublicId})
+        }
+    },[currentState.currentPublicId, currentState.msg])
 
     return ( 
         <div id="profileEditContent">
