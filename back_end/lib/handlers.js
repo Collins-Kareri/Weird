@@ -184,7 +184,7 @@ HANDLERS.retrieveImages=async function(data,callback){
         {
             for(let image of RETRIEVE_IMAGES)
             {
-                profile_pic= !(Boolean(image.get("profile_pic")))?"":image.get("profile_pic");
+                profile_pic= Boolean(image.get("profile_pic"))?image.get("profile_pic"):"";
                 let name=Boolean(image.get("name"))?image.get("name"):"";
                 let public_id=Boolean(image.get("public_id"))?image.get("public_id"):"";
                 const {tags,context}=await helpers.getTags(public_id).then(res=>{ return res},err=>{throw err});
@@ -401,11 +401,11 @@ HANDLERS.generateSignature=function(data,callback){
             callback(200,{msg:"Everything is okay",data:res});
         },
         (err)=>{
-            callback(500,{msg:`The signature generation didn't work, error: ${err}`});
+            callback(400,{msg:`The signature generation didn't work, error: ${err}`});
         });   
     } catch (error) 
     {
-        callback(400,{msg:`Error occured error ${error}`});
+        callback(500,{msg:`Error occured error ${error}`});
     };
 };
 

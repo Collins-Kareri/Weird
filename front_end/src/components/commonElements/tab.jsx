@@ -14,7 +14,7 @@ function Tab({arr_of_tabs,setActive}) {
         }));
 
         setActive(ACTIVE_OBJ.outputName);
-    })
+    },[currentTabs])
 
     function handleClick(evt){
         //get id from element then match the word before Tab. ie the id are written as "nameTab"...etc

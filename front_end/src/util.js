@@ -99,7 +99,7 @@ function handleLoad(url,UPLOAD_RES,noOfValuesToUpload,setResults){
         });
         if(RES_ARR.length===noOfValuesToUpload)
         {
-            setResults(RES_ARR);
+            typeof setResults !== "undefined"?setResults(RES_ARR):(()=>{})();
             saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}]);
         }
         return RES_ARR;
@@ -264,9 +264,9 @@ export function storeInDb(data,setProgress,setResults){
     });
 }
 
-export function saveProfilePic(data,currentProfilePic,setMsg){
+export function saveProfilePic(reqData,currentProfilePic,setMsg){
     const URL="/updateProfilePic";
-    const OPTIONS={data:data[0],identifier:`${URL}_${data[0].ownerName}`};
+    const OPTIONS={data:reqData[0],identifier:`${URL}_${reqData[0].ownerName}`};
     OPTIONS.data.currentProfilePic=currentProfilePic;
     makeReq(URL,"put",OPTIONS)
     .then((data)=>{
@@ -277,6 +277,7 @@ export function saveProfilePic(data,currentProfilePic,setMsg){
             saveToClientStorage("sessionStorage",[{key:"pageStatus",value:"success_Profile"}]);
             setMsg({type:"msg",payload:res.msg});
         }
+        
         RES_ARR.splice(0,RES_ARR.length);
     },(err)=>{
         console.log(err);

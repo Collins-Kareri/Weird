@@ -6,33 +6,40 @@ import UserDetailsEdit from "components/profile/uiElements/editElements/userDeta
 function reducer(currentState,action){
     switch(action.type){
         case("init"):
-            const {userName,email}=JSON.parse(window.localStorage.getItem("userData"));
-            return {...currentState,userName,email,currentPublicId:action.payload.currentPublicId}; 
+            if(currentState.msg.toLowerCase() !== "changed")
+            {
+                return {...currentState,currentPublicId:action.payload};
+            }else{
+                return currentState;
+            } 
         case("userNameChange"):
             return {...currentState,userName:action.payload};
         case("emailChange"):
             return {...currentState,email:action.payload};
         case("msg"):
             return {...currentState,msg:action.payload};
-        case("publicId"):
-            return {...currentState,currentPublicId:action.payload.currentPublicId};
+        case("publicID"):
+            return {...currentState,currentPublicId:action.payload};
         default:
             return currentState;
     }
 }
 
-function ProfileEdit({profilePic,checkForPublicId,toggleEdit,setProfilePic}) {
+function ProfileEdit({profilePic,userData,checkForPublicId,toggleEdit,setProfilePic}) {
 
-    const [currentState,dispatch]=useReducer(reducer,{userName:"",email:"",msg:"",currentPublicId:""});
+    const [currentState,dispatch]=useReducer(reducer,{userName:userData.userName,email:userData.email,msg:"",currentPublicId:""});
 
     useEffect(()=>{
-         if(currentState.msg.length<=0)
-        { dispatch({type:"init",payload:profilePic.publicID}) }
+
+        dispatch({type:"init",payload:profilePic.publicID});
+
         if(currentState.msg.toLowerCase()==="saved")
-        {
-            setProfilePic({public_Id:currentState.currentPublicId})
+        { 
+            setProfilePic(prevState=>{return {...prevState,publicID:currentState.currentPublicId} });
+            dispatch({type:"msg",payload:"changed"});
+            console.log(profilePic); 
         }
-    },[currentState.currentPublicId, currentState.msg])
+    },[currentState.msg])
 
     return ( 
         <div id="profileEditContent">

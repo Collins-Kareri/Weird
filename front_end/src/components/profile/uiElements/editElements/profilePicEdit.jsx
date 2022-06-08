@@ -2,16 +2,10 @@ import Button from "components/commonElements/button";
 import {AdvancedImage} from "@cloudinary/react";
 import {useRef} from "react";
 import {makeReq, handleFileData, generateSignature, sendToCloudinary,saveProfilePic} from "util";
-import { saveToClientStorage } from "util";
 
 function ProfilePicEdit({profilePic,checkForPublicId,dispatch}) {
 
     const imgInput=useRef(null);
-
-    function setResults(res){
-        dispatch({type:"results",payload:res});
-        return;
-    }
 
     function profilePictureEdit(evt){
         if(window.confirm("You are about to change the profile picture"))
@@ -26,23 +20,25 @@ function ProfilePicEdit({profilePic,checkForPublicId,dispatch}) {
         const FILE_DATA=await handleFileData(evt.target.files,false);
         const SIGNATURE_OBJ=await generateSignature({uploadType:"profile"});
 
+        if(SIGNATURE_OBJ === "server error"){
+            return;
+        }
+
         const REQ_DATA={
             file:FILE_DATA[0].url,
             signatureObj:SIGNATURE_OBJ,
             uploadType:"profile",
-            noOfValuesToUpload:evt.target.files.length,
-            setResults
+            noOfValuesToUpload:evt.target.files.length
         }
 
         sendToCloudinary(REQ_DATA)
         .then((res)=>{
-            console.log(res);
-            // saveToClientStorage("sessionStorage",[{key:"pageStatus",value:""}]);
-            saveProfilePic(res,profilePic,dispatch);
+            dispatch({type:"publicID",payload:res[0].public_id});
+            saveProfilePic(res,profilePic.publicID,dispatch);
         })
         .catch((err)=>{
             console.log(err);
-            alert("Error cannot update your profilePicture");
+            alert("Error cannot update your profile picture");
         })
     }
 
