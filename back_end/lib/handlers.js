@@ -334,7 +334,7 @@ HANDLERS.deleteProfilePic=async function(data,callback){
         return;
     }
 
-    const {public_id}=data.payLoad;
+    const {publicID}=data.payLoad;
     data.payLoad.profile_pic="";
 
     try {
@@ -349,14 +349,16 @@ HANDLERS.deleteProfilePic=async function(data,callback){
             db_delete_res=val.get("profile_pic");
         })
 
+        console.log(publicID);
         if( Boolean(db_delete_res) )
         {
-            callback(500,{msg:"Didn't delete profile picture."});
+            callback(400,{msg:"Didn't delete profile picture."});
             return;
         }
 
-        const DELETE_FROM_CLOUDINARY=await cloudinary.uploader.destroy(public_id,{resource_type:"image",invalidate:true});
+        const DELETE_FROM_CLOUDINARY=await cloudinary.uploader.destroy(publicID,{resource_type:"image",invalidate:true});
 
+        console.log(DELETE_FROM_CLOUDINARY);
         if(DELETE_FROM_CLOUDINARY.result.toLowerCase() === "ok")
         {
             callback(200,{msg:"deleted successfully"});
@@ -366,7 +368,7 @@ HANDLERS.deleteProfilePic=async function(data,callback){
         callback(400,{msg:"not deleted"});
         return;
     } catch (error) {
-       callback(500,{msg:`Couldn't delete profile picture as a error occured:\n${error}`}) 
+       callback(500,{msg:`Couldn't delete profile picture as an error occured:\n${error}`}) 
     }
 };
 

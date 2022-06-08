@@ -6,12 +6,7 @@ import UserDetailsEdit from "components/profile/uiElements/editElements/userDeta
 function reducer(currentState,action){
     switch(action.type){
         case("init"):
-            if(currentState.msg.toLowerCase() !== "changed")
-            {
-                return {...currentState,currentPublicId:action.payload};
-            }else{
-                return currentState;
-            } 
+            return {...currentState,currentPublicID:action.payload};
         case("userNameChange"):
             return {...currentState,userName:action.payload};
         case("emailChange"):
@@ -19,7 +14,7 @@ function reducer(currentState,action){
         case("msg"):
             return {...currentState,msg:action.payload};
         case("publicID"):
-            return {...currentState,currentPublicId:action.payload};
+            return {...currentState,currentPublicID:action.payload};
         default:
             return currentState;
     }
@@ -27,17 +22,25 @@ function reducer(currentState,action){
 
 function ProfileEdit({profilePic,userData,checkForPublicId,toggleEdit,setProfilePic}) {
 
-    const [currentState,dispatch]=useReducer(reducer,{userName:userData.userName,email:userData.email,msg:"",currentPublicId:""});
+    const [currentState,dispatch]=useReducer(reducer,{userName:userData.userName,email:userData.email,msg:"",currentPublicID:""});
 
     useEffect(()=>{
 
-        dispatch({type:"init",payload:profilePic.publicID});
+        if(currentState.msg.length<=0){
+            dispatch({type:"init",payload:profilePic.publicID});
+            dispatch({type:"msg",payload:"intialized"});
+        }
 
         if(currentState.msg.toLowerCase()==="saved")
         { 
-            setProfilePic(prevState=>{return {...prevState,publicID:currentState.currentPublicId} });
-            dispatch({type:"msg",payload:"changed"});
-            console.log(profilePic); 
+            setProfilePic(prevState=>{return {...prevState,publicID:currentState.currentPublicID} });
+            dispatch({type:"msg",payload:"changed"}); 
+        }
+
+        if(currentState.msg.toLowerCase() === "delete successful")
+        {
+            setProfilePic(prevState=>{return {...prevState,publicID:""}});
+            dispatch({type:"msg",payload:""});
         }
     },[currentState.msg])
 

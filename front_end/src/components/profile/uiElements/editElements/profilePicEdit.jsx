@@ -3,7 +3,7 @@ import {AdvancedImage} from "@cloudinary/react";
 import {useRef} from "react";
 import {makeReq, handleFileData, generateSignature, sendToCloudinary,saveProfilePic} from "util";
 
-function ProfilePicEdit({profilePic,checkForPublicId,dispatch}) {
+function ProfilePicEdit({profilePic,currentState,checkForPublicId,dispatch}) {
 
     const imgInput=useRef(null);
 
@@ -43,6 +43,21 @@ function ProfilePicEdit({profilePic,checkForPublicId,dispatch}) {
     }
 
     async function deleteProfilePic(){
+        if(window.confirm("You are about to delete your profile picture"))
+        {
+            const REQ_DATA={ownerName:currentState.userName,publicID:currentState.currentPublicID};
+            makeReq("/deleteProfilePic","delete",{data:REQ_DATA})
+            .then((res)=>{
+                console.log(res);
+                dispatch({type:"msg",payload:"delete successful"});
+            })
+            .catch((err)=>{
+                console.error(err);
+                alert("Cannot delete.");
+            })
+        }
+
+        return;
     }
 
     return (
