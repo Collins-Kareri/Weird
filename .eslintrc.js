@@ -1,19 +1,20 @@
 module.exports = {
 	"env": {
 		"browser": true,
+		"commonjs": true,
 		"es2021": true,
 		"node": true
 	},
 	"extends": [
 		"eslint:recommended",
-		"plugin:react/recommended"
+		"plugin:react/recommended",
+		"plugin:cypress/recommended"
 	],
 	"parserOptions": {
 		"ecmaFeatures": {
 			"jsx": true
 		},
-		"ecmaVersion": "latest",
-		"sourceType": "module"
+		"ecmaVersion": "latest"
 	},
 	"plugins": [
 		"react"
@@ -34,7 +35,6 @@ module.exports = {
 		"semi": [
 			"error",
 			"always"
-		],
-		"react/react-in-jsx-scope": "off"
+		]
 	}
 };
