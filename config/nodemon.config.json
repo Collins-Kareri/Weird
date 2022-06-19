@@ -1,0 +1,15 @@
+{
+    "restarble":"rs",
+    "ignore":[
+        ".git",
+        ".eslintrc.js",
+        ".babelrc.json",
+        "node_modules/**",
+        "test/**",
+        "public/**",
+        "src/client/**"
+    ],
+    "watch":"src/server",
+    "ext":"js,json",
+    "exec":"cross-env NODE_ENV=development nodemon src/server/index.js"
+}
