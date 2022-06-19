@@ -4,7 +4,7 @@ const PATH = require("path");
 module.exports = defineConfig({
 	e2e: {
 		baseUrl: "http://localhost:3000",
-		specPattern: "cypress/tests/*/*.spec.cy.{js,jsx,ts,tsx}",
+		specPattern: "cypress/tests/*.spec.cy.{js,jsx,ts,tsx}",
 		supportFile: false,
 		screenshotOnRunFailure: false,
 	},
