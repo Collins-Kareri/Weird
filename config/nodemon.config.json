@@ -7,7 +7,8 @@
         "node_modules/**",
         "test/**",
         "public/**",
-        "src/client/**"
+        "src/client/**",
+        "config/webpack.*.js"
     ],
     "watch":"src/server",
     "ext":"js,json",

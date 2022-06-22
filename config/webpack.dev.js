@@ -1,10 +1,8 @@
-const webpack = require("webpack");
-const { merge } = require("webpack-merge");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+import { merge } from "webpack-merge";
 
-const common = require("./webpack.common.js");
+import common from "./webpack.common.js";
 
-module.exports = merge(common, {
+const config = merge(common, {
 	mode: "development",
 	devtool: "eval-source-map",
 	module: {
@@ -16,27 +14,22 @@ module.exports = merge(common, {
 					"style-loader",
 					{
 						loader: "css-loader",
-						options: { sourceMap: true, importLoaders: 1 },
+						options: { sourceMap: true, importLoaders: 1, modules: false },
 					}
 				],
 			},
 		],
 	},
 	devServer: {
+		compress: true,
 		historyApiFallback: true,
+		hot: true,
+		open: true,
 		proxy: {
 			"/api": "http://localhost:5000",
 		},
-		open: true,
-		compress: true,
-		hot: true,
-		port: 3000,
-	},
-	plugins: [
-		new webpack.HotModuleReplacementPlugin(),
-		new HtmlWebpackPlugin({
-			template: "./public/template.html",
-			favicon: "./public/favicon.ico",
-		})
-	],
+		port: 3000
+	}
 });
+
+export default config;

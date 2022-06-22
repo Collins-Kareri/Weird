@@ -1,10 +1,11 @@
-const { defineConfig } = require("cypress");
-const PATH = require("path");
+import { defineConfig } from "cypress";
+import { resolve } from "path";
+import webpack from "./webpack.dev.js";
 
-module.exports = defineConfig({
+export default defineConfig({
 	e2e: {
 		baseUrl: "http://localhost:3000",
-		specPattern: "cypress/tests/*.spec.cy.{js,jsx,ts,tsx}",
+		specPattern: "cypress/tests/*.cy.{js,jsx,ts,tsx}",
 		supportFile: false,
 		screenshotOnRunFailure: false,
 	},
@@ -12,10 +13,10 @@ module.exports = defineConfig({
 		devServer: {
 			framework: "react",
 			bundler: "webpack",
-			"webpackConfig": require("./webpack.dev.js"),
+			"webpackConfig": webpack,
 		},
-		indexHtmlFile: PATH.resolve("../cypress/support/component-index.html"),
-		specPattern: "src/client/*.spec.cy.{js,jsx,ts,tsx}",
+		indexHtmlFile: resolve("../cypress/support/component-index.html"),
+		specPattern: "src/client/*.cy.{js,jsx,ts,tsx}",
 		supportFile: "cypress/support/component.js",
 		screenshotOnRunFailure: false
 	},
