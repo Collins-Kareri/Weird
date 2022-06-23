@@ -1,11 +1,3 @@
-import { faker } from "@faker-js/faker";
-
-const credentials = {
-    username: faker.name(),
-    email: faker.internet.email(undefined, undefined, "mymailprovider.com"),
-    password: faker.internet.password(20, false)
-};
-
 describe("create a user and log them in", () => {
     /**todo:
         *go to signup page
@@ -18,43 +10,60 @@ describe("create a user and log them in", () => {
         *then delete the user from your db at the end of the test
     */
 
-    cy.register(credentials);
-
-    it("redirects to profile on success", () => {
-        //go to the profile page
-        cy.location("pathname").should("equal", `/profile@${credentials.username}`);
-    });
-
-    it("find the user created in the db", () => {
-        //request user db to look for user and check that the properties equal to username,password,email
-        cy.request("get", "/api").then((response) => {
-            expect(response.body).to.haveOwnProperty("username", credentials.username);
+    beforeEach(() => {
+        cy.visit("/register");
+        cy.fixture("../fixtures/user.json").as("userData");
+        cy.get("@userData").then((credentials) => {
+            cy.register(credentials);
         });
     });
 
-    it("find a cookie set that should expire on after 12 hours on remember me?", () => {
+    it("should create user", () => {
+        //go to the profile page
+        cy.intercept("/register").as("createUser");
+        cy.get("@userData").then((credentials) => {
+            cy.wait("@createUser").its("response.status").should("eq", 201);
+            cy.location("pathname").should("equal", `/profile@${credentials.username}`);
+        });
+    });
+
+    it("should find the user in the db", () => {
+        //request user db to look for user and check that the properties equal to username,password,email
+        cy.intercept("post", "/api/createUser", { body: {} });
+
+        cy.get("@userData").then((credentials) => {
+            cy.request("get", `/api:${credentials.username}`).as("getUser");
+            cy.wait("@getUser").should("have.a.property", "username", credentials.username);
+        });
+    });
+
+    it("should find a cookie set", () => {
         //get cookie set with a username, email, token
-        cy.getCookie("user_session")
-            .should("exist")
-            .and("have.a.property", "username", credentials.username)
-            .and("have.a.property", "email", credentials.email)
-            .and("have.a.property", "sessionToken");
+        cy.intercept("post", "/api/createUser", { body: {} });
+
+        cy.get("@userData").then((credentials) => {
+            cy.getCookie("user_session")
+                .should("exist")
+                .and("have.a.property", "username", credentials.username)
+                .and("have.a.property", "email", credentials.email)
+                .and("have.a.property", "sessionToken");
+        });
         //look at checking cookie properties at once.
     });
 
-    it("should not signup as user already exists", () => {
-        cy.register(credentials);
+    it("should fail signup", () => {
         cy.get("loginOption").click();
         cy.location("pathname").should("equal", "/login");
         cy.get("h1").should("contain", "login");
     });
 
     it("should remove user from db", () => {
+        cy.intercept("post", "/api/createUser", { body: {} });
         cy.visit("/register");
         cy.clearCookie("user_session");
-        cy.request("delete", "/api/deleteUser", { username: credentials.username }).as("deleteUser");
-        cy.wait("@deleteUser").then((response) => {
-            expect(response.body).to.haveOwnProperty("msg", "deleted");
+        cy.get("@userData").then((credentials) => {
+            cy.request("delete", "/api/deleteUser", { username: credentials.username }).as("deleteUser");
+            cy.wait("@deleteUser").should("have.own.property", "msg", "deleted");
         });
     });
 });
