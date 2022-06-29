@@ -1,26 +1,25 @@
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
-const { merge } = require("webpack-merge");
-const common = require("./webpack.common");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin")
+const HtmlWebpackPlugin = require("html-webpack-plugin")
+const { merge } = require("webpack-merge")
+const common = require("./webpack.common.js")
 
 module.exports = merge(common, {
 	mode: "production",
 	devtool: false,
+	output: {
+		publicPath: "./"
+	},
 	module: {
 		rules: [
 			{
-				test: /\.(css)$/,
-				use: [
-					MiniCssExtractPlugin.loader,
-					{
-						loader: "css-loader",
-						options: {
-							importLoaders: 2,
-							sourceMap: false,
-							modules: false,
-						},
-					}
-				],
+				test: /\.css$/,
+				use: [{
+					loader: MiniCssExtractPlugin.loader
+				},
+					"css-loader",
+					"postcss-loader"
+				]
 			},
 		],
 	},
@@ -30,6 +29,10 @@ module.exports = merge(common, {
 			filename: "[name].[contenthash].css",
 			chunkFilename: "[id].css",
 		}),
+		new HtmlWebpackPlugin({
+			favicon: "./public/favicon.ico",
+			template: "./templates/index.html" // template file
+		})
 	],
 	optimization: {
 		minimize: true,
@@ -39,8 +42,8 @@ module.exports = merge(common, {
 		},
 	},
 	performance: {
-		hints: false,
+		hints: "warning",
 		maxEntrypointSize: 512000,
 		maxAssetSize: 512000,
 	},
-});
+})

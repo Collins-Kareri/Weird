@@ -2,15 +2,14 @@
     "restarble":"rs",
     "ignore":[
         ".git",
-        ".eslintrc.js",
-        ".babelrc.json",
+        ".eslintrc",
         "node_modules/**",
-        "test/**",
+        "cypress/**",
         "public/**",
         "src/client/**",
-        "config/webpack.*.js"
+        "webpack.*.js"
     ],
-    "watch":"src/server",
-    "ext":"js,json",
-    "exec":"cross-env NODE_ENV=development nodemon src/server/index.js"
+    "watch":["src/server/"],
+    "ext":"ts",
+    "exec":"cross-env NODE_ENV=development node --inspect -r ts-node/register ./src/server/index.ts"
 }

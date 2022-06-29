@@ -1,4 +1,4 @@
-module.exports = {
+{
     "env": {
         "browser": true,
         "es2021": true,
@@ -7,8 +7,12 @@ module.exports = {
     "extends": [
         "eslint:recommended",
         "plugin:react/recommended",
-        "plugin:cypress/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "plugin:cypress/recommended",
+        "prettier",
+        "plugin:prettier/recommended"
     ],
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
@@ -17,7 +21,8 @@ module.exports = {
         "sourceType": "module"
     },
     "plugins": [
-        "react"
+        "react",
+        "@typescript-eslint"
     ],
     "rules": {
         "linebreak-style": [
@@ -27,10 +32,11 @@ module.exports = {
         "quotes": [
             "error",
             "double"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ]
+        ] 
+    },
+    "settings": {
+        "react":{
+            "version":"detect"
+        }
     }
-};
+}

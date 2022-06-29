@@ -1,13 +1,7 @@
-import { CleanWebpackPlugin } from "clean-webpack-plugin";
-import CopyWebpackPlugin from "copy-webpack-plugin";
-import path from "path";
-import HtmlWebpackPlugin from "html-webpack-plugin";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const pathToSrc = path.resolve(__dirname, "../src/client/index.jsx");
-const pathToPublic = path.resolve(__dirname, "../public");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin")
+const CopyWebpackPlugin = require("copy-webpack-plugin")
+const path = require("path")
+const pathToSrc = path.resolve(__dirname, "../src/client/index.tsx")
 
 const config = {
 	// Where webpack looks to start building the bundle
@@ -23,18 +17,13 @@ const config = {
 	// Determine how modules within the project are treated
 	module: {
 		rules: [
-			// JavaScript: Use Babel to transpile JavaScript files
+			// JavaScript: Use ts-loader to transpile typescript files
 			{
 				//ignore
-				test: /\.js(x?)$/,
-				loader: "babel-loader",
-				exclude: /node_modules/,
-				options: {
-					presets: [
-						"@babel/preset-env",
-						"@babel/preset-react"
-					]
-				}
+				test: /\.ts(x?)$/,
+				loader: "ts-loader",
+				options: { reportFiles: ["src/client/*.{ts,tsx}"] },
+				exclude: /node_modules/
 			},
 
 			// Images: Copy image files to build folder
@@ -47,10 +36,9 @@ const config = {
 
 	resolve: {
 		modules: [pathToSrc, "node_modules"],
-		extensions: [".js", ".jsx", ".json"],
+		extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
 		alias: {
 			//set up alias of normally imported files
-			"@": pathToSrc
 		},
 	},
 	// Customize the webpack build process
@@ -62,24 +50,17 @@ const config = {
 		new CopyWebpackPlugin({
 			patterns: [
 				{
-					from: path.resolve(__dirname, "../public"),
+					from: path.resolve(__dirname, "../public/assets"),
 					to: "assets",
 					globOptions: {
-						ignore: ["*.DS_Store"],
+						ignore: ["*.DS_Store", "*.ico"],
 					},
 					noErrorOnMissing: true,
 				},
 			],
-		}),
-
-		new HtmlWebpackPlugin({
-			title: "webpack Boilerplate",
-			favicon: pathToPublic + "/favicon.ico",
-			template: pathToPublic + "/template.html", // template file
-			filename: "index.html", // output file
 		})
 	]
-};
+}
 
 
-export default config;
+module.exports = config
