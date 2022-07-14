@@ -1,10 +1,9 @@
-import React from "react"
-import "./app.css"
+import React from "react";
+import SignUp from "@client/pages/signUp";
+import "./app.css";
 
 function App() {
-	return (
-		<h1 className="tw-bg-gray-200 tw-font-Quicksand tw-font-bolder">Hello dude</h1>
-	)
+    return <SignUp />;
 }
 
-export default App
+export default App;

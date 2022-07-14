@@ -1,20 +1,16 @@
-# PRODUCTION
-
-yarn build
-yarn start
-
 # DEV
-
-yarn dev
+npm dev
 
 # CYPRESS
+Open cypress gui: npm run cypress:open
+
+run tests in terminal: npm run cypress:run 
 
 # CLIENT
 
-yarn client:dev -- development
-yarn build -- production
+npm client:dev -- development
+npm build -- production
 
 # SERVER
 
-yarn server:dev -- development
-yarn start -- production
+npm server:dev -- development
