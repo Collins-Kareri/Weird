@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-require("dotenv").config();
 const { defineConfig } = require("cypress");
 const { resolve } = require("path");
 const webpackConfig = require("./webpack.dev");

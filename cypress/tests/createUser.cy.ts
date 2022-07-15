@@ -10,7 +10,7 @@ describe("create a user and log them in", () => {
      *then delete the user from your db at the end of the test
      */
     beforeEach(() => {
-        cy.visit("/register");
+        cy.visit("/createAccount");
         cy.fixture("../fixtures/user.json").as("userData");
         cy.get("@userData").then((credentials) => {
             cy.register(credentials);
@@ -19,7 +19,7 @@ describe("create a user and log them in", () => {
 
     after(() => {
         cy.intercept("post", "/api/createUser", { body: {} });
-        cy.visit("/register");
+        cy.visit("/createAccount");
         // cy.fixture("../fixtures/user.json").as("userData");
         cy.get("@userData").then((credentials: any) => {
             cy.deleteUserByApi(credentials.username);
@@ -28,7 +28,7 @@ describe("create a user and log them in", () => {
 
     it("should create user", () => {
         //go to the profile page
-        cy.intercept("/register").as("createUser");
+        cy.intercept("/createAccount").as("createUser");
         cy.get("@userData").then((credentials: any) => {
             cy.wait("@createUser").its("response.status").should("eq", 201);
             cy.location("pathname").should("equal", `/profile@${credentials.username}`);

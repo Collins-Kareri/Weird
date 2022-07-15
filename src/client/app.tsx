@@ -1,9 +1,9 @@
 import React from "react";
-import SignUp from "@client/pages/signUp";
+import CreateAccount from "@client/pages/createAccount";
 import "./app.css";
 
 function App() {
-    return <SignUp />;
+    return <CreateAccount />;
 }
 
 export default App;
