@@ -1,7 +1,7 @@
 import React from "react";
-import InputField, { InputPropsTypes } from "@client/components/inputField";
-import CheckBox from "@client/components/checkbox";
-import Button, { ButtonPropTypes } from "@client/components/button";
+import InputField, { InputPropsTypes } from "@components/inputField";
+import CheckBox from "@components/checkbox";
+import Button, { ButtonPropTypes } from "@components/button";
 
 export type FormPropTypes = {
     inputFields: InputPropsTypes[];
@@ -10,16 +10,15 @@ export type FormPropTypes = {
 };
 
 function Form({ inputFields, buttons, handleSubmit }: FormPropTypes): JSX.Element {
+    /**
+     * check if the every input in the form is of type password
+     * @param arr []
+     * @returns boolean
+     */
     function isPasswordFields(arr: InputPropsTypes[]): boolean {
-        const check = arr.every(({ type }) => {
+        return arr.every(({ type }) => {
             return type === "password";
         });
-
-        if (check) {
-            return true;
-        }
-
-        return false;
     }
 
     return (

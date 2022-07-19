@@ -1,5 +1,5 @@
 import React from "react";
-import capitalizeFirstChar from "@client/utils/capitalizeFirstChar";
+import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
 
 type ButtonStyles = {
     common: string;

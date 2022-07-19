@@ -1,18 +1,12 @@
-import React, { useState, useReducer } from "react";
-import Form, { FormPropTypes } from "@client/components/form";
-
-type RequiredCredentials = {
-    username: string;
-    email: string;
-    password: string;
-};
+import React, { useState, useReducer, useEffect } from "react";
+import Form, { FormPropTypes } from "@components/form";
 
 type Action = {
     type: string;
     payload: string;
 };
 
-function reducer(currentState: RequiredCredentials, action: Action) {
+function reducer(currentState: User, action: Action) {
     switch (action.type) {
         case "username":
             return { ...currentState, username: action.payload };
@@ -25,8 +19,28 @@ function reducer(currentState: RequiredCredentials, action: Action) {
     }
 }
 
-function CreateAccount() {
-    const initialState: RequiredCredentials = {
+async function createUser(credentials: User) {
+    const userCreate = await (
+        await fetch("/api/user/create", {
+            method: "post",
+            body: JSON.stringify(credentials),
+            headers: { "Content-Type": "application/json" },
+        })
+    ).json();
+
+    if (userCreate.msg.toLowerCase() === "account was successfully created") {
+        //display success msg
+        //move to profile page
+        //store user credentials available to global app front-end state. Persist user.
+    }
+}
+
+/**
+ * the form to create a user it consists of two steps.
+ * @returns JSX.Element
+ */
+function CreateAccount(): JSX.Element {
+    const initialState: User = {
         username: "",
         email: "",
         password: "",
@@ -34,7 +48,59 @@ function CreateAccount() {
 
     const [step, setStep] = useState<number>(1);
 
-    const [state, dispatch] = useReducer(reducer, initialState);
+    const [currentCredentials, dispatch] = useReducer(reducer, initialState);
+
+    useEffect(() => {
+        createUser(currentCredentials);
+    }, [currentCredentials.password]);
+
+    /**
+     * check if the username or email exists in database. In the first step of the form
+     * @param val
+     * @returns boolean
+     */
+    async function checkIfCredentialExist(val: string): Promise<boolean> {
+        const results = await (await fetch(`/api/user/:${val}`, { method: "get" })).json();
+        if (results.msg === "found") {
+            return true;
+        }
+        return false;
+    }
+
+    function handleStep1Submit(evt: React.FormEvent<HTMLFormElement>): void {
+        evt.preventDefault();
+        const el = evt.target as HTMLFormElement;
+        for (let index = 0; index < el.elements.length; index++) {
+            const node = el.elements[index] as HTMLInputElement | HTMLButtonElement;
+
+            if (node.tagName.toLowerCase() === "input" && (node.type === "email" || node.type === "text")) {
+                dispatch({ type: node.name, payload: node.value });
+            }
+        }
+        setStep(2);
+        return;
+    }
+
+    function handleBack(evt: React.MouseEvent<HTMLButtonElement>): void {
+        evt.preventDefault();
+        setStep(1);
+        return;
+    }
+
+    async function handleStep2Submit(evt: React.FormEvent<HTMLFormElement>): Promise<void> {
+        evt.preventDefault();
+        const el = evt.target as HTMLFormElement;
+        for (let index = 0; index < el.elements.length; index++) {
+            const node = el.elements[index] as HTMLInputElement | HTMLButtonElement;
+            if (node.tagName.toLowerCase() === "input") {
+                if (node.name.toLowerCase() === "password") {
+                    dispatch({ type: "password", payload: node.value });
+                }
+            }
+        }
+
+        return;
+    }
 
     const step1: FormPropTypes = {
         inputFields: [
@@ -43,19 +109,19 @@ function CreateAccount() {
                 label: "username",
                 placeholder: "johnDoe",
                 name: "username",
-                value: state.username,
+                value: currentCredentials.username,
                 isAutoFocus: true,
                 isRequired: true,
-                validationChecks: checkIfExist,
+                validationChecks: checkIfCredentialExist,
             },
             {
                 type: "email",
                 label: "email",
                 placeholder: "example@mail.com",
                 name: "email",
-                value: state.email,
+                value: currentCredentials.email,
                 isRequired: true,
-                validationChecks: checkIfExist,
+                validationChecks: checkIfCredentialExist,
             },
         ],
         buttons: [{ typeOfButton: "submit", priority: "primary", value: "next" }],
@@ -68,9 +134,8 @@ function CreateAccount() {
                 label: "password",
                 placeholder: "password",
                 name: "password",
-                value: state.password,
+                value: currentCredentials.password,
                 minlength: 8,
-                isAutoFocus: true,
                 isRequired: true,
                 helperMsg: "min-length 8 characters",
             },
@@ -78,8 +143,8 @@ function CreateAccount() {
                 type: "password",
                 label: "confirm password",
                 placeholder: "confirm password",
-                name: "confirm password",
-                value: state.password,
+                name: "confirm_password",
+                value: currentCredentials.password,
                 minlength: 8,
                 isRequired: true,
             },
@@ -89,58 +154,6 @@ function CreateAccount() {
             { typeOfButton: "submit", priority: "primary", value: "create account" },
         ],
     };
-
-    function handleStep1Submit(evt: React.FormEvent<HTMLFormElement>): void {
-        evt.preventDefault();
-        const el = evt.target as HTMLFormElement;
-        for (let index = 0; index < el.elements.length; index++) {
-            const node = el.elements[index] as HTMLInputElement | HTMLButtonElement;
-
-            if (
-                (node.tagName.toLowerCase() === "input" && node.type === "password") ||
-                node.type === "email" ||
-                node.type === "text"
-            ) {
-                dispatch({ type: node.name, payload: node.value });
-            }
-        }
-        setStep(2);
-        return;
-    }
-
-    function handleStep2Submit(evt: React.FormEvent<HTMLFormElement>): void {
-        evt.preventDefault();
-        const el = evt.target as HTMLFormElement;
-        for (let index = 0; index < el.elements.length; index++) {
-            const node = el.elements[index] as HTMLInputElement | HTMLButtonElement;
-            if (node.nodeName.toLowerCase() === "input") {
-                if (node.name.toLowerCase() === "password") {
-                    dispatch({ type: node.name, payload: node.value });
-                }
-            }
-        }
-        return;
-    }
-
-    function handleBack(evt: React.MouseEvent<HTMLButtonElement>): void {
-        evt.preventDefault();
-        console.log(evt);
-        setStep(1);
-        return;
-    }
-
-    /**
-     * check if the value passed exists in database
-     * @param val
-     * @returns boolean
-     */
-    async function checkIfExist(val: string): Promise<boolean> {
-        const results = await (await fetch(`/api/findUser:${val}`, { method: "get" })).json();
-        if (results.msg === "found") {
-            return true;
-        }
-        return false;
-    }
 
     return (
         <>

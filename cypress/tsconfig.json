@@ -5,7 +5,7 @@
     "allowJs": true,
     "target": "es5",
     "lib": ["es5", "dom"],
-    "types": ["cypress", "node"]
+    "types": ["cypress", "node","../src/lib/types"]
   },
   "include": ["./**/*.ts"]
 }

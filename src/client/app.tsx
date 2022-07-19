@@ -1,6 +1,6 @@
 import React from "react";
-import CreateAccount from "@client/pages/createAccount";
-import "./app.css";
+import CreateAccount from "@pages/createAccount";
+import "@client/app.css";
 
 function App() {
     return <CreateAccount />;

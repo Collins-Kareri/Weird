@@ -9,7 +9,7 @@
         "src/client/**",
         "webpack.*.js"
     ],
-    "watch":["src/server/"],
+    "watch":["src/server/",".env"],
     "ext":"ts",
-    "exec":"cross-env NODE_ENV=development node --inspect -r ts-node/register ./src/server/index.ts"
+    "exec":"cross-env NODE_ENV=development node -r tsconfig-paths/register --inspect -r ts-node/register ./src/server/index.ts"
 }

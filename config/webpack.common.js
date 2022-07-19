@@ -40,7 +40,11 @@ const config = {
         extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
         alias: {
             //set up alias of normally imported files
+            "@src": path.resolve(__dirname, "../src"),
             "@client": path.resolve(__dirname, "../src/client"),
+            "@components": path.resolve(__dirname, "../src/client/components"),
+            "@clientUtils": path.resolve(__dirname, "../src/client/utils"),
+            "@pages": path.resolve(__dirname, "../src/client/pages"),
         },
     },
     // Customize the webpack build process

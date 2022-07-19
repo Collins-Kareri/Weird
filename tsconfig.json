@@ -21,10 +21,15 @@
       "types": [
         "node",
         "react",
-        "react-dom"
+        "react-dom",
+        "./src/lib/types"
       ],
       "paths": {
+        "@src/*":["./src/*"],
         "@client/*":["./src/client/*"],
+        "@components/*":["./src/client/components/*"],
+        "@clientUtils/*":["./src/client/utils/*"],
+        "@pages/*":["./src/client/pages/*"],
         "@server/*":["./src/server/*"]
       }
     },

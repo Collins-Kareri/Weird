@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import capitalizeFirstChar from "@client/utils/capitalizeFirstChar";
+import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
 
 type InputStateStyles = Readonly<{
     normal: string;
@@ -56,7 +56,7 @@ function Input({
         focused: "focus:tw-ring-blue-600",
     };
 
-    async function isValidEmail(el: HTMLInputElement): Promise<void> {
+    function isValidEmail(el: HTMLInputElement): void {
         let msg: string | undefined;
 
         if (isRequired && el.value.length === 0) {
@@ -78,18 +78,27 @@ function Input({
             return;
         }
 
-        if (validationChecks && (await validationChecks(el.value))) {
-            msg = "email already exists";
-            setErrMsg(msg);
-            el.setCustomValidity(msg);
-            return;
-        }
-
         el.setCustomValidity("");
         return;
     }
 
-    function handleBlur(evt: React.FocusEvent<HTMLInputElement>): void {
+    function passwordsMatch(compareVal: HTMLInputElement, confirmPassword: HTMLInputElement): void {
+        let msg;
+        if (compareVal && confirmPassword) {
+            if (
+                confirmPassword.value.length > 0 &&
+                compareVal.value.toLowerCase() !== confirmPassword.value.toLowerCase()
+            ) {
+                msg = "passwords don't match";
+                confirmPassword.setCustomValidity(msg);
+                setErrMsg(msg);
+            } else {
+                confirmPassword.setCustomValidity("");
+            }
+        }
+    }
+
+    async function handleBlur(evt: React.FocusEvent<HTMLInputElement>): Promise<void> {
         const el = evt.target as HTMLInputElement;
         let msg: string | undefined;
 
@@ -102,24 +111,41 @@ function Input({
 
         if (type === "email") {
             isValidEmail(el);
+            if (typeof validationChecks === "function") {
+                const alreadyExist = await validationChecks(el.value);
+                if (alreadyExist) {
+                    msg = "username already exists";
+                    el.setCustomValidity(msg);
+                    setErrMsg(msg);
+                }
+            }
+            return;
         }
 
-        if (type === "password") {
+        if (name === "username" && typeof validationChecks === "function") {
+            const alreadyExist = await validationChecks(el.value);
+            if (alreadyExist) {
+                msg = "username already exists";
+                el.setCustomValidity(msg);
+                setErrMsg(msg);
+            }
+            return;
+        }
+
+        if (type === "password" && name.toLowerCase() !== "confirm_password") {
             if (el.value.length < 8) {
                 msg = "password should be atleast 8 characters long";
                 setErrMsg(msg);
                 el.setCustomValidity(msg);
             }
+            return;
         }
 
-        if (type === "password" && name.toLowerCase() === "confirm password") {
-            const formEl = el.form?.elements as HTMLFormControlsCollection;
-            const compareVal = (formEl[0] as HTMLInputElement).value;
-            if (compareVal.toLowerCase() !== el.value.toLowerCase()) {
-                msg = "passwords don't match";
-                el.setCustomValidity(msg);
-                setErrMsg(msg);
-            }
+        if (type === "password") {
+            const compareVal = document.getElementById("password") as HTMLInputElement;
+            const confirmPassword = document.getElementById("confirm_password") as HTMLInputElement;
+            passwordsMatch(compareVal, confirmPassword);
+            return;
         }
 
         return;
@@ -136,12 +162,17 @@ function Input({
             isValidEmail(el);
         }
 
-        if (type === "username" && validationChecks && (await validationChecks(el.value))) {
-            const msg = "username already exists";
-            el.setCustomValidity(msg);
-            setErrMsg(msg);
-        }
+        return;
+    }
 
+    function handleStopTyping(): void {
+        if (type === "password") {
+            const compareVal = document.getElementById("password") as HTMLInputElement;
+            const confirmPassword = document.getElementById("confirm_password") as HTMLInputElement;
+            setTimeout(() => {
+                passwordsMatch(compareVal, confirmPassword);
+            }, 500);
+        }
         return;
     }
 
@@ -160,20 +191,19 @@ function Input({
                 autoFocus={isAutoFocus ? true : false}
                 onBlur={handleBlur}
                 onChange={handleTyping}
+                onKeyUp={handleStopTyping}
                 className={`${inputStateStyles.normal} ${inputStateStyles.invalid} ${inputStateStyles.focused} ${inputStateStyles.valid} tw-peer`}
             />
 
             {/* helper message */}
-            {helperMsg ? <InformationalMsg msg={helperMsg} utilityClasses="peer-invalid:tw-hidden" /> : <></>}
+            {helperMsg && <InformationalMsg msg={helperMsg} utilityClasses="peer-invalid:tw-hidden" />}
 
             {/* error message */}
-            {errMsg.length > 0 ? (
+            {errMsg.length > 0 && (
                 <InformationalMsg
                     msg={errMsg}
                     utilityClasses="peer-valid:tw-hidden peer-invalid:tw-visible tw-text-red-600"
                 />
-            ) : (
-                <></>
             )}
         </div>
     );

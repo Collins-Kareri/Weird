@@ -9,6 +9,24 @@
 			],
 			"group": "build",
 			"label": "tsc: build - tsconfig.json"
+		},
+		{
+			"type": "npm",
+			"script": "cypress:open",
+			"problemMatcher": [],
+			"label": "npm: cypress:open",
+			"detail": "cypress open --config-file config/cypress.config.js",
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
+		},
+		{
+			"type": "npm",
+			"script": "dev",
+			"problemMatcher": [],
+			"label": "npm: dev",
+			"detail": "concurrently \"npm run client:dev\" \"npm run server:dev\" "
 		}
 	]
 }
