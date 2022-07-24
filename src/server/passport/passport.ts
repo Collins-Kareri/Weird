@@ -5,18 +5,19 @@ import { login } from "@server/handlers/user.handlers";
 const neo4jStrategy = new Strategy({ usernameField: "username", passwordField: "password" }, async function verify(
     username,
     password,
-    next
+    done
 ) {
     try {
         const loginResults = await login(username, password);
 
         if (typeof loginResults !== "string") {
-            return next(null, loginResults, { message: "login successful" });
+            done(null, loginResults);
+            return;
         }
 
-        next(loginResults, false, { message: loginResults });
+        done(loginResults, null, { message: loginResults });
     } catch (error) {
-        next(error, false, { message: error as string });
+        done(error, null);
     }
 });
 

@@ -1,58 +1,22 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import Form, { FormPropTypes } from "@components/form";
-
-type Action = {
-    type: string;
-    payload: string;
-};
-
-function reducer(currentState: User, action: Action) {
-    switch (action.type) {
-        case "username":
-            return { ...currentState, username: action.payload };
-        case "email":
-            return { ...currentState, email: action.payload };
-        case "password":
-            return { ...currentState, password: action.payload };
-        default:
-            return currentState;
-    }
-}
-
-async function createUser(credentials: User) {
-    const userCreate = await (
-        await fetch("/api/user/create", {
-            method: "post",
-            body: JSON.stringify(credentials),
-            headers: { "Content-Type": "application/json" },
-        })
-    ).json();
-
-    if (userCreate.msg.toLowerCase() === "account was successfully created") {
-        //display success msg
-        //move to profile page
-        //store user credentials available to global app front-end state. Persist user.
-    }
-}
 
 /**
  * the form to create a user it consists of two steps.
  * @returns JSX.Element
  */
 function CreateAccount(): JSX.Element {
-    const initialState: User = {
+    const userData: User = {
         username: "",
         email: "",
         password: "",
     };
 
-    const [step, setStep] = useState<number>(1);
-
-    const [currentCredentials, dispatch] = useReducer(reducer, initialState);
-
-    useEffect(() => {
-        createUser(currentCredentials);
-    }, [currentCredentials.password]);
+    const [step, setStep] = useState(1);
+    const credentials = useRef(userData);
+    const [err, setErr] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    // const [userCreateStatus,setUserCreateStatus] = useState(false);
 
     /**
      * check if the username or email exists in database. In the first step of the form
@@ -67,17 +31,44 @@ function CreateAccount(): JSX.Element {
         return false;
     }
 
-    function handleStep1Submit(evt: React.FormEvent<HTMLFormElement>): void {
+    async function handleStep1Submit(evt: React.FormEvent<HTMLFormElement>): Promise<void> {
         evt.preventDefault();
+        setIsLoading(true);
+
         const el = evt.target as HTMLFormElement;
         for (let index = 0; index < el.elements.length; index++) {
             const node = el.elements[index] as HTMLInputElement | HTMLButtonElement;
 
-            if (node.tagName.toLowerCase() === "input" && (node.type === "email" || node.type === "text")) {
-                dispatch({ type: node.name, payload: node.value });
+            if (node.tagName.toLowerCase() === "input" && (node.type === "email" || node.name === "username")) {
+                if (node.name === "username") {
+                    if (await checkIfCredentialExist(node.value)) {
+                        node.setCustomValidity("username exists");
+                        setErr("username exists");
+                        break;
+                    }
+                    credentials.current = { ...credentials.current, username: node.value };
+                }
+
+                if (node.name === "email") {
+                    if (await checkIfCredentialExist(node.value)) {
+                        node.setCustomValidity("email exists");
+                        setErr("email exists");
+                        break;
+                    }
+                    credentials.current = { ...credentials.current, email: node.value };
+                }
             }
         }
+
+        setIsLoading(false);
         setStep(2);
+        return;
+    }
+
+    function cancel(evt: React.MouseEvent<HTMLButtonElement>): void {
+        evt.preventDefault();
+        //go back to previous page
+        //navigate(-1)
         return;
     }
 
@@ -89,15 +80,61 @@ function CreateAccount(): JSX.Element {
 
     async function handleStep2Submit(evt: React.FormEvent<HTMLFormElement>): Promise<void> {
         evt.preventDefault();
+        setIsLoading(true);
+
         const el = evt.target as HTMLFormElement;
         for (let index = 0; index < el.elements.length; index++) {
             const node = el.elements[index] as HTMLInputElement | HTMLButtonElement;
             if (node.tagName.toLowerCase() === "input") {
                 if (node.name.toLowerCase() === "password") {
-                    dispatch({ type: "password", payload: node.value });
+                    credentials.current = { ...credentials.current, password: node.value };
                 }
             }
         }
+
+        const userCreate = await (
+            await fetch("/api/user/create", {
+                method: "post",
+                body: JSON.stringify(credentials.current),
+                headers: { "Content-Type": "application/json" },
+            })
+        ).json();
+
+        const userCreateResponse: string = userCreate.msg;
+
+        setIsLoading(false);
+
+        switch (userCreateResponse.toLowerCase()) {
+            case "account created successfully":
+                return;
+            default:
+                return;
+        }
+    }
+
+    function togglePassword(allFormEl: HTMLFormControlsCollection, checked: boolean): void {
+        for (let index = 0; index < allFormEl?.length; index++) {
+            const currentEl = allFormEl[index] as HTMLInputElement | HTMLButtonElement;
+
+            if (currentEl.type === "password" && currentEl.name.includes("password") && checked) {
+                currentEl.type = "text";
+            }
+
+            if (currentEl.type === "text" && currentEl.name.includes("password") && !checked) {
+                currentEl.type = "password";
+            }
+        }
+        return;
+    }
+
+    function handlePasswordCheckBoxChange(evt: React.ChangeEvent<HTMLInputElement>): void {
+        const el = evt.target;
+
+        const parentForm = el.form as HTMLFormElement;
+
+        const allFormEl = parentForm.elements;
+
+        togglePassword(allFormEl, el.checked);
 
         return;
     }
@@ -109,22 +146,27 @@ function CreateAccount(): JSX.Element {
                 label: "username",
                 placeholder: "johnDoe",
                 name: "username",
-                value: currentCredentials.username,
+                value: credentials.current.username,
                 isAutoFocus: true,
                 isRequired: true,
                 validationChecks: checkIfCredentialExist,
+                formErr: err,
             },
             {
                 type: "email",
                 label: "email",
                 placeholder: "example@mail.com",
                 name: "email",
-                value: currentCredentials.email,
+                value: credentials.current.email,
                 isRequired: true,
                 validationChecks: checkIfCredentialExist,
+                formErr: err,
             },
         ],
-        buttons: [{ typeOfButton: "submit", priority: "primary", value: "next" }],
+        buttons: [
+            { typeOfButton: "button", priority: "secondary", value: "cancel", handleClick: cancel },
+            { typeOfButton: "submit", priority: "primary", value: "next", isLoading },
+        ],
     };
 
     const step2: FormPropTypes = {
@@ -134,7 +176,7 @@ function CreateAccount(): JSX.Element {
                 label: "password",
                 placeholder: "password",
                 name: "password",
-                value: currentCredentials.password,
+                value: credentials.current.password,
                 minlength: 8,
                 isRequired: true,
                 helperMsg: "min-length 8 characters",
@@ -144,14 +186,22 @@ function CreateAccount(): JSX.Element {
                 label: "confirm password",
                 placeholder: "confirm password",
                 name: "confirm_password",
-                value: currentCredentials.password,
+                value: credentials.current.password,
                 minlength: 8,
                 isRequired: true,
             },
         ],
         buttons: [
             { typeOfButton: "button", priority: "secondary", value: "back", handleClick: handleBack },
-            { typeOfButton: "submit", priority: "primary", value: "create account" },
+            { typeOfButton: "submit", priority: "primary", value: "create account", isLoading },
+        ],
+        checkboxes: [
+            {
+                value: "show password",
+                name: "show_password",
+                label: "show password",
+                handleChange: handlePasswordCheckBoxChange,
+            },
         ],
     };
 
@@ -160,15 +210,16 @@ function CreateAccount(): JSX.Element {
             <h1 className="tw-p-3 tw-m-2 tw-font-Quicksand tw-font-extrabold tw-text-xl tw-uppercase">
                 create account
             </h1>
-            {step === 1 ? (
+            {step === 1 && (
                 <Form inputFields={step1.inputFields} buttons={step1.buttons} handleSubmit={handleStep1Submit} />
-            ) : (
-                <></>
             )}
-            {step === 2 ? (
-                <Form inputFields={step2.inputFields} buttons={step2.buttons} handleSubmit={handleStep2Submit} />
-            ) : (
-                <></>
+            {step === 2 && (
+                <Form
+                    inputFields={step2.inputFields}
+                    buttons={step2.buttons}
+                    checkboxes={step2.checkboxes}
+                    handleSubmit={handleStep2Submit}
+                />
             )}
         </>
     );

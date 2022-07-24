@@ -1,35 +1,26 @@
-import jwt_decode from "jwt-decode";
-
 describe("create a user and log them in", () => {
     beforeEach(() => {
-        cy.visit("/createAccount");
+        cy.visit("/");
         cy.fixture("../fixtures/user.json").as("userData");
     });
 
-    it("should create user and authenticate", () => {
+    it("should create user and authenticate creating a session", () => {
         cy.get<User>("@userData").then((credentials: User) => {
+            cy.intercept("post", "api/user/create").as("createUser");
             cy.register(credentials);
-        });
-        cy.intercept("/api/createUser").as("createUser");
-        cy.get<User>("@userData").then((credentials: User) => {
-            cy.wait("@createUser").its("response.status").should("eq", 201);
-            cy.location("pathname").should("equal", `/profile@${credentials.username}`);
 
-            cy.get<User>("@userData").then(() => {
-                cy.getCookie("session").as("userCookie");
+            cy.wait("@createUser");
 
-                cy.get("@userCookie")
-                    .should("exist")
-                    .and("have.a.property", "session")
-                    .and("have.a.property", "credentials");
+            cy.getCookie("session").should("exist");
 
-                cy.get("@userCookie").then((cookie: any) => {
-                    const user = jwt_decode(cookie.credentials);
-                    cy.wrap(user)
-                        .should("have.a.property", "username", credentials.username)
-                        .and("have.a.property", "email", credentials.email);
-                });
+            cy.request("get", "api/auth").then((res) => {
+                expect(res.status).eq(200);
+                expect(res.body).to.haveOwnProperty("msg", "authenticated");
+                expect(res.body).to.haveOwnProperty("user");
+                expect(res.body.user).to.haveOwnProperty("username", credentials.username);
+                expect(res.body.user).to.haveOwnProperty("email", credentials.email);
             });
+
             //look at checking cookie properties at once.
         });
     });
@@ -37,38 +28,57 @@ describe("create a user and log them in", () => {
     it("should find user in the db", () => {
         //request user db to look for user and check that the properties equal to username,password,email
         cy.get<User>("@userData").then((credentials: User) => {
-            cy.request("get", `/api/user:${credentials.username}`).as("getUser");
-            cy.wait("@getUser").should("have.a.property", "username", credentials.username);
+            cy.request("get", `api/user/:${credentials.username}`).then((res) => {
+                expect(res.body).to.haveOwnProperty("msg", "found");
+            });
         });
     });
 
-    it("should fail username and email field already exists validation", () => {
+    it("should find username and email exist", () => {
         cy.get<User>("@userData").then((credentials: User) => {
+            cy.intercept("get", `api/user/:${credentials.username}`).as("userExist");
+
             cy.get("input[name='username']").type(credentials.username).blur();
-            cy.intercept(`/api/user:${credentials.username}`).as("doesUserExist");
-            cy.wait("@doesUserExist").then(() => {
+            cy.wait("@userExist").then(() => {
                 //get the username input and then see if there is an error message
-                cy.get("input[name='username']")
-                    .parent()
-                    .find("p")
-                    .contains("username already exists", { matchCase: false });
+                cy.get("input[name='username']").parent().find("p").contains("username exists", { matchCase: false });
             });
-            cy.get("input[name='email']").type(credentials.username).blur();
-            cy.intercept(`/api/user:${credentials.email}`).as("doesUserExist");
-            cy.wait("@doesUserExist").then(() => {
+
+            cy.intercept("get", `api/user/:${credentials.email}`).as("emailExist");
+
+            cy.get("input[name='email']").type(credentials.email).blur();
+
+            cy.wait("@emailExist").then(() => {
                 //get the email input and then see if there is an error message
-                cy.get("input[name='email']").parent().find("p").contains("email already exists", { matchCase: false });
+                cy.get("input[name='email']").parent().find("p").contains("email exists", { matchCase: false });
             });
         });
     });
 
-    it("should go back from step2", () => {
+    it("should fail password field validation", () => {
+        cy.get<User>("@userData").then((credentials: User) => {
+            cy.intercept(`api/user/:${credentials.username}`, { msg: "not found" }).as("user");
+            cy.intercept(`api/user/:${credentials.email}`, { msg: "not found" }).as("email");
+            cy.get("input[name='username']").type(credentials.username);
+            cy.get("input[name='email']").type(credentials.email);
+            cy.get("button[type='submit'").click();
+
+            cy.get("input[name='password']").type(credentials.password);
+            cy.get("input[name='confirm_password']").type("secret").blur();
+            cy.get("input[name='confirm_password']")
+                .parent()
+                .find("p")
+                .contains("passwords don't match", { matchCase: false });
+        });
+    });
+
+    it("should go back to step1", () => {
         cy.get<User>("@userData").then((credentials: User) => {
             cy.get("input[name='username']").type(credentials.username);
-            cy.intercept(`/api/user:${credentials.username}`, { msg: "not found" });
+            cy.intercept(`api/user/:${credentials.username}`, { msg: "not found" });
 
             cy.get("input[name='email']").type(credentials.email);
-            cy.intercept(`/api/user:${credentials.email}`, { msg: "not found" });
+            cy.intercept(`api/user/:${credentials.email}`, { msg: "not found" });
 
             cy.get("button[type='submit'").click();
 
@@ -76,23 +86,6 @@ describe("create a user and log them in", () => {
 
             cy.get("input[name='username']").should("have.value", credentials.username);
             cy.get("input[name='email']").should("have.value", credentials.email);
-        });
-    });
-
-    it("should fail password field client validation", () => {
-        cy.get<User>("@userData").then((credentials: User) => {
-            cy.get("input[name='username']").type(credentials.username);
-            cy.get("input[name='email']").type(credentials.email);
-            cy.intercept(`/api/findUser:${credentials.username}`, { msg: "not found" }).as("user");
-            cy.intercept(`/api/findUser:${credentials.email}`, { msg: "not found" }).as("email");
-            cy.get("button[type='submit'").click();
-
-            cy.get("input[name='password']").type(credentials.password);
-            cy.get("input[name='confirm password']").type("secret").blur();
-            cy.get("input[name='confirm password']")
-                .parent()
-                .find("p")
-                .contains("passwords don't match", { matchCase: false });
         });
     });
 

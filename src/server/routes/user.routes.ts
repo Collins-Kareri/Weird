@@ -1,24 +1,72 @@
-import { NextFunction, Request, Response, Router } from "express";
-import { create } from "@src/server/handlers/user.handlers";
+import { Router } from "express";
+import { create, remove, find } from "@src/server/handlers/user.handlers";
 import passport from "passport";
 
 const router = Router();
 
+router.get("/:id", async (req, res) => {
+    // id sample :/
+    const { id } = req.params;
+    const formattedId = id.replace(":", "");
+    // const idRegex = /^[0-9A-F-]+$/i;
+    const usernameRegex = /^[0-9a-z._]+$/i;
+    const emailRegex = /^\S+@\S+\.\S+$/;
+
+    //find by id
+    // if (idRegex.test(formattedId)) {
+    //     const findRes = await find(formattedId, "id");
+    //     res.json(findRes);
+    //     return;
+    // }
+
+    //find by user
+    if (usernameRegex.test(formattedId)) {
+        const findRes = await find(formattedId, "name");
+        res.json(findRes);
+        return;
+    }
+
+    //find by email
+    if (emailRegex.test(formattedId)) {
+        const findRes = await find(formattedId, "email");
+        res.json(findRes);
+        return;
+    }
+
+    res.status(404).json({ error: "route not valid" });
+});
+
 router.post("/create", create);
 
-router.post("/login", passport.authenticate("local", { failureMessage: true }), (req, res) => {
-    res.json({ msg: "login successful" });
+router.post("/login", function (req, res, next) {
+    //call passport authenticate as an iife.
+    passport.authenticate("local", { session: false }, (err, user) => {
+        function isUsernameExistsErr(err: string): boolean {
+            const test = err.match(/\b(username|doesn't|exist)\b/gi);
+            return test && test.length === 3 ? true : false;
+        }
+
+        if (err) {
+            if (typeof err === "string" && (err.toLowerCase() === "password not valid" || isUsernameExistsErr(err))) {
+                res.status(401).json({ msg: err });
+            } else {
+                res.status(401).json({ msg: "login failed", error: (err as Error).name });
+            }
+            return;
+        }
+
+        return req.login(user, (loginErr) => {
+            if (loginErr) {
+                res.status(401).json({ msg: "authentication failed", error: (loginErr as Error).name });
+                return;
+            }
+
+            res.json({ msg: "login successful" });
+            return;
+        });
+    })(req, res, next);
 });
 
-router.get("/:id", (req, res) => {
-    res.json({ name: "hello", email: "mail" });
-});
-
-router.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    if (err) {
-        console.error(err);
-        res.status(401).json({ msg: "failed to authenticate user" });
-    }
-});
+router.delete("/:username", remove);
 
 export default router;

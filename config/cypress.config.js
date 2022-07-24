@@ -9,6 +9,7 @@ module.exports = defineConfig({
         specPattern: "cypress/tests/*.cy.{js,jsx,ts,tsx}",
         supportFile: "cypress/support/e2e.ts",
         screenshotOnRunFailure: false,
+        chromeWebSecurity: false,
     },
     component: {
         devServer: {

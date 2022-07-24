@@ -32,9 +32,9 @@ const config = merge(common, {
         compress: true,
         historyApiFallback: true,
         hot: true,
-        open: true,
+        open: false,
         proxy: {
-            "/api": "http://localhost:5001",
+            "/api": "http://localhost:3003",
         },
         port: 3001,
     },

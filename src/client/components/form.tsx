@@ -1,28 +1,19 @@
 import React from "react";
 import InputField, { InputPropsTypes } from "@components/inputField";
-import CheckBox from "@components/checkbox";
+import CheckBox, { CheckBoxPropTypes } from "@components/checkbox";
 import Button, { ButtonPropTypes } from "@components/button";
 
 export type FormPropTypes = {
     inputFields: InputPropsTypes[];
     buttons: ButtonPropTypes[];
     handleSubmit?: (evt: React.FormEvent<HTMLFormElement>) => void;
+    checkboxes?: CheckBoxPropTypes[];
 };
 
-function Form({ inputFields, buttons, handleSubmit }: FormPropTypes): JSX.Element {
-    /**
-     * check if the every input in the form is of type password
-     * @param arr []
-     * @returns boolean
-     */
-    function isPasswordFields(arr: InputPropsTypes[]): boolean {
-        return arr.every(({ type }) => {
-            return type === "password";
-        });
-    }
-
+function Form({ inputFields, buttons, handleSubmit, checkboxes }: FormPropTypes): JSX.Element {
     return (
         <form onSubmit={handleSubmit}>
+            {/* map through input fields and display them */}
             {inputFields.map(
                 ({ type, label, placeholder, name, value, isAutoFocus, isRequired, helperMsg, validationChecks }) => {
                     return (
@@ -41,8 +32,14 @@ function Form({ inputFields, buttons, handleSubmit }: FormPropTypes): JSX.Elemen
                     );
                 }
             )}
-            {isPasswordFields(inputFields) && <CheckBox />}
-            {buttons.map(({ typeOfButton, priority, value, handleClick }) => {
+
+            {typeof checkboxes !== "undefined" &&
+                checkboxes.map(({ label, name, handleChange, value }) => {
+                    return <CheckBox key={name} label={label} name={name} value={value} handleChange={handleChange} />;
+                })}
+
+            {/* map through buttons and display them */}
+            {buttons.map(({ typeOfButton, priority, value, isLoading, handleClick }) => {
                 return (
                     <Button
                         key={value}
@@ -50,6 +47,7 @@ function Form({ inputFields, buttons, handleSubmit }: FormPropTypes): JSX.Elemen
                         value={value}
                         typeOfButton={typeOfButton}
                         handleClick={handleClick}
+                        isLoading={isLoading}
                     />
                 );
             })}

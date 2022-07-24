@@ -18,6 +18,7 @@ export type InputPropsTypes = Readonly<{
     isAutoFocus?: boolean;
     isRequired?: boolean;
     helperMsg?: string;
+    formErr?: string;
     validationChecks?: (val: string) => Promise<boolean>;
 }>;
 
@@ -46,8 +47,9 @@ function Input({
     isAutoFocus,
     helperMsg,
     validationChecks,
+    formErr,
 }: InputPropsTypes): JSX.Element {
-    const [errMsg, setErrMsg] = useState("");
+    const [errMsg, setErrMsg] = useState(formErr);
     const [currentValue, setCurrentValue] = useState(value);
     const inputStateStyles: InputStateStyles = {
         normal: "tw-p-3 tw-bg-gray-300 tw-ring-1 tw-outline-none tw-rounded-lg tw-border-none",
@@ -58,13 +60,6 @@ function Input({
 
     function isValidEmail(el: HTMLInputElement): void {
         let msg: string | undefined;
-
-        if (isRequired && el.value.length === 0) {
-            msg = `${name} is required`;
-            setErrMsg(`${name} is required`);
-            el.setCustomValidity(msg);
-            return;
-        }
 
         if (type === "email" && el.value.length === 1) {
             msg = `${name} is not valid`;
@@ -82,14 +77,36 @@ function Input({
         return;
     }
 
+    function isValidUsername(el: HTMLInputElement): void {
+        let msg: string | undefined;
+
+        const validUserNameRegex = /^[^\W][0-9a-z._]+[^\W_]+$/i;
+
+        if (el.value.length < 3) {
+            msg = "username cannot be less than 3 characters";
+            setErrMsg(msg);
+            el.setCustomValidity(msg);
+            return;
+        }
+
+        if (validUserNameRegex.test(el.value)) {
+            el.setCustomValidity("");
+            return;
+        }
+
+        msg = "username cannot start or end with special characters. Only allow letters,numbers,comma and underscore";
+        setErrMsg(msg);
+        el.setCustomValidity(msg);
+        return;
+    }
+
     function passwordsMatch(compareVal: HTMLInputElement, confirmPassword: HTMLInputElement): void {
-        let msg;
+        const msg = "passwords don't match";
         if (compareVal && confirmPassword) {
             if (
                 confirmPassword.value.length > 0 &&
                 compareVal.value.toLowerCase() !== confirmPassword.value.toLowerCase()
             ) {
-                msg = "passwords don't match";
                 confirmPassword.setCustomValidity(msg);
                 setErrMsg(msg);
             } else {
@@ -111,10 +128,11 @@ function Input({
 
         if (type === "email") {
             isValidEmail(el);
-            if (typeof validationChecks === "function") {
+
+            if (el.validity.valid && typeof validationChecks === "function") {
                 const alreadyExist = await validationChecks(el.value);
                 if (alreadyExist) {
-                    msg = "username already exists";
+                    msg = "email exists";
                     el.setCustomValidity(msg);
                     setErrMsg(msg);
                 }
@@ -122,13 +140,18 @@ function Input({
             return;
         }
 
-        if (name === "username" && typeof validationChecks === "function") {
-            const alreadyExist = await validationChecks(el.value);
-            if (alreadyExist) {
-                msg = "username already exists";
-                el.setCustomValidity(msg);
-                setErrMsg(msg);
+        if (name === "username") {
+            isValidUsername(el);
+
+            if (el.validity.valid && typeof validationChecks === "function") {
+                const alreadyExist = await validationChecks(el.value);
+                if (alreadyExist) {
+                    msg = "username exists";
+                    el.setCustomValidity(msg);
+                    setErrMsg(msg);
+                }
             }
+
             return;
         }
 
@@ -171,7 +194,7 @@ function Input({
             const confirmPassword = document.getElementById("confirm_password") as HTMLInputElement;
             setTimeout(() => {
                 passwordsMatch(compareVal, confirmPassword);
-            }, 500);
+            }, 700);
         }
         return;
     }
@@ -181,6 +204,7 @@ function Input({
             <label htmlFor={name} className="tw-m-2 tw-capitalize tw-font-medium hover:tw-cursor-pointer ">
                 {label}
             </label>
+
             <input
                 name={name}
                 id={name}
@@ -199,7 +223,7 @@ function Input({
             {helperMsg && <InformationalMsg msg={helperMsg} utilityClasses="peer-invalid:tw-hidden" />}
 
             {/* error message */}
-            {errMsg.length > 0 && (
+            {typeof errMsg !== "undefined" && errMsg.length > 0 && (
                 <InformationalMsg
                     msg={errMsg}
                     utilityClasses="peer-valid:tw-hidden peer-invalid:tw-visible tw-text-red-600"
