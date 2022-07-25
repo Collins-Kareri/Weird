@@ -368,7 +368,7 @@ function CreateAccount(): JSX.Element {
                             alt="Weird"
                         />
                     </a>
-                    <p className="tw-font-Arvo tw-text-lg tw-uppercase tw-inline-block">weird</p>
+                    <p className="tw-font-Taviraj tw-text-lg tw-uppercase tw-inline-block">weird</p>
                 </div>
 
                 <div>

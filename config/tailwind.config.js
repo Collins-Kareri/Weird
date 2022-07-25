@@ -13,13 +13,14 @@ module.exports = {
             primary: colors.gray,
             error: colors.red,
             normal: colors.blue,
-            success: colors.lime,
+            success: colors.emerald,
             neutral: colors.zinc,
+            warning: colors.amber,
         },
         extend: {
             fontFamily: {
                 Quicksand: ["Quicksand", "sans-serif"],
-                Arvo: ["Arvo", "serif"],
+                Taviraj: ["Taviraj", "serif"],
             },
         },
     },
