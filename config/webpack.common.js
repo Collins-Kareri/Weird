@@ -44,6 +44,7 @@ const config = {
             "@client": path.resolve(__dirname, "../src/client"),
             "@components": path.resolve(__dirname, "../src/client/components"),
             "@clientUtils": path.resolve(__dirname, "../src/client/utils"),
+            "@assets": path.resolve(__dirname, "../src/assets"),
             "@pages": path.resolve(__dirname, "../src/client/pages"),
         },
     },

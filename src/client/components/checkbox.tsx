@@ -9,7 +9,7 @@ export type CheckBoxPropTypes = {
 
 function CheckBox({ label, name, value, handleChange }: CheckBoxPropTypes): JSX.Element {
     return (
-        <div className="tw-px-4 tw-pb-4">
+        <div className="tw-pl-2 tw-pb-4">
             <input onChange={handleChange} className="tw-mr-2" type="checkbox" value={value} name={name} />
             <label className="tw-font-Quicksand tw-font-medium" htmlFor={name}>
                 {label}

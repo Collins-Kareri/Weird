@@ -6,6 +6,6 @@
 
 @layer components{
     .main-transition{
-        @apply tw-transition-all tw-duration-500 tw-ease-in-out
+        @apply tw-transition-all tw-ease-linear
     }
 }

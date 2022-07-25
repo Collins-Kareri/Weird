@@ -7,6 +7,7 @@ describe("create a user and log them in", () => {
     it("should create user and authenticate creating a session", () => {
         cy.get<User>("@userData").then((credentials: User) => {
             cy.intercept("post", "api/user/create").as("createUser");
+
             cy.register(credentials);
 
             cy.wait("@createUser");

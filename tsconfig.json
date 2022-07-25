@@ -6,7 +6,7 @@
         "dom",
         "ESNext"
       ],
-      "allowJs": false,
+      "allowJs": true,
       "jsx": "react",
       "sourceMap": true,
       "outDir":"./dist",
@@ -22,19 +22,20 @@
         "node",
         "react",
         "react-dom",
-        "./src/lib/types"
+        "./src/lib/types/"
       ],
       "paths": {
         "@src/*":["./src/*"],
         "@client/*":["./src/client/*"],
         "@components/*":["./src/client/components/*"],
+        "@assets/*":["./src/assets/*"],
         "@clientUtils/*":["./src/client/utils/*"],
         "@pages/*":["./src/client/pages/*"],
         "@server/*":["./src/server/*"]
       }
     },
     "include": [
-      "src"
+      "./src/**/*"
     ],
     "exclude": [
       "node_modules",
