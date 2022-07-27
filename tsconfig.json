@@ -17,7 +17,7 @@
       "noImplicitAny": true,
       "noFallthroughCasesInSwitch": true,
       "moduleResolution": "node",
-      "baseUrl": "./",
+      "baseUrl": ".",
       "types": [
         "node",
         "react",
@@ -39,6 +39,7 @@
     ],
     "exclude": [
       "node_modules",
-      "dist"
+      "dist",
+      "./config"
     ]
   }

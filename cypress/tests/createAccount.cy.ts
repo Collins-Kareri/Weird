@@ -1,10 +1,12 @@
-describe("create a user and log them in", () => {
+describe("create a user and authenticate them", () => {
+    //todo cancel button should take you back to previous page
+    //todo on logo click should take you to home.
     beforeEach(() => {
-        cy.visit("/");
+        cy.visit("/createAccount");
         cy.fixture("../fixtures/user.json").as("userData");
     });
 
-    it("should create user and authenticate creating a session", () => {
+    it("should create user and authenticate creating a cookie session", () => {
         cy.get<User>("@userData").then((credentials: User) => {
             cy.intercept("post", "api/user/create").as("createUser");
 
@@ -12,15 +14,7 @@ describe("create a user and log them in", () => {
 
             cy.wait("@createUser");
 
-            cy.getCookie("session").should("exist");
-
-            cy.request("get", "api/auth").then((res) => {
-                expect(res.status).eq(200);
-                expect(res.body).to.haveOwnProperty("msg", "authenticated");
-                expect(res.body).to.haveOwnProperty("user");
-                expect(res.body.user).to.haveOwnProperty("username", credentials.username);
-                expect(res.body.user).to.haveOwnProperty("email", credentials.email);
-            });
+            cy.checkAuthStatus(credentials);
 
             //look at checking cookie properties at once.
         });
@@ -75,13 +69,16 @@ describe("create a user and log them in", () => {
 
     it("should go back to step1", () => {
         cy.get<User>("@userData").then((credentials: User) => {
+            cy.intercept(`api/user/:${credentials.username}`, { msg: "not found" }).as("usernameExists");
+            cy.intercept(`api/user/:${credentials.email}`, { msg: "not found" }).as("emailExists");
+
             cy.get("input[name='username']").type(credentials.username);
-            cy.intercept(`api/user/:${credentials.username}`, { msg: "not found" });
 
             cy.get("input[name='email']").type(credentials.email);
-            cy.intercept(`api/user/:${credentials.email}`, { msg: "not found" });
 
-            cy.get("button[type='submit'").click();
+            cy.get("button[type='submit']").click();
+            cy.wait("@usernameExists");
+            cy.wait("@emailExists");
 
             cy.get("button[type='button']").contains("back", { matchCase: false }).click();
 
@@ -89,6 +86,14 @@ describe("create a user and log them in", () => {
             cy.get("input[name='email']").should("have.value", credentials.email);
         });
     });
+
+    // it("should take you to previous page on cancel button click", () => {
+    //     cy.get("button[type='cancel']").contains("login", { matchCase: false }).click();
+    // });
+
+    // it("logo icon click should take you to home", () => {
+    //     cy.get("button[type='cancel']").contains("login", { matchCase: false }).click();
+    // });
 
     after(() => {
         cy.fixture("../fixtures/user.json").as("userData");

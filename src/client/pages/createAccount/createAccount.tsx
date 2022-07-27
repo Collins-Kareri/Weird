@@ -1,7 +1,8 @@
 import React, { useState, useReducer, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Form, { FormPropTypes } from "@components/form";
 import Notification, { NotificationDescription } from "@components/notification";
-import Logo from "@assets/logo.svg";
+import Logo from "@components/logo";
 import {
     passwordsMatch,
     isValidEmail,
@@ -61,6 +62,7 @@ function CreateAccount(): JSX.Element {
     };
 
     const credentials = useRef(userData);
+    const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [err, dispatch] = useReducer(reducer, errTypes);
@@ -70,8 +72,8 @@ function CreateAccount(): JSX.Element {
         const el = evt.target as HTMLInputElement;
         let msg: string | undefined;
 
-        if (el.required && el.value.length === 0) {
-            msg = `${el.name} is required`;
+        if (el.value.length === 0) {
+            msg = `${el.name.replace("_", " ")} is required`;
             dispatch({ type: el.name, payload: msg });
             el.setCustomValidity(msg);
             return;
@@ -135,7 +137,7 @@ function CreateAccount(): JSX.Element {
             if (confirmPassword) {
                 setTimeout(() => {
                     passwordsMatch(compareVal, confirmPassword, dispatch);
-                }, 700);
+                }, 2000);
             }
         }
         return;
@@ -144,7 +146,7 @@ function CreateAccount(): JSX.Element {
     async function handleChange(evt: React.ChangeEvent<HTMLInputElement>): Promise<void> {
         const el = evt.target as HTMLInputElement;
 
-        if (el.required && el.value.length > 0) {
+        if (el.value.length > 0) {
             el.setCustomValidity("");
         }
 
@@ -159,16 +161,26 @@ function CreateAccount(): JSX.Element {
         evt.preventDefault();
         setIsLoading(true);
 
+        let msg = "";
+
         const el = evt.target as HTMLFormElement;
         for (let index = 0; index < el.elements.length; index++) {
             const node = el.elements[index] as HTMLInputElement | HTMLButtonElement;
 
             if (node.tagName.toLowerCase() === "input" && (node.type === "email" || node.name === "username")) {
+                if (node.value.length === 0) {
+                    msg = `${node.name} is required`;
+                    node.setCustomValidity(msg);
+                    dispatch({ type: node.name, payload: msg });
+                    break;
+                }
+
                 if (node.name === "username") {
                     if (await checkIfCredentialExist(node.value)) {
-                        node.setCustomValidity("username exists");
-                        dispatch({ type: "username", payload: "username exists" });
-                        setNotifications([{ type: "error", msg: "username exists" }]);
+                        msg = "username exists";
+                        node.setCustomValidity(msg);
+                        dispatch({ type: "username", payload: msg });
+                        setNotifications([{ type: "error", msg: msg }]);
                         break;
                     }
                     credentials.current = { ...credentials.current, username: node.value };
@@ -176,25 +188,30 @@ function CreateAccount(): JSX.Element {
 
                 if (node.name === "email") {
                     if (await checkIfCredentialExist(node.value)) {
-                        node.setCustomValidity("email exists");
-                        dispatch({ type: "email", payload: "email exists" });
-                        setNotifications([{ type: "error", msg: "email exists" }]);
+                        node.setCustomValidity(msg);
+                        dispatch({ type: "email", payload: msg });
+                        setNotifications([{ type: "error", msg: msg }]);
                         break;
                     }
+
                     credentials.current = { ...credentials.current, email: node.value };
                 }
             }
         }
 
         setIsLoading(false);
-        setStep(2);
+
+        if (msg.length === 0) {
+            setStep(2);
+        }
+
         return;
     }
 
     function cancel(evt: React.MouseEvent<HTMLButtonElement>): void {
         evt.preventDefault();
         //go back to previous page
-        //navigate(-1)
+        navigate(-1);
         return;
     }
 
@@ -209,13 +226,26 @@ function CreateAccount(): JSX.Element {
         setIsLoading(true);
 
         const el = evt.target as HTMLFormElement;
+        let msg = "";
         for (let index = 0; index < el.elements.length; index++) {
             const node = el.elements[index] as HTMLInputElement | HTMLButtonElement;
             if (node.tagName.toLowerCase() === "input") {
+                if (node.value.length === 0) {
+                    msg = `${node.name.replace("_", " ")} is required`;
+                    node.setCustomValidity(msg);
+                    dispatch({ type: node.name, payload: msg });
+                    break;
+                }
+
                 if (node.name.toLowerCase() === "password") {
                     credentials.current = { ...credentials.current, password: node.value };
                 }
             }
+        }
+
+        if (msg.length > 0) {
+            setIsLoading(false);
+            return;
         }
 
         const userCreate = await (
@@ -234,7 +264,7 @@ function CreateAccount(): JSX.Element {
             case "created":
                 return;
             default:
-                setNotifications([{ type: "error", msg: "Error occured will creating account.Please try again." }]);
+                setNotifications([{ type: "error", msg: "Error occured while creating account. Please try again." }]);
                 return;
         }
     }
@@ -262,6 +292,7 @@ function CreateAccount(): JSX.Element {
         return;
     }
 
+    //form elements for the step one of the create account form
     const step1: FormPropTypes = {
         inputFields: [
             {
@@ -271,7 +302,6 @@ function CreateAccount(): JSX.Element {
                 name: "username",
                 value: credentials.current.username,
                 isAutoFocus: true,
-                isRequired: true,
                 inputErrMsg: err.username,
                 handleBlur,
                 handleKeyup,
@@ -283,7 +313,6 @@ function CreateAccount(): JSX.Element {
                 placeholder: "example@mail.com",
                 name: "email",
                 value: credentials.current.email,
-                isRequired: true,
                 inputErrMsg: err.email,
                 handleBlur,
                 handleKeyup,
@@ -302,14 +331,18 @@ function CreateAccount(): JSX.Element {
         ],
         alternativeOption: (
             <span className="tw-block tw-p-4 tw-pl-1 tw-font-Quicksand tw-font-medium">
-                Already have an account?{" "}
-                <a href="#" className="tw-font-bold tw-underline tw-uppercase">
-                    log in
-                </a>
+                Already have an account?
+                <Link
+                    to="/login"
+                    className="tw-font-bold tw-ml-1 tw-underline tw-uppercase hover:tw-underline-offset-2 focus:tw-underline-offset-2"
+                >
+                    login
+                </Link>
             </span>
         ),
     };
 
+    //form elements for the step two of the create account form
     const step2: FormPropTypes = {
         inputFields: [
             {
@@ -319,7 +352,6 @@ function CreateAccount(): JSX.Element {
                 name: "password",
                 value: credentials.current.password,
                 minlength: 8,
-                isRequired: true,
                 helperMsg: "min-length 8 characters",
                 inputErrMsg: err.password,
                 handleBlur,
@@ -333,7 +365,6 @@ function CreateAccount(): JSX.Element {
                 name: "confirm_password",
                 value: credentials.current.password,
                 minlength: 8,
-                isRequired: true,
                 inputErrMsg: err.confirm_password,
                 handleBlur,
                 handleKeyup,
@@ -364,42 +395,33 @@ function CreateAccount(): JSX.Element {
         <>
             {Object.keys(notifications).length > 0 && <Notification notifications={notifications} />}
             <div className="tw-flex tw-h-screen tw-w-11/12 md:tw-w-2/3 lg:tw-max-w-lg tw-flex-col tw-items-stretch tw-justify-center tw-container tw-mx-auto">
-                <div className="tw-flex tw-w-full tw-relative tw-items-center tw-m-1 tw-ml-0 tw-justify-center">
-                    <a href="/">
-                        <img
-                            className="tw-mr-2 tw-inline-block tw-cursor-pointer"
-                            src={Logo}
-                            height="50"
-                            width="50"
-                            alt="Weird"
-                        />
-                    </a>
-                    <p className="tw-font-Taviraj tw-text-lg tw-uppercase tw-inline-block">weird</p>
+                {/*logo*/}
+                <div className="tw-flex tw-flex-col tw-w-full tw-relative tw-items-center tw-m-1 tw-ml-0 tw-justify-center">
+                    <Logo height={"50"} width={"50"} header={true} />
                 </div>
 
-                <div>
-                    <h1 className="tw-m-2 tw-my-5 tw-font-Quicksand tw-font-extrabold tw-text-xl tw-uppercase tw-w-fit tw-container tw-mx-auto">
-                        create account
-                    </h1>
+                {/*input form*/}
+                <h1 className="tw-m-2 tw-my-5 tw-mb-1 tw-font-Quicksand tw-font-extrabold tw-text-xl tw-uppercase tw-w-fit tw-container tw-mx-auto">
+                    create account
+                </h1>
 
-                    {step === 1 && (
-                        <Form
-                            inputFields={step1.inputFields}
-                            buttons={step1.buttons}
-                            alternativeOption={step1.alternativeOption}
-                            handleSubmit={handleStep1Submit}
-                        />
-                    )}
+                {step === 1 && (
+                    <Form
+                        inputFields={step1.inputFields}
+                        buttons={step1.buttons}
+                        alternativeOption={step1.alternativeOption}
+                        handleSubmit={handleStep1Submit}
+                    />
+                )}
 
-                    {step === 2 && (
-                        <Form
-                            inputFields={step2.inputFields}
-                            buttons={step2.buttons}
-                            checkboxes={step2.checkboxes}
-                            handleSubmit={handleStep2Submit}
-                        />
-                    )}
-                </div>
+                {step === 2 && (
+                    <Form
+                        inputFields={step2.inputFields}
+                        buttons={step2.buttons}
+                        checkboxes={step2.checkboxes}
+                        handleSubmit={handleStep2Submit}
+                    />
+                )}
             </div>
         </>
     );

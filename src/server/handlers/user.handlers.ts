@@ -15,6 +15,12 @@ function _hash(password: string) {
 
 export async function create(req: Request, res: Response) {
     const credentials: User = req.body;
+
+    if (credentials.email.length <= 0 || credentials.username.length <= 0 || credentials.password.length <= 0) {
+        res.status(400).json({ msg: "missing fields" });
+        return;
+    }
+
     const driver = getDriver();
     const session = driver.session();
     const hashedPassword = _hash(credentials.password);
@@ -77,7 +83,7 @@ export async function login(username: string, unhashedPassword: string) {
 
         return compareSync(unhashedPassword, hashedPassword) ? safeProps : "password not valid";
     } else {
-        return `user with username: ${username} doesn't exist`;
+        return "username doesn't exist";
     }
 }
 

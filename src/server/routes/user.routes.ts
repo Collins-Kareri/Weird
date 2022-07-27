@@ -42,15 +42,15 @@ router.post("/login", function (req, res, next) {
     //call passport authenticate as an iife.
     passport.authenticate("local", { session: false }, (err, user) => {
         function isUsernameExistsErr(err: string): boolean {
-            const test = err.match(/\b(username|doesn't|exist)\b/gi);
-            return test && test.length === 3 ? true : false;
+            // const test = err.match(/\b(username)\b/gi);
+            return /\b(username)\b/gi.test(err);
         }
 
         if (err) {
             if (typeof err === "string" && (err.toLowerCase() === "password not valid" || isUsernameExistsErr(err))) {
-                res.status(401).json({ msg: err });
+                res.status(400).json({ msg: err });
             } else {
-                res.status(401).json({ msg: "login failed", error: (err as Error).name });
+                res.status(500).json({ msg: "login failed", error: (err as Error).name });
             }
             return;
         }
@@ -61,7 +61,7 @@ router.post("/login", function (req, res, next) {
                 return;
             }
 
-            res.json({ msg: "login successful" });
+            res.json({ msg: "successful" });
             return;
         });
     })(req, res, next);
