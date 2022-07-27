@@ -37,7 +37,7 @@ export async function create(req: Request, res: Response) {
                 }
 
                 res.status(201).json({
-                    msg: "account was created",
+                    msg: "created",
                 });
 
                 return;

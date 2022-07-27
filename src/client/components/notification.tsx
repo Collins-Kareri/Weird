@@ -1,49 +1,82 @@
-import React from "react";
+import React, { useState } from "react";
 import Close from "@components/closeButton";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
-import { v4 as uuidv4 } from "uuid";
+import generateKey from "@clientUtils/generateKeys";
 
-const myuuid = uuidv4();
-
-interface TypeOfNotication {
-    notificationType: "error" | "info" | "success" | "warning";
+export type NotificationDescription = {
+    type: "error" | "info" | "success" | "warning";
     msg: string;
+};
+
+interface notificationVaryingStyles {
+    textColor: string;
+    fillColor: string;
+    strokeColor: string;
 }
 
 interface notificationStateStyleTypes {
-    error: string;
-    info: string;
-    warning: string;
-    success: string;
+    error: notificationVaryingStyles;
+    info: notificationVaryingStyles;
+    warning: notificationVaryingStyles;
+    success: notificationVaryingStyles;
 }
 
-interface NotificationPropTypes {
-    notifications: TypeOfNotication[];
-}
+type NotificationProps = {
+    notifications: NotificationDescription[];
+};
 
-function Notification({ notifications }: NotificationPropTypes) {
+/**
+ * Takes an array of notifications
+ * @param {}
+ * @returns JSX.Element
+ */
+function Notification({ notifications }: NotificationProps) {
     const notificationStateStyles: notificationStateStyleTypes = {
-        error: "error-800",
-        info: "normal-800",
-        warning: "warning-800",
-        success: "success-800",
+        error: { textColor: "tw-text-error-800", fillColor: "tw-fill-error-800", strokeColor: "tw-stroke-error-800" },
+        info: { textColor: "tw-text-normal-800", fillColor: "tw-fill-normal-800", strokeColor: "tw-stroke-normal-800" },
+        warning: {
+            textColor: "tw-text-warning-800",
+            fillColor: "tw-fill-warning-800",
+            strokeColor: "tw-stroke-warning-800",
+        },
+        success: {
+            textColor: "tw-text-success-800",
+            fillColor: "tw-fill-success-800",
+            strokeColor: "tw-stroke-success-800",
+        },
     };
 
+    const [currentNotifications, setCurrentNotifications] = useState(notifications);
+
+    function closeNotification(index: number) {
+        const filtered: NotificationDescription[] | [] = currentNotifications.filter((_, i) => {
+            return i !== index;
+        });
+
+        setCurrentNotifications(filtered);
+
+        return;
+    }
+
     return (
-        <div className="tw-container tw-inset-x-1/2 -tw-translate-x-2/4 tw-mt-4 tw-absolute tw-w-11/12 tw-z-50 lg:tw-max-w-lg md:tw-w-2/3">
-            {notifications.map(({ notificationType, msg }) => {
+        <div className="tw-container tw-inset-x-1/2 -tw-translate-x-2/4 tw-mt-4 tw-absolute tw-w-11/12 tw-z-50 lg:tw-max-w-lg md:tw-w-2/3 main-transition">
+            {currentNotifications.map(({ type, msg }, index) => {
                 return (
                     <div
-                        className={`tw-relative tw-container tw-mx-auto tw-font-Taviraj tw-border tw-border-solid tw-border-primary-100 tw-mb-6 tw-p-4 tw-text-${notificationStateStyles[notificationType]} tw-bg-primary-100 tw-shadow-md tw-shadow-primary-700 tw-rounded-lg`}
-                        key={myuuid}
+                        className={`tw-relative tw-container tw-mx-auto tw-font-Taviraj tw-border tw-border-solid tw-border-primary-100 tw-mb-6 tw-p-4 ${notificationStateStyles[type].textColor} tw-bg-primary-100 tw-shadow-md tw-shadow-primary-700 tw-rounded-lg`}
+                        key={generateKey()}
                     >
                         <Close
                             backgroundColor={"tw-bg-primary-100"}
                             shadowColor={"tw-shadow-primary-500"}
-                            fillColor={`tw-fill-${notificationStateStyles[notificationType]}`}
-                            strokeColor={`tw-stroke-${notificationStateStyles[notificationType]}`}
+                            fillColor={`${notificationStateStyles[type].fillColor}`}
+                            strokeColor={`${notificationStateStyles[type].strokeColor}`}
+                            onClick={() => {
+                                closeNotification(index);
+                                return;
+                            }}
                         />
-                        <h1 className="tw-text-left tw-capitalize tw-font-extrabold">{notificationType}</h1>
+                        <h1 className="tw-text-left tw-capitalize tw-font-extrabold">{capitalizeFirstChar(type)}</h1>
                         <p className="tw-font-Quicksand tw-font-semibold">{capitalizeFirstChar(msg)}</p>
                     </div>
                 );

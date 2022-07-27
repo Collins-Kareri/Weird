@@ -5,9 +5,10 @@ interface ClosePropTypes {
     shadowColor: string;
     fillColor: string;
     strokeColor: string;
+    onClick: () => void;
 }
 
-function Close({ backgroundColor, shadowColor, fillColor, strokeColor }: ClosePropTypes) {
+function Close({ backgroundColor, shadowColor, fillColor, strokeColor, onClick }: ClosePropTypes) {
     return (
         <div
             className={`${backgroundColor} tw-h-10 tw-w-10 tw-p-1 tw-text-center tw-rounded-full tw-absolute -tw-right-2 -tw-top-3 tw-cursor-pointer tw-shadow-inner ${shadowColor}`}
@@ -16,6 +17,7 @@ function Close({ backgroundColor, shadowColor, fillColor, strokeColor }: ClosePr
                 xmlns="http://www.w3.org/2000/svg"
                 className={`tw-h-7 tw-w-7 ${strokeColor} ${fillColor} tw-container tw-mx-auto tw-mt-0.5`}
                 viewBox="0 0 20 20"
+                onClick={onClick}
             >
                 <path
                     fillRule="evenodd"

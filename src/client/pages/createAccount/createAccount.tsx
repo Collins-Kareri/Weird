@@ -1,5 +1,6 @@
 import React, { useState, useReducer, useRef } from "react";
 import Form, { FormPropTypes } from "@components/form";
+import Notification, { NotificationDescription } from "@components/notification";
 import Logo from "@assets/logo.svg";
 import {
     passwordsMatch,
@@ -63,6 +64,7 @@ function CreateAccount(): JSX.Element {
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [err, dispatch] = useReducer(reducer, errTypes);
+    const [notifications, setNotifications] = useState<NotificationDescription[] | []>([]);
 
     async function handleBlur(evt: React.FocusEvent<HTMLInputElement>): Promise<void> {
         const el = evt.target as HTMLInputElement;
@@ -166,6 +168,7 @@ function CreateAccount(): JSX.Element {
                     if (await checkIfCredentialExist(node.value)) {
                         node.setCustomValidity("username exists");
                         dispatch({ type: "username", payload: "username exists" });
+                        setNotifications([{ type: "error", msg: "username exists" }]);
                         break;
                     }
                     credentials.current = { ...credentials.current, username: node.value };
@@ -175,6 +178,7 @@ function CreateAccount(): JSX.Element {
                     if (await checkIfCredentialExist(node.value)) {
                         node.setCustomValidity("email exists");
                         dispatch({ type: "email", payload: "email exists" });
+                        setNotifications([{ type: "error", msg: "email exists" }]);
                         break;
                     }
                     credentials.current = { ...credentials.current, email: node.value };
@@ -227,9 +231,10 @@ function CreateAccount(): JSX.Element {
         setIsLoading(false);
 
         switch (userCreateResponse.toLowerCase()) {
-            case "account created successfully":
+            case "created":
                 return;
             default:
+                setNotifications([{ type: "error", msg: "Error occured will creating account.Please try again." }]);
                 return;
         }
     }
@@ -357,6 +362,7 @@ function CreateAccount(): JSX.Element {
 
     return (
         <>
+            {Object.keys(notifications).length > 0 && <Notification notifications={notifications} />}
             <div className="tw-flex tw-h-screen tw-w-11/12 md:tw-w-2/3 lg:tw-max-w-lg tw-flex-col tw-items-stretch tw-justify-center tw-container tw-mx-auto">
                 <div className="tw-flex tw-w-full tw-relative tw-items-center tw-m-1 tw-ml-0 tw-justify-center">
                     <a href="/">
