@@ -64,7 +64,7 @@ function Input({
 
     return (
         <div className="inputContainer tw-text-neutral-900 tw-flex tw-flex-col tw-items-stretch tw-my-2 tw-font-Quicksand tw-text-lg tw-w-full tw-container tw-mx-auto">
-            <label htmlFor={name} className="tw-m-2 tw-capitalize tw-font-medium hover:tw-cursor-pointer ">
+            <label htmlFor={name} className="tw-m-2 tw-capitalize tw-font-medium hover:tw-cursor-pointer tw-my-1">
                 {label}
             </label>
 

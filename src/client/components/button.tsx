@@ -26,12 +26,12 @@ function Button({
     extraStyles: utilityClasses,
     handleClick,
 }: ButtonPropTypes): JSX.Element {
-    const selectCursor = isLoading ? "tw-cursor-wait" : "tw-cursor-pointer";
-
     const buttonStyles: ButtonStyles = {
         common: `tw-relative tw-inline-flex tw-items-center tw-justify-start tw-flex-row ${
             typeof utilityClasses === "string" && utilityClasses
-        } ${selectCursor} tw-font-Quicksand tw-text-neutral-900 tw-align-middle tw-font-medium tw-text-base tw-w-fit tw-h-fit tw-p-2.5 tw-mt-4 tw-rounded main-transition md:tw-p-3`,
+        } ${
+            isLoading ? "tw-cursor-wait" : "tw-cursor-pointer"
+        } tw-font-Quicksand tw-text-neutral-900 tw-align-middle tw-font-medium tw-text-base tw-w-fit tw-h-fit tw-p-2.5 tw-mt-4 tw-rounded main-transition md:tw-p-3`,
         primary: "tw-bg-primary-800 tw-text-primary-200 hover:tw-bg-primary-900 focus:tw-text-primary-400",
         secondary:
             "tw-ring-1 tw-border-solid tw-ring-primary-300 hover:tw-ring-offset-1 hover:tw-ring-primary-800 focus:tw-ring-offset-1 focus:tw-ring-primary-800",

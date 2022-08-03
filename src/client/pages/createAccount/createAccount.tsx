@@ -1,7 +1,7 @@
-import React, { useState, useReducer, useRef } from "react";
+import React, { useState, useReducer, useRef, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Form, { FormPropTypes } from "@components/form";
-import Notification, { NotificationDescription } from "@components/notification";
+import notificationContext from "@context/notifications.context";
 import Logo from "@components/logo";
 import {
     passwordsMatch,
@@ -66,7 +66,7 @@ function CreateAccount(): JSX.Element {
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [err, dispatch] = useReducer(reducer, errTypes);
-    const [notifications, setNotifications] = useState<NotificationDescription[] | []>([]);
+    const { setCurrentNotifications } = useContext(notificationContext);
 
     async function handleBlur(evt: React.FocusEvent<HTMLInputElement>): Promise<void> {
         const el = evt.target as HTMLInputElement;
@@ -180,7 +180,7 @@ function CreateAccount(): JSX.Element {
                         msg = "username exists";
                         node.setCustomValidity(msg);
                         dispatch({ type: "username", payload: msg });
-                        setNotifications([{ type: "error", msg: msg }]);
+                        setCurrentNotifications([{ type: "error", msg: msg }]);
                         break;
                     }
                     credentials.current = { ...credentials.current, username: node.value };
@@ -190,7 +190,7 @@ function CreateAccount(): JSX.Element {
                     if (await checkIfCredentialExist(node.value)) {
                         node.setCustomValidity(msg);
                         dispatch({ type: "email", payload: msg });
-                        setNotifications([{ type: "error", msg: msg }]);
+                        setCurrentNotifications([{ type: "error", msg: msg }]);
                         break;
                     }
 
@@ -208,8 +208,7 @@ function CreateAccount(): JSX.Element {
         return;
     }
 
-    function cancel(evt: React.MouseEvent<HTMLButtonElement>): void {
-        evt.preventDefault();
+    function cancel(): void {
         //go back to previous page
         navigate(-1);
         return;
@@ -262,9 +261,15 @@ function CreateAccount(): JSX.Element {
 
         switch (userCreateResponse.toLowerCase()) {
             case "created":
+                //go to the profile or back to where you were?
                 return;
             default:
-                setNotifications([{ type: "error", msg: "Error occured while creating account. Please try again." }]);
+                setCurrentNotifications([
+                    {
+                        type: "error",
+                        msg: "Error occured while creating account. Please check provided credentials and try again.",
+                    },
+                ]);
                 return;
         }
     }
@@ -393,7 +398,6 @@ function CreateAccount(): JSX.Element {
 
     return (
         <>
-            {Object.keys(notifications).length > 0 && <Notification notifications={notifications} />}
             <div className="tw-flex tw-h-screen tw-w-11/12 md:tw-w-2/3 lg:tw-max-w-lg tw-flex-col tw-items-stretch tw-justify-center tw-container tw-mx-auto">
                 {/*logo*/}
                 <div className="tw-flex tw-flex-col tw-w-full tw-relative tw-items-center tw-m-1 tw-ml-0 tw-justify-center">

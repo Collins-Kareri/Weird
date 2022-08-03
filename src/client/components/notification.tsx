@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import Close from "@components/closeButton";
+import React, { useContext } from "react";
+import Close from "@src/client/components/closeIcon";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
-import generateKey from "@clientUtils/generateKeys";
+import generateKey from "@src/lib/utils/generateKeys";
+import notificationContext from "@context/notifications.context";
 
 export type NotificationDescription = {
     type: "error" | "info" | "success" | "warning";
@@ -21,16 +22,12 @@ interface notificationStateStyleTypes {
     success: notificationVaryingStyles;
 }
 
-type NotificationProps = {
-    notifications: NotificationDescription[];
-};
-
 /**
  * Takes an array of notifications
  * @param {}
- * @returns JSX.Element
+ * @returns Notification element
  */
-function Notification({ notifications }: NotificationProps) {
+function Notification() {
     const notificationStateStyles: notificationStateStyleTypes = {
         error: { textColor: "tw-text-error-800", fillColor: "tw-fill-error-800", strokeColor: "tw-stroke-error-800" },
         info: { textColor: "tw-text-normal-800", fillColor: "tw-fill-normal-800", strokeColor: "tw-stroke-normal-800" },
@@ -46,7 +43,8 @@ function Notification({ notifications }: NotificationProps) {
         },
     };
 
-    const [currentNotifications, setCurrentNotifications] = useState(notifications);
+    // const [currentNotifications, setCurrentNotifications] = useState(notifications);
+    const { currentNotifications, setCurrentNotifications } = useContext(notificationContext);
 
     function closeNotification(index: number) {
         const filtered: NotificationDescription[] | [] = currentNotifications.filter((_, i) => {
@@ -54,12 +52,11 @@ function Notification({ notifications }: NotificationProps) {
         });
 
         setCurrentNotifications(filtered);
-
         return;
     }
 
     return (
-        <div className="tw-container tw-inset-x-1/2 -tw-translate-x-2/4 tw-mt-4 tw-absolute tw-w-11/12 tw-z-50 lg:tw-max-w-lg md:tw-w-2/3 main-transition">
+        <div className="tw-container tw-inset-x-1/2 -tw-translate-x-1/2 tw-mt-4 tw-absolute tw-w-11/12 tw-z-50 lg:tw-max-w-lg md:tw-w-2/3 main-transition tw-top-4">
             {currentNotifications.map(({ type, msg }, index) => {
                 return (
                     <div
@@ -71,6 +68,7 @@ function Notification({ notifications }: NotificationProps) {
                             shadowColor={"tw-shadow-primary-500"}
                             fillColor={`${notificationStateStyles[type].fillColor}`}
                             strokeColor={`${notificationStateStyles[type].strokeColor}`}
+                            position={"tw-absolute -tw-right-2 -tw-top-3"}
                             onClick={() => {
                                 closeNotification(index);
                                 return;

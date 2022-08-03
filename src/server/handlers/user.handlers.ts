@@ -62,7 +62,7 @@ export async function create(req: Request, res: Response) {
             return;
         }
 
-        res.json({ msg: (error as Error).name });
+        res.status(500).json({ msg: "couldn't create account" });
         return;
     }
 }

@@ -9,10 +9,12 @@ declare global {
     interface UserSafeProps extends Omit<User, "password"> {
         id: number;
     }
-    namespace Server {
-        interface responseObj<type> {
-            msg: string;
-            body?: type;
-        }
+    interface IconProps {
+        backgroundColor: string;
+        shadowColor: string;
+        fillColor: string;
+        strokeColor: string;
+        position: string;
+        onClick: (evt: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     }
 }

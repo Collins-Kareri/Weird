@@ -2,7 +2,7 @@ import { Router } from "express";
 
 const router = Router();
 
-//gets all the users
+//gets the authenticated user
 router.get("/", (req, res) => {
     if (req.isAuthenticated() && req.session?.isPopulated) {
         res.json({ msg: "authenticated", user: req.user });

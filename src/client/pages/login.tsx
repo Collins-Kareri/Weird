@@ -1,9 +1,9 @@
 /* eslint-disable react/no-unescaped-entities */
-import React, { useRef, useState } from "react";
+import React, { useRef, useContext, useState } from "react";
 import Logo from "@components/logo";
 import { Link, useNavigate } from "react-router-dom";
 import Form, { FormPropTypes } from "@components/form";
-import Notification, { NotificationDescription } from "@components/notification";
+import notificationContext from "@context/notifications.context";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
 
 function Login() {
@@ -16,10 +16,9 @@ function Login() {
     const navigate = useNavigate();
     const [err, setErr] = useState<Omit<User, "email">>({ username: "", password: "" });
     const [isLoading, setIsLoading] = useState(false);
-    const [notifications, setNotifications] = useState<NotificationDescription[] | []>([]);
+    const { setCurrentNotifications } = useContext(notificationContext);
 
-    function cancel(evt: React.MouseEvent<HTMLButtonElement>): void {
-        evt.preventDefault();
+    function cancel(): void {
         //go back to previous page
         navigate(-1);
         return;
@@ -102,15 +101,15 @@ function Login() {
             case "username doesn't exist":
                 usernameEl.setCustomValidity(userLoginResponse);
                 setErr({ ...err, username: userLoginResponse });
-                setNotifications([{ type: "error", msg: userLoginResponse }]);
+                setCurrentNotifications([{ type: "error", msg: userLoginResponse }]);
                 return;
             case "password not valid":
                 passwordEl.setCustomValidity(userLoginResponse);
                 setErr({ ...err, password: userLoginResponse });
-                setNotifications([{ type: "error", msg: userLoginResponse }]);
+                setCurrentNotifications([{ type: "error", msg: userLoginResponse }]);
                 return;
             default:
-                setNotifications([{ type: "error", msg: "Couldn't log you in.Please try again." }]);
+                setCurrentNotifications([{ type: "error", msg: "Couldn't log you in.Please try again." }]);
                 return;
         }
     }
@@ -180,8 +179,6 @@ function Login() {
 
     return (
         <>
-            {Object.keys(notifications).length > 0 && <Notification notifications={notifications} />}
-
             <div className="tw-flex tw-h-screen tw-w-11/12 md:tw-w-2/3 lg:tw-max-w-lg tw-flex-col tw-items-stretch tw-justify-center tw-container tw-mx-auto">
                 {/*logo*/}
                 <div className="tw-flex tw-flex-col tw-w-full tw-relative tw-items-center tw-m-1 tw-ml-0 tw-justify-center">

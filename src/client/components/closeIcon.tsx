@@ -1,17 +1,9 @@
 import React from "react";
 
-interface ClosePropTypes {
-    backgroundColor: string;
-    shadowColor: string;
-    fillColor: string;
-    strokeColor: string;
-    onClick: () => void;
-}
-
-function Close({ backgroundColor, shadowColor, fillColor, strokeColor, onClick }: ClosePropTypes) {
+function Close({ backgroundColor, shadowColor, fillColor, strokeColor, position, onClick }: IconProps) {
     return (
         <div
-            className={`${backgroundColor} tw-h-10 tw-w-10 tw-p-1 tw-text-center tw-rounded-full tw-absolute -tw-right-2 -tw-top-3 tw-cursor-pointer tw-shadow-inner ${shadowColor}`}
+            className={`${backgroundColor} tw-h-10 tw-w-10 tw-p-1 tw-text-center tw-rounded-full ${position} tw-cursor-pointer tw-shadow-inner ${shadowColor}`}
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -10,8 +10,17 @@ function Home() {
             >
                 create account
             </Link>
-            <Link className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-uppercase tw-text-xl" to={"/login"}>
+            <Link
+                className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-uppercase tw-text-xl tw-mr-4"
+                to={"/login"}
+            >
                 login
+            </Link>
+            <Link
+                className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-uppercase tw-text-xl tw-mr-4"
+                to={"/publish"}
+            >
+                publish
             </Link>
         </div>
     );

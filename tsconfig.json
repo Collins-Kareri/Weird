@@ -28,6 +28,7 @@
         "@src/*":["./src/*"],
         "@client/*":["./src/client/*"],
         "@components/*":["./src/client/components/*"],
+        "@context/*":["./src/client/context/*"],
         "@assets/*":["./src/assets/*"],
         "@clientUtils/*":["./src/client/utils/*"],
         "@pages/*":["./src/client/pages/*"],
