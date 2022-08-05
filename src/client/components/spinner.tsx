@@ -4,14 +4,14 @@ interface SpinnerPropTypes {
     height: string;
     width: string;
     borderColor: string;
-    margin: string;
+    position: string;
     extraStyles?: string;
 }
 
-function Spinner({ height, width, borderColor, margin, extraStyles }: SpinnerPropTypes): JSX.Element {
+function Spinner({ height, width, borderColor, position, extraStyles }: SpinnerPropTypes): JSX.Element {
     return (
         <span
-            className={`tw-inline-block tw-animate-spin ${height} ${width} tw-w-6 ${margin} ${borderColor} tw-border-solid tw-border-t-2 tw-border-r-2 tw-rounded-full ${
+            className={`tw-inline-block tw-animate-spin ${height} ${width} tw-w-6 ${position} ${borderColor} tw-border-solid tw-border-t-2 tw-border-r-2 tw-rounded-full ${
                 typeof extraStyles !== "undefined" && extraStyles
             }`}
         ></span>

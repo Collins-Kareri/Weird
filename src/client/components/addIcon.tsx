@@ -1,9 +1,11 @@
 import React from "react";
 
-function Add({ backgroundColor, shadowColor, fillColor, strokeColor, position, onClick }: IconProps) {
+function Add({ backgroundColor, shadowColor, fillColor, strokeColor, position, extraStyle, onClick }: IconProps) {
     return (
         <div
-            className={`${backgroundColor} tw-h-10 tw-w-10 tw-p-1 tw-text-center tw-rounded-full ${position} tw-cursor-pointer tw-shadow-inner ${shadowColor}`}
+            className={`${backgroundColor} tw-h-10 tw-w-10 tw-p-1 tw-text-center tw-rounded-full ${position} tw-cursor-pointer tw-shadow-inner ${shadowColor} ${
+                typeof extraStyle === "string" && extraStyle
+            } main-transition`}
             onClick={onClick}
         >
             <svg

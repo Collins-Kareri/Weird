@@ -10,10 +10,10 @@ describe("create a user and authenticate them", () => {
         cy.get<User>("@userData").then((credentials: User) => {
             cy.intercept("post", "api/image/publish").as("publishImage");
 
-            cy.request("post", "api/user/create", { body: credentials }).then((res) => {
+            cy.request("post", "api/user/create", credentials).then((res) => {
                 cy.fixture("testImg-unsplash.jpg").as("testImg");
                 expect(res.status).to.eq(201);
-                cy.get("#fileInput").selectFile("@testImg", { force: true });
+                cy.get("#fileBrowse").selectFile("@testImg", { force: true });
                 cy.get("button[type='submit']").click();
                 cy.wait("@publishImage");
 
@@ -23,9 +23,21 @@ describe("create a user and authenticate them", () => {
     });
 
     after(() => {
-        cy.request("delete", "api/image/:imageId").then((res) => {
-            expect(res.status).to.eq(200);
-            expect(res.body).haveOwnProperty("msg", "ok");
+        cy.fixture("../fixtures/user.json").as("userData");
+
+        cy.get<User>("@userData").then((credentials: User) => {
+            cy.deleteUserByApi(credentials.username);
+            // cy.request("get", `api/image/:${credentials.username}`).then((res) => {
+            //     expect(res.body).to.haveOwnProperty("img");
+            //     expect(res.body.img[0]).to.haveOwnProperty("publicId");
+
+            //     cy.request("delete", `api/image/:${res.body.img[0].publicId}`).then((res) => {
+            //         expect(res.status).to.eq(200);
+            //         expect(res.body).haveOwnProperty("msg", "ok");
+            //     });
+
+            //     cy.deleteUserByApi(credentials.username);
+            // });
         });
     });
 });

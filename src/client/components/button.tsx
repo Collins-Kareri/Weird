@@ -32,7 +32,8 @@ function Button({
         } ${
             isLoading ? "tw-cursor-wait" : "tw-cursor-pointer"
         } tw-font-Quicksand tw-text-neutral-900 tw-align-middle tw-font-medium tw-text-base tw-w-fit tw-h-fit tw-p-2.5 tw-mt-4 tw-rounded main-transition md:tw-p-3`,
-        primary: "tw-bg-primary-800 tw-text-primary-200 hover:tw-bg-primary-900 focus:tw-text-primary-400",
+        primary:
+            "tw-ring-1  tw-bg-primary-800 tw-text-primary-200  hover:tw-bg-primary-900 hover:tw-ring-offset-1 hover:tw-ring-offset-primary-900 focus:tw-text-primary-400",
         secondary:
             "tw-ring-1 tw-border-solid tw-ring-primary-300 hover:tw-ring-offset-1 hover:tw-ring-primary-800 focus:tw-ring-offset-1 focus:tw-ring-primary-800",
         tertiary: "tw-underline hover:tw-underline-offset-2 focus:tw-underline-offset-2",
@@ -46,7 +47,12 @@ function Button({
             disabled={isLoading ? true : false}
         >
             {isLoading && (
-                <Spinner height={"tw-h-6"} width={"tw-h-6"} borderColor={"tw-border-primary-200"} margin={"tw-mr-2"} />
+                <Spinner
+                    height={"tw-h-6"}
+                    width={"tw-h-6"}
+                    borderColor={"tw-border-primary-200"}
+                    position={"tw-mr-2"}
+                />
             )}
             {capitalizeFirstChar(value)}
         </button>

@@ -60,12 +60,12 @@ function Notification() {
             {currentNotifications.map(({ type, msg }, index) => {
                 return (
                     <div
-                        className={`tw-relative tw-container tw-mx-auto tw-font-Taviraj tw-border tw-border-solid tw-border-primary-100 tw-mb-6 tw-p-4 ${notificationStateStyles[type].textColor} tw-bg-primary-100 tw-shadow-md tw-shadow-primary-700 tw-rounded-lg`}
+                        className={`tw-relative tw-container tw-mx-auto tw-font-Taviraj tw-border tw-border-solid tw-border-neutral-100 tw-mb-6 tw-p-4 ${notificationStateStyles[type].textColor} tw-bg-neutral-100 tw-shadow-md tw-shadow-neutral-700 tw-rounded-lg`}
                         key={generateKey()}
                     >
                         <Close
-                            backgroundColor={"tw-bg-primary-100"}
-                            shadowColor={"tw-shadow-primary-500"}
+                            backgroundColor={"tw-bg-neutral-100"}
+                            shadowColor={"tw-shadow-neutral-500"}
                             fillColor={`${notificationStateStyles[type].fillColor}`}
                             strokeColor={`${notificationStateStyles[type].strokeColor}`}
                             position={"tw-absolute -tw-right-2 -tw-top-3"}

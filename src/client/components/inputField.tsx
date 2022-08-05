@@ -54,7 +54,7 @@ function Input({
     handleChange,
 }: InputPropsTypes): JSX.Element {
     const inputStateStyles: InputStateStyles = {
-        normal: " tw-w-full tw-p-3 tw-bg-primary-200 tw-ring-1 tw-outline-none tw-rounded-lg tw-border-none",
+        normal: " tw-w-full tw-p-3 tw-bg-neutral-200 tw-ring-1 tw-outline-none tw-rounded-lg tw-border-none",
         invalid: "invalid:tw-ring-error-700 ",
         valid: "valid:tw-ring-success-700",
         focused: "focus:tw-ring-normal-800",
@@ -64,7 +64,7 @@ function Input({
 
     return (
         <div className="inputContainer tw-text-neutral-900 tw-flex tw-flex-col tw-items-stretch tw-my-2 tw-font-Quicksand tw-text-lg tw-w-full tw-container tw-mx-auto">
-            <label htmlFor={name} className="tw-m-2 tw-capitalize tw-font-medium hover:tw-cursor-pointer tw-my-1">
+            <label htmlFor={name} className="tw-m-2 tw-capitalize tw-font-semibold hover:tw-cursor-pointer tw-my-1">
                 {label}
             </label>
 

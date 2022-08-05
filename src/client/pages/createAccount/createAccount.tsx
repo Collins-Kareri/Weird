@@ -81,7 +81,6 @@ function CreateAccount(): JSX.Element {
 
         if (el.type === "email") {
             isValidEmail(el, dispatch);
-
             if (el.validity.valid && typeof checkIfCredentialExist === "function") {
                 const alreadyExist = await checkIfCredentialExist(el.value);
                 if (alreadyExist) {
@@ -95,7 +94,6 @@ function CreateAccount(): JSX.Element {
 
         if (el.name === "username") {
             isValidUsername(el, dispatch);
-
             if (el.validity.valid && typeof checkIfCredentialExist === "function") {
                 const alreadyExist = await checkIfCredentialExist(el.value);
                 if (alreadyExist) {
@@ -104,7 +102,6 @@ function CreateAccount(): JSX.Element {
                     dispatch({ type: "username", payload: msg });
                 }
             }
-
             return;
         }
 

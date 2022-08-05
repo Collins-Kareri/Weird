@@ -10,6 +10,7 @@ module.exports = defineConfig({
         supportFile: "cypress/support/e2e.ts",
         screenshotOnRunFailure: false,
         chromeWebSecurity: false,
+        video: false,
     },
     component: {
         devServer: {

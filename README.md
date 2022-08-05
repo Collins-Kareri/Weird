@@ -1,5 +1,5 @@
-# DEV
-npm dev
+# DEV ENVIROMENT
+npm run dev
 
 # CYPRESS
 Open cypress gui: npm run cypress:open
@@ -8,9 +8,9 @@ run tests in terminal: npm run cypress:run
 
 # CLIENT
 
-npm client:dev -- development
-npm build -- production
+npm run client:dev -- development
+npm run build -- production
 
 # SERVER
 
-npm server:dev -- development
+npm run server:dev -- development

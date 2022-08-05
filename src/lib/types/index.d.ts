@@ -15,6 +15,7 @@ declare global {
         fillColor: string;
         strokeColor: string;
         position: string;
-        onClick: (evt: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+        onClick: (evt: React.MouseEvent) => void;
+        extraStyle?: string;
     }
 }
