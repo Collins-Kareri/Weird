@@ -25,6 +25,7 @@ function TagsInput({ tags, setTags }: TagsProps) {
         }
 
         if (evt.key === "Enter" || evt.key === ",") {
+            evt.preventDefault();
             const value = el.value;
             setTags([...tags, value]);
             el.value = "";
@@ -78,7 +79,7 @@ function TagsInput({ tags, setTags }: TagsProps) {
                     type="text"
                     placeholder="Enter tags"
                     id="tagInput"
-                    className="tw-border-none tw-ring-0 focus:tw-ring-0 tw-inline-block tw-bg-neutral-200 tw-text-neutral-500"
+                    className="tw-border-none tw-p-0 tw-ring-0 focus:tw-ring-0 tw-inline-block tw-bg-neutral-200 tw-text-neutral-500"
                     onKeyDown={handleKeyDown}
                 />
             </div>

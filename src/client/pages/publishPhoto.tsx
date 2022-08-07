@@ -7,7 +7,7 @@ import Spinner from "@components/spinner";
 import Close from "@components/closeIcon";
 import TagsInput from "@components/tagsInput";
 
-interface imgObj {
+interface ImgObj {
     url: string;
     base64Rep: string | ArrayBuffer;
 }
@@ -17,7 +17,7 @@ function Publish() {
     const fileBrowseEl = useRef(null);
     const notifications = useContext(notificationContext);
     const [isLoading, setIsLoading] = useState(false);
-    const [currentImg, setCurrentImg] = useState<imgObj | undefined>(undefined);
+    const [currentImg, setCurrentImg] = useState<ImgObj | undefined>(undefined);
     const [tags, setTags] = useState<[] | string[]>([]);
 
     function cancel(): void {
@@ -96,10 +96,27 @@ function Publish() {
     }
 
     function publish(): void {
-        // const tagsInput = document.getElementById("tags");
-        // const descriptionInput = document.getElementById("description");
-        // console.log((tagsInput as HTMLInputElement).value);
-        // console.log((descriptionInput as HTMLTextAreaElement).value);
+        //todo send tags, description and image base 64 url to cloudinary, then send the public url to backend to store in server
+        const description = (document.getElementById("description") as HTMLTextAreaElement).value;
+        const cloudinaryUrl = "https://api.cloudinary.com/v1_1/karerisspace/image/upload";
+
+        if (tags.length <= 0) {
+            notifications.setCurrentNotifications([{ type: "error", msg: "tags are required" }]);
+            return;
+        }
+
+        if (description.length <= 0) {
+            notifications.setCurrentNotifications([{ type: "error", msg: "description is required" }]);
+            return;
+        }
+
+        const uploadData = new FormData();
+
+        uploadData.append("file", currentImg?.base64Rep as string);
+        uploadData.append("upload_preset", "trialToUpload");
+        uploadData.append("tags", tags.toString().replace(/\[|\]/g, ""));
+        uploadData.append("context", `alt=${description}`);
+        fetch(cloudinaryUrl, { body: uploadData, method: "post" });
     }
 
     return (
