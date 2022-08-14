@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
+import React from "react";
 import Close from "@src/client/components/closeIcon";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
 import generateKey from "@src/lib/utils/generateKeys";
-import notificationContext from "@context/notifications.context";
+import { useNotification } from "@context/notifications.context";
 
 export type NotificationDescription = {
     type: "error" | "info" | "success" | "warning";
@@ -44,14 +44,10 @@ function Notification() {
     };
 
     // const [currentNotifications, setCurrentNotifications] = useState(notifications);
-    const { currentNotifications, setCurrentNotifications } = useContext(notificationContext);
+    const { currentNotifications, removeNotification } = useNotification();
 
     function closeNotification(index: number) {
-        const filtered: NotificationDescription[] | [] = currentNotifications.filter((_, i) => {
-            return i !== index;
-        });
-
-        setCurrentNotifications(filtered);
+        removeNotification(index);
         return;
     }
 

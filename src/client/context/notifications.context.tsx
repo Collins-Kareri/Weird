@@ -1,16 +1,56 @@
-import { createContext } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { NotificationDescription } from "@components/notification";
 
-interface ContextProps {
+interface NotificationContext {
     currentNotifications: NotificationDescription[] | [];
-    setCurrentNotifications: React.Dispatch<React.SetStateAction<NotificationDescription[] | []>>;
+    addNotification: (notification: NotificationDescription) => void;
+    removeNotification: (index: number) => void;
 }
 
-const notificationContext = createContext<ContextProps>({
+interface NotificationProps {
+    children: React.ReactNode;
+}
+
+const NotificationContext = createContext<NotificationContext>({
     currentNotifications: [],
-    setCurrentNotifications: () => {
+    addNotification: () => {
+        return;
+    },
+    removeNotification: () => {
         return;
     },
 });
 
-export default notificationContext;
+export const NotificationProvider = ({ children }: NotificationProps) => {
+    const [currentNotifications, setCurrentNotifications] = useState<NotificationDescription[] | []>([]);
+
+    const addNotification = (notification: NotificationDescription) => {
+        setCurrentNotifications([...currentNotifications, notification]);
+    };
+
+    const removeNotification = (index: number) => {
+        setCurrentNotifications(
+            currentNotifications.filter((_, i) => {
+                return i !== index;
+            })
+        );
+    };
+
+    return (
+        <NotificationContext.Provider value={{ currentNotifications, addNotification, removeNotification }}>
+            {children}
+        </NotificationContext.Provider>
+    );
+};
+
+export const useNotification = () => {
+    return useContext(NotificationContext);
+};
+
+export const NotficationConsumer = ({ children }: NotificationProps) => {
+    return (
+        <NotificationContext.Consumer>
+            {(notifications) => notifications.currentNotifications.length > 0 && children}
+        </NotificationContext.Consumer>
+    );
+};

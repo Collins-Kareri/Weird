@@ -1,7 +1,7 @@
-import React, { useState, useReducer, useRef, useContext } from "react";
+import React, { useState, useReducer, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Form, { FormPropTypes } from "@components/form";
-import notificationContext from "@context/notifications.context";
+import { useNotification } from "@context/notifications.context";
 import Logo from "@components/logo";
 import {
     passwordsMatch,
@@ -66,7 +66,7 @@ function CreateAccount(): JSX.Element {
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [err, dispatch] = useReducer(reducer, errTypes);
-    const { setCurrentNotifications } = useContext(notificationContext);
+    const { addNotification } = useNotification();
 
     async function handleBlur(evt: React.FocusEvent<HTMLInputElement>): Promise<void> {
         const el = evt.target as HTMLInputElement;
@@ -177,7 +177,7 @@ function CreateAccount(): JSX.Element {
                         msg = "username exists";
                         node.setCustomValidity(msg);
                         dispatch({ type: "username", payload: msg });
-                        setCurrentNotifications([{ type: "error", msg: msg }]);
+                        addNotification({ type: "error", msg: msg });
                         break;
                     }
                     credentials.current = { ...credentials.current, username: node.value };
@@ -187,7 +187,7 @@ function CreateAccount(): JSX.Element {
                     if (await checkIfCredentialExist(node.value)) {
                         node.setCustomValidity(msg);
                         dispatch({ type: "email", payload: msg });
-                        setCurrentNotifications([{ type: "error", msg: msg }]);
+                        addNotification({ type: "error", msg: msg });
                         break;
                     }
 
@@ -261,12 +261,10 @@ function CreateAccount(): JSX.Element {
                 //go to the profile or back to where you were?
                 return;
             default:
-                setCurrentNotifications([
-                    {
-                        type: "error",
-                        msg: "Error occured while creating account. Please check provided credentials and try again.",
-                    },
-                ]);
+                addNotification({
+                    type: "error",
+                    msg: "Error occured while creating account. Please check provided credentials and try again.",
+                });
                 return;
         }
     }

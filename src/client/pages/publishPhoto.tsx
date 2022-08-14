@@ -1,8 +1,8 @@
-import React, { useRef, useState, useContext } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@components/button";
 import AddIcon from "@components/addIcon";
-import notificationContext from "@context/notifications.context";
+import { useNotification } from "@context/notifications.context";
 import Spinner from "@components/spinner";
 import Close from "@components/closeIcon";
 import TagsInput from "@components/tagsInput";
@@ -15,7 +15,7 @@ interface ImgObj {
 function Publish() {
     const navigate = useNavigate();
     const fileBrowseEl = useRef(null);
-    const notifications = useContext(notificationContext);
+    const { addNotification } = useNotification();
     const [isLoading, setIsLoading] = useState(false);
     const [currentImg, setCurrentImg] = useState<ImgObj | undefined>(undefined);
     const [tags, setTags] = useState<[] | string[]>([]);
@@ -38,7 +38,6 @@ function Publish() {
 
             reader.addEventListener("load", (evt) => {
                 const base64Str = evt.target?.result;
-
                 if (base64Str) {
                     setCurrentImg({ url: URL.createObjectURL(imgData), base64Rep: base64Str });
                 }
@@ -47,15 +46,11 @@ function Publish() {
 
             reader.addEventListener("error", () => {
                 setIsLoading(false);
-                notifications.setCurrentNotifications([
-                    { type: "error", msg: "Error occurred while processing your image. Please try again" },
-                ]);
+                addNotification({ type: "error", msg: "Error occurred while processing your image. Please try again" });
             });
         } catch (error) {
             setIsLoading(false);
-            notifications.setCurrentNotifications([
-                { type: "error", msg: "couldn't process your selected image. Please try again" },
-            ]);
+            addNotification({ type: "error", msg: "couldn't process your selected image. Please try again" });
             return;
         }
     }
@@ -63,16 +58,17 @@ function Publish() {
     async function handleSelectedImage(evt: React.ChangeEvent<HTMLInputElement>): Promise<void> {
         const fileData = evt.target.files?.item(0);
         if (!fileData) {
-            notifications.setCurrentNotifications([{ type: "error", msg: "No image was selected." }]);
+            addNotification({ type: "error", msg: "No image was selected." });
             return;
         }
 
         if (/^image\/\w+$/gi.test(fileData?.type as string)) {
+            console.log(evt.target.files);
             readImgData(fileData);
             return;
         }
 
-        notifications.setCurrentNotifications([{ type: "error", msg: "Only image file types are allowed." }]);
+        addNotification({ type: "error", msg: "Only image file types are allowed." });
         return;
     }
 
@@ -100,13 +96,18 @@ function Publish() {
         const description = (document.getElementById("description") as HTMLTextAreaElement).value;
         const cloudinaryUrl = "https://api.cloudinary.com/v1_1/karerisspace/image/upload";
 
+        if (!currentImg) {
+            addNotification({ type: "error", msg: "no image was selected." });
+            return;
+        }
+
         if (tags.length <= 0) {
-            notifications.setCurrentNotifications([{ type: "error", msg: "tags are required" }]);
+            addNotification({ type: "error", msg: "tags are required" });
             return;
         }
 
         if (description.length <= 0) {
-            notifications.setCurrentNotifications([{ type: "error", msg: "description is required" }]);
+            addNotification({ type: "error", msg: "description is required" });
             return;
         }
 
@@ -116,7 +117,26 @@ function Publish() {
         uploadData.append("upload_preset", "trialToUpload");
         uploadData.append("tags", tags.toString().replace(/\[|\]/g, ""));
         uploadData.append("context", `alt=${description}`);
-        fetch(cloudinaryUrl, { body: uploadData, method: "post" });
+
+        fetch(cloudinaryUrl, { body: uploadData, method: "post" })
+            .then((res) => {
+                if (res.ok) {
+                    return res.json();
+                }
+
+                throw new Error("Couldn't upload image");
+            })
+            .then((parsedJsonRes) => {
+                const { public_id, asset_id, url, secure_url } = parsedJsonRes as unknown as CloudinaryRes;
+                console.log(public_id);
+                console.log(asset_id);
+                console.log(url);
+                console.log(secure_url);
+            })
+            .catch((err) => {
+                //console.log((err as Error).name);
+                addNotification({ type: "error", msg: (err as Error).message });
+            });
     }
 
     return (
@@ -183,6 +203,7 @@ function Publish() {
                             <img
                                 src={currentImg.url}
                                 className={" tw-relative tw-w-full tw-h-full tw-object-cover tw-rounded-md"}
+                                id="imageEl"
                             />
                         </section>
                     )}

@@ -1,9 +1,9 @@
 /* eslint-disable react/no-unescaped-entities */
-import React, { useRef, useContext, useState } from "react";
+import React, { useRef, useState } from "react";
 import Logo from "@components/logo";
 import { Link, useNavigate } from "react-router-dom";
 import Form, { FormPropTypes } from "@components/form";
-import notificationContext from "@context/notifications.context";
+import { useNotification } from "@context/notifications.context";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
 
 function Login() {
@@ -16,7 +16,7 @@ function Login() {
     const navigate = useNavigate();
     const [err, setErr] = useState<Omit<User, "email">>({ username: "", password: "" });
     const [isLoading, setIsLoading] = useState(false);
-    const { setCurrentNotifications } = useContext(notificationContext);
+    const { addNotification } = useNotification();
 
     function cancel(): void {
         //go back to previous page
@@ -101,15 +101,15 @@ function Login() {
             case "username doesn't exist":
                 usernameEl.setCustomValidity(userLoginResponse);
                 setErr({ ...err, username: userLoginResponse });
-                setCurrentNotifications([{ type: "error", msg: userLoginResponse }]);
+                addNotification({ type: "error", msg: userLoginResponse });
                 return;
             case "password not valid":
                 passwordEl.setCustomValidity(userLoginResponse);
                 setErr({ ...err, password: userLoginResponse });
-                setCurrentNotifications([{ type: "error", msg: userLoginResponse }]);
+                addNotification({ type: "error", msg: userLoginResponse });
                 return;
             default:
-                setCurrentNotifications([{ type: "error", msg: "Couldn't log you in.Please try again." }]);
+                addNotification({ type: "error", msg: "Couldn't log you in.Please try again." });
                 return;
         }
     }

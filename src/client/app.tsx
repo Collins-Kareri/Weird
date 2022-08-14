@@ -1,17 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Notification, { NotificationDescription } from "@components/notification";
+import Notification from "@components/notification";
 import Home from "@pages/home";
 import CreateAccount from "@pages/createAccount/createAccount";
 import Login from "@pages/login";
 import Publish from "@pages/publishPhoto";
-import notificationContext from "@context/notifications.context";
+import { NotificationProvider, NotficationConsumer } from "@context/notifications.context";
 
 function App() {
-    const [currentNotifications, setCurrentNotifications] = useState<NotificationDescription[] | []>([]);
-
     return (
-        <notificationContext.Provider value={{ currentNotifications, setCurrentNotifications }}>
+        <NotificationProvider>
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="createAccount" element={<CreateAccount />} />
@@ -19,10 +17,10 @@ function App() {
                 <Route path="publish" element={<Publish />} />
             </Routes>
 
-            <notificationContext.Consumer>
-                {(notifications) => notifications.currentNotifications.length > 0 && <Notification />}
-            </notificationContext.Consumer>
-        </notificationContext.Provider>
+            <NotficationConsumer>
+                <Notification />
+            </NotficationConsumer>
+        </NotificationProvider>
     );
 }
 

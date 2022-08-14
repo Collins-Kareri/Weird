@@ -8,7 +8,7 @@
     "client:build": "cross-env NODE_ENV=production webpack --config config/webpack.prod.js",
     "server:dev": "nodemon --config config/nodemon.config.json",
     "cypress:open": "cypress open --config-file config/cypress.config.js",
-    "cypress:run": "cypress run --config-file config/cypress.config.js"
+    "cypress": "cypress run --config-file config/cypress.config.js"
   },
   "keywords": [],
   "author": "",

@@ -77,7 +77,7 @@ function TagsInput({ tags, setTags }: TagsProps) {
                     })}
                 <input
                     type="text"
-                    placeholder="Enter tags"
+                    placeholder="Type tags..."
                     id="tagInput"
                     className="tw-border-none tw-p-0 tw-ring-0 focus:tw-ring-0 tw-inline-block tw-bg-neutral-200 tw-text-neutral-500"
                     onKeyDown={handleKeyDown}
