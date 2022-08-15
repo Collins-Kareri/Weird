@@ -94,7 +94,7 @@ export async function remove(req: Request, res: Response) {
     try {
         const query = `
         MATCH (usr:User {name:$username})
-        DELETE usr`;
+        DETACH DELETE usr`;
 
         const queryRes = await writeService<UsernameObj>(session, query, {
             username: username.replace(":", ""),
@@ -110,7 +110,7 @@ export async function remove(req: Request, res: Response) {
         res.status(404).json({ msg: "user not found" });
         return;
     } catch (error) {
-        res.json({ msg: (error as Error).name });
+        res.status(500).json({ msg: "couldn't delete user" });
         return;
     }
 }

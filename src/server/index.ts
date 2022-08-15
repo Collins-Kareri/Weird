@@ -26,7 +26,7 @@ const CORS_OPTIONS = {
 const SESSION_OPTIONS = {
     name: "session",
     secret: process.env.session_secret,
-    maxAge: 5 * 60 * 60 * 1000,
+    maxAge: 8 * 60 * 60 * 1000,
     // secure: true,
     httpOnly: true,
 };

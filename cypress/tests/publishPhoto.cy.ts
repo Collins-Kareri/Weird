@@ -2,7 +2,6 @@ describe("create a user and authenticate them", () => {
     //todo cancel button should take you back to previous page
     //todo on logo click should take you to home.
     beforeEach(() => {
-        cy.visit("/createAccount");
         cy.fixture("../fixtures/user.json").as("userData");
     });
 
@@ -13,11 +12,20 @@ describe("create a user and authenticate them", () => {
             cy.request("post", "api/user/create", credentials).then((res) => {
                 cy.fixture("testImg-unsplash.jpg").as("testImg");
                 expect(res.status).to.eq(201);
-                cy.get("#fileBrowse").selectFile("@testImg", { force: true });
-                cy.get("button[type='submit']").click();
-                cy.wait("@publishImage");
+                // cy.get("#fileBrowse").selectFile("@testImg", { force: true });
+                // cy.get("button[type='submit']").click();
+                // cy.wait("@publishImage");
 
-                cy.get("#successMsg").find("button[type='submit']").click();
+                // cy.get("#successMsg").find("button[type='submit']").click();
+                cy.visit("/publish");
+                cy.request("post", "api/image/publish", {
+                    public_id: "publ2145",
+                    asset_id: "asse8709",
+                    secure_url: "https://host/value",
+                    url: "http://host/value",
+                }).then((res) => {
+                    expect(res.status).to.eq(201);
+                });
             });
         });
     });

@@ -139,9 +139,9 @@ function Publish() {
                 console.log(url);
                 console.log(secure_url);
             })
-            .catch((err) => {
+            .catch(() => {
                 //console.log((err as Error).name);
-                addNotification({ type: "error", msg: (err as Error).message });
+                addNotification({ type: "error", msg: "error occured uploading." });
             });
     }
 
