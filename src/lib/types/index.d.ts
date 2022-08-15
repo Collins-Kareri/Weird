@@ -65,4 +65,8 @@ declare global {
             cloudinary: [string, number];
         };
     }
+
+    interface LocationState {
+        path: string;
+    }
 }

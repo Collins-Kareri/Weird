@@ -6,6 +6,7 @@ import CreateAccount from "@pages/createAccount/createAccount";
 import Login from "@pages/login";
 import Publish from "@pages/publishPhoto";
 import { NotificationProvider, NotficationConsumer } from "@context/notifications.context";
+import RequireAuth from "./requireAuth";
 
 function App() {
     return (
@@ -14,7 +15,9 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="createAccount" element={<CreateAccount />} />
                 <Route path="login" element={<Login />} />
-                <Route path="publish" element={<Publish />} />
+                <Route element={<RequireAuth />}>
+                    <Route path="publish" element={<Publish />} />
+                </Route>
             </Routes>
 
             <NotficationConsumer>

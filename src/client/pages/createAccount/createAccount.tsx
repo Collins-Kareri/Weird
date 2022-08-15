@@ -1,5 +1,5 @@
 import React, { useState, useReducer, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Form, { FormPropTypes } from "@components/form";
 import { useNotification } from "@context/notifications.context";
 import Logo from "@components/logo";
@@ -63,6 +63,7 @@ function CreateAccount(): JSX.Element {
 
     const credentials = useRef(userData);
     const navigate = useNavigate();
+    const location = useLocation();
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [err, dispatch] = useReducer(reducer, errTypes);
@@ -207,7 +208,13 @@ function CreateAccount(): JSX.Element {
 
     function cancel(): void {
         //go back to previous page
-        navigate(-1);
+        if (location.state) {
+            navigate((location.state as LocationState).path);
+            return;
+        }
+
+        navigate("/");
+
         return;
     }
 
@@ -258,7 +265,12 @@ function CreateAccount(): JSX.Element {
 
         switch (userCreateResponse.toLowerCase()) {
             case "created":
-                //go to the profile or back to where you were?
+                if (location.state) {
+                    navigate((location.state as LocationState).path);
+                    return;
+                }
+
+                navigate("/profile");
                 return;
             default:
                 addNotification({

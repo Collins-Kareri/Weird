@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Button from "@components/button";
 import AddIcon from "@components/addIcon";
 import { useNotification } from "@context/notifications.context";
@@ -14,6 +14,7 @@ interface ImgObj {
 
 function Publish() {
     const navigate = useNavigate();
+    const location = useLocation();
     const fileBrowseEl = useRef(null);
     const { addNotification } = useNotification();
     const [isLoading, setIsLoading] = useState(false);
@@ -21,8 +22,13 @@ function Publish() {
     const [tags, setTags] = useState<[] | string[]>([]);
 
     function cancel(): void {
-        //go back to previous page
-        navigate(-1);
+        if (location.state) {
+            navigate((location.state as LocationState).path);
+            return;
+        }
+
+        navigate("/");
+
         return;
     }
 

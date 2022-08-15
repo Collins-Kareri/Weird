@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import React, { useRef, useState } from "react";
 import Logo from "@components/logo";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Form, { FormPropTypes } from "@components/form";
 import { useNotification } from "@context/notifications.context";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
@@ -14,13 +14,18 @@ function Login() {
 
     const credentials = useRef(userData);
     const navigate = useNavigate();
+    const location = useLocation();
     const [err, setErr] = useState<Omit<User, "email">>({ username: "", password: "" });
     const [isLoading, setIsLoading] = useState(false);
     const { addNotification } = useNotification();
 
     function cancel(): void {
-        //go back to previous page
-        navigate(-1);
+        if (location.state) {
+            navigate((location.state as LocationState).path);
+            return;
+        }
+
+        navigate("/");
         return;
     }
 
@@ -97,19 +102,25 @@ function Login() {
 
         switch (userLoginResponse.toLowerCase()) {
             case "successful":
+                if (location.state) {
+                    navigate((location.state as LocationState).path);
+                    return;
+                }
+
+                navigate("/profile");
                 return;
             case "username doesn't exist":
                 usernameEl.setCustomValidity(userLoginResponse);
                 setErr({ ...err, username: userLoginResponse });
-                addNotification({ type: "error", msg: userLoginResponse });
+                addNotification({ type: "error", msg: "Please check if username or password is valid." });
                 return;
             case "password not valid":
                 passwordEl.setCustomValidity(userLoginResponse);
                 setErr({ ...err, password: userLoginResponse });
-                addNotification({ type: "error", msg: userLoginResponse });
+                addNotification({ type: "error", msg: "Please check if username or password is valid." });
                 return;
             default:
-                addNotification({ type: "error", msg: "Couldn't log you in.Please try again." });
+                addNotification({ type: "error", msg: "Couldn't log you in. Please try again." });
                 return;
         }
     }
