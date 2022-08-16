@@ -21,6 +21,8 @@ function Publish() {
     const [currentImg, setCurrentImg] = useState<ImgObj | undefined>(undefined);
     const [tags, setTags] = useState<[] | string[]>([]);
 
+    console.log(currentImg);
+
     function cancel(): void {
         if (location.state) {
             navigate((location.state as LocationState).path);
@@ -36,6 +38,7 @@ function Publish() {
         try {
             const reader = new FileReader();
             reader.readAsDataURL(imgData);
+            console.log(imgData);
 
             reader.addEventListener("loadstart", () => {
                 //is loading true;
@@ -69,7 +72,6 @@ function Publish() {
         }
 
         if (/^image\/\w+$/gi.test(fileData?.type as string)) {
-            console.log(evt.target.files);
             readImgData(fileData);
             return;
         }
@@ -102,6 +104,8 @@ function Publish() {
         const description = (document.getElementById("description") as HTMLTextAreaElement).value;
         const cloudinaryUrl = "https://api.cloudinary.com/v1_1/karerisspace/image/upload";
 
+        console.log(currentImg);
+
         if (!currentImg) {
             addNotification({ type: "error", msg: "no image was selected." });
             return;
@@ -132,12 +136,27 @@ function Publish() {
 
                 throw new Error("Couldn't upload image");
             })
-            .then((parsedJsonRes) => {
+            .then(async (parsedJsonRes) => {
                 const { public_id, asset_id, url, secure_url } = parsedJsonRes as unknown as CloudinaryRes;
-                console.log(public_id);
-                console.log(asset_id);
-                console.log(url);
-                console.log(secure_url);
+
+                const dbRes = await (
+                    await fetch("/api/image/publish", {
+                        method: "post",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ public_id, asset_id, url, secure_url }),
+                    })
+                ).json();
+
+                switch (dbRes.msg.toLowerCase()) {
+                    case "published":
+                        //todo popover message redirect to user
+                        return;
+                    default:
+                        //todo delete the image from cloudinary using the public_id
+                        return;
+                }
             })
             .catch(() => {
                 //console.log((err as Error).name);
@@ -235,7 +254,7 @@ function Publish() {
                 {/*Buttons */}
                 <section className="tw-flex tw-justify-start tw-w-full tw-mt-4">
                     <Button priority={"secondary"} value={"cancel"} handleClick={cancel} extraStyles={"tw-mr-4"} />
-                    <Button priority={"primary"} value={"publish"} handleClick={publish} />
+                    <Button priority={"primary"} value={"publish"} handleClick={publish} typeOfButton={"submit"} />
                 </section>
             </div>
         </div>

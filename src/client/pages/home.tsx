@@ -12,7 +12,7 @@ function Home() {
                 to={"/createAccount"}
                 onClick={async (evt) => {
                     evt.preventDefault();
-                    navigate("/createAccount", { state: { path: location.pathname }, replace: false });
+                    navigate("/createAccount", { state: { from: location.pathname }, replace: false });
                     return;
                 }}
             >
@@ -23,7 +23,7 @@ function Home() {
                 to={"/login"}
                 onClick={async (evt) => {
                     evt.preventDefault();
-                    navigate("/login", { state: { path: location.pathname }, replace: false });
+                    navigate("/login", { state: { from: location.pathname }, replace: true });
                     return;
                 }}
             >
@@ -32,7 +32,7 @@ function Home() {
             <Link
                 className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-uppercase tw-text-xl tw-mr-4"
                 to={"/publish"}
-                onClick={async (evt) => {
+                onClick={(evt) => {
                     evt.preventDefault();
                     navigate("/publish", { state: { path: location.pathname }, replace: false });
                     return;

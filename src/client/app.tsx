@@ -7,14 +7,17 @@ import Login from "@pages/login";
 import Publish from "@pages/publishPhoto";
 import { NotificationProvider, NotficationConsumer } from "@context/notifications.context";
 import RequireAuth from "./requireAuth";
+import HiddenWhileAuthenticated from "./hiddenWhileAuthenticated";
 
 function App() {
     return (
         <NotificationProvider>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="createAccount" element={<CreateAccount />} />
-                <Route path="login" element={<Login />} />
+                <Route element={<HiddenWhileAuthenticated />}>
+                    <Route path="createAccount" element={<CreateAccount />} />
+                    <Route path="login" element={<Login />} />
+                </Route>
                 <Route element={<RequireAuth />}>
                     <Route path="publish" element={<Publish />} />
                 </Route>

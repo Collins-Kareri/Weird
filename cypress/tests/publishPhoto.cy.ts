@@ -1,6 +1,5 @@
 describe("create a user and authenticate them", () => {
     //todo cancel button should take you back to previous page
-    //todo on logo click should take you to home.
     beforeEach(() => {
         cy.fixture("../fixtures/user.json").as("userData");
     });
@@ -8,23 +7,36 @@ describe("create a user and authenticate them", () => {
     it("should publish an image to the database and image service", () => {
         cy.get<User>("@userData").then((credentials: User) => {
             cy.intercept("post", "api/image/publish").as("publishImage");
+            cy.intercept("post", "https://api.cloudinary.com/v1_1/karerisspace/image/upload").as("cloudinaryUpload");
 
             cy.request("post", "api/user/create", credentials).then((res) => {
-                cy.fixture("testImg-unsplash.jpg").as("testImg");
+                cy.fixture("testImg-unsplash.jpg", null).as("testImg");
                 expect(res.status).to.eq(201);
-                // cy.get("#fileBrowse").selectFile("@testImg", { force: true });
-                // cy.get("button[type='submit']").click();
-                // cy.wait("@publishImage");
 
-                // cy.get("#successMsg").find("button[type='submit']").click();
                 cy.visit("/publish");
-                cy.request("post", "api/image/publish", {
-                    public_id: "publ2145",
-                    asset_id: "asse8709",
-                    secure_url: "https://host/value",
-                    url: "http://host/value",
-                }).then((res) => {
-                    expect(res.status).to.eq(201);
+
+                cy.get("#fileBrowse").selectFile("@testImg", { force: true });
+
+                cy.get("#tagInput").type("tag{enter}");
+                cy.get("#description").type("description is here");
+
+                cy.get("button[type='submit']").click();
+
+                cy.wait("@cloudinaryUpload").then((cloudinaryUploadRes) => {
+                    expect(cloudinaryUploadRes.response?.statusCode).eq(200);
+                    expect(cloudinaryUploadRes.response?.body).to.haveOwnProperty("asset_id");
+                    cloudinaryUploadRes.response?.body.asset_id;
+
+                    cy.wait("@publishImage").then((dbRes) => {
+                        expect(dbRes.response?.statusCode).eq(201);
+
+                        cy.request("delete", `api/image/:${cloudinaryUploadRes.response?.body.asset_id}`).then(
+                            (imageDeleteRes) => {
+                                expect(imageDeleteRes.status).to.eq(200);
+                                expect(imageDeleteRes.body).haveOwnProperty("msg", "ok");
+                            }
+                        );
+                    });
                 });
             });
         });
@@ -35,17 +47,6 @@ describe("create a user and authenticate them", () => {
 
         cy.get<User>("@userData").then((credentials: User) => {
             cy.deleteUserByApi(credentials.username);
-            // cy.request("get", `api/image/:${credentials.username}`).then((res) => {
-            //     expect(res.body).to.haveOwnProperty("img");
-            //     expect(res.body.img[0]).to.haveOwnProperty("publicId");
-
-            //     cy.request("delete", `api/image/:${res.body.img[0].publicId}`).then((res) => {
-            //         expect(res.status).to.eq(200);
-            //         expect(res.body).haveOwnProperty("msg", "ok");
-            //     });
-
-            //     cy.deleteUserByApi(credentials.username);
-            // });
         });
     });
 });

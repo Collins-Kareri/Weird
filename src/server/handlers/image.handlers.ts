@@ -9,6 +9,7 @@ export async function publish(req: Request, res: Response) {
     const query = `MATCH (usr:User {name:$username})
     CREATE (img:Image 
         {
+            name:$asset_id,
             url:$url,
             secure_url:$secure_url,
             public_id:$public_id,
@@ -26,8 +27,9 @@ export async function publish(req: Request, res: Response) {
     const { username } = req.user as User;
     const { public_id, asset_id, url, secure_url } = req.body;
 
-    if (username.length <= 0 || url.length <= 0) {
+    if (username.length <= 0 || (url && url.length <= 0)) {
         res.status(400).json({ msg: "cannot publish" });
+        return;
     }
 
     try {

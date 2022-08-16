@@ -52,6 +52,16 @@ function Login() {
         return;
     }
 
+    async function handleChange(evt: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+        const el = evt.target as HTMLInputElement;
+
+        if (el.value.length > 0) {
+            el.setCustomValidity("");
+        }
+
+        return;
+    }
+
     async function handleSubmit(evt: React.FormEvent<HTMLFormElement>): Promise<void> {
         evt.preventDefault();
         setIsLoading(true);
@@ -102,12 +112,13 @@ function Login() {
 
         switch (userLoginResponse.toLowerCase()) {
             case "successful":
-                if (location.state) {
-                    navigate((location.state as LocationState).path);
+                console.log(location.state);
+                if (location.state && (location.state as LocationState).from) {
+                    navigate((location.state as LocationState).from, { replace: true });
                     return;
                 }
 
-                navigate("/profile");
+                navigate("/profile", { replace: true });
                 return;
             case "username doesn't exist":
                 usernameEl.setCustomValidity(userLoginResponse);
@@ -123,16 +134,6 @@ function Login() {
                 addNotification({ type: "error", msg: "Couldn't log you in. Please try again." });
                 return;
         }
-    }
-
-    async function handleChange(evt: React.ChangeEvent<HTMLInputElement>): Promise<void> {
-        const el = evt.target as HTMLInputElement;
-
-        if (el.value.length > 0) {
-            el.setCustomValidity("");
-        }
-
-        return;
     }
 
     const loginForm: FormPropTypes = {

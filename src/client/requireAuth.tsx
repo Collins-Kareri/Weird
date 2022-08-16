@@ -1,29 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import Modal from "@components/modal";
+import checkAuth from "@clientUtils/checkAuth";
 
 function RequireAuth() {
     const [isAuth, setIsAuth] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
-        async function checkAuth() {
-            const authenticated = await (await fetch("/api/auth", { method: "get" })).json();
-
-            if (authenticated.user) {
-                setIsAuth(true);
-                return;
-            }
-
-            setIsAuth(false);
-            return;
-        }
-        checkAuth();
+        (async () => {
+            const authStatus = await checkAuth();
+            setIsAuth(authStatus);
+        })();
+        return;
     }, []);
 
     function handleModalPrimaryAction() {
-        navigate("/login");
+        navigate("/login", { state: { from: location.pathname } });
     }
 
     return isAuth ? (

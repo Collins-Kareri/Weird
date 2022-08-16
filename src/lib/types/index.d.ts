@@ -68,5 +68,6 @@ declare global {
 
     interface LocationState {
         path: string;
+        from: string;
     }
 }
