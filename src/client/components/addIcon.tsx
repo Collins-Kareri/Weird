@@ -7,6 +7,7 @@ function Add({ backgroundColor, shadowColor, fillColor, strokeColor, position, e
                 typeof extraStyle === "string" && extraStyle
             } main-transition`}
             onClick={onClick}
+            id="addIcon"
         >
             <svg
                 className={`tw-h-7 tw-w-7 ${strokeColor} ${fillColor} tw-container tw-mx-auto tw-mt-0.5`}

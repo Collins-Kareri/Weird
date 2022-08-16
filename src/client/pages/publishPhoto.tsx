@@ -6,164 +6,38 @@ import { useNotification } from "@context/notifications.context";
 import Spinner from "@components/spinner";
 import Close from "@components/closeIcon";
 import TagsInput from "@components/tagsInput";
+import Popover from "@src/client/components/popover";
 
 interface ImgObj {
     url: string;
     base64Rep: string | ArrayBuffer;
 }
 
-function Publish() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const fileBrowseEl = useRef(null);
-    const { addNotification } = useNotification();
-    const [isLoading, setIsLoading] = useState(false);
-    const [currentImg, setCurrentImg] = useState<ImgObj | undefined>(undefined);
-    const [tags, setTags] = useState<[] | string[]>([]);
+interface PageBodyProps {
+    currentImg: ImgObj | undefined;
+    fileBrowseEl: React.MutableRefObject<null>;
+    handleSelectedImage: (evt: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+    cancel: () => void;
+    publish: () => void;
+    browseFiles: (evt: React.MouseEvent) => void;
+    isLoading: boolean;
+    removeImg: () => void;
+    tags: [] | string[];
+    setTags: React.Dispatch<React.SetStateAction<[] | string[]>>;
+}
 
-    console.log(currentImg);
-
-    function cancel(): void {
-        if (location.state) {
-            navigate((location.state as LocationState).path);
-            return;
-        }
-
-        navigate("/");
-
-        return;
-    }
-
-    async function readImgData(imgData: File) {
-        try {
-            const reader = new FileReader();
-            reader.readAsDataURL(imgData);
-            console.log(imgData);
-
-            reader.addEventListener("loadstart", () => {
-                //is loading true;
-                setIsLoading(true);
-            });
-
-            reader.addEventListener("load", (evt) => {
-                const base64Str = evt.target?.result;
-                if (base64Str) {
-                    setCurrentImg({ url: URL.createObjectURL(imgData), base64Rep: base64Str });
-                }
-                setIsLoading(false);
-            });
-
-            reader.addEventListener("error", () => {
-                setIsLoading(false);
-                addNotification({ type: "error", msg: "Error occurred while processing your image. Please try again" });
-            });
-        } catch (error) {
-            setIsLoading(false);
-            addNotification({ type: "error", msg: "couldn't process your selected image. Please try again" });
-            return;
-        }
-    }
-
-    async function handleSelectedImage(evt: React.ChangeEvent<HTMLInputElement>): Promise<void> {
-        const fileData = evt.target.files?.item(0);
-        if (!fileData) {
-            addNotification({ type: "error", msg: "No image was selected." });
-            return;
-        }
-
-        if (/^image\/\w+$/gi.test(fileData?.type as string)) {
-            readImgData(fileData);
-            return;
-        }
-
-        addNotification({ type: "error", msg: "Only image file types are allowed." });
-        return;
-    }
-
-    function browseFiles(evt: React.MouseEvent): void {
-        evt.stopPropagation();
-
-        if (isLoading) {
-            return;
-        }
-
-        if (fileBrowseEl.current) {
-            (fileBrowseEl.current as HTMLInputElement).click();
-        }
-
-        return;
-    }
-
-    function removeImg(): void {
-        setCurrentImg(undefined);
-        return;
-    }
-
-    function publish(): void {
-        //todo send tags, description and image base 64 url to cloudinary, then send the public url to backend to store in server
-        const description = (document.getElementById("description") as HTMLTextAreaElement).value;
-        const cloudinaryUrl = "https://api.cloudinary.com/v1_1/karerisspace/image/upload";
-
-        console.log(currentImg);
-
-        if (!currentImg) {
-            addNotification({ type: "error", msg: "no image was selected." });
-            return;
-        }
-
-        if (tags.length <= 0) {
-            addNotification({ type: "error", msg: "tags are required" });
-            return;
-        }
-
-        if (description.length <= 0) {
-            addNotification({ type: "error", msg: "description is required" });
-            return;
-        }
-
-        const uploadData = new FormData();
-
-        uploadData.append("file", currentImg?.base64Rep as string);
-        uploadData.append("upload_preset", "trialToUpload");
-        uploadData.append("tags", tags.toString().replace(/\[|\]/g, ""));
-        uploadData.append("context", `alt=${description}`);
-
-        fetch(cloudinaryUrl, { body: uploadData, method: "post" })
-            .then((res) => {
-                if (res.ok) {
-                    return res.json();
-                }
-
-                throw new Error("Couldn't upload image");
-            })
-            .then(async (parsedJsonRes) => {
-                const { public_id, asset_id, url, secure_url } = parsedJsonRes as unknown as CloudinaryRes;
-
-                const dbRes = await (
-                    await fetch("/api/image/publish", {
-                        method: "post",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ public_id, asset_id, url, secure_url }),
-                    })
-                ).json();
-
-                switch (dbRes.msg.toLowerCase()) {
-                    case "published":
-                        //todo popover message redirect to user
-                        return;
-                    default:
-                        //todo delete the image from cloudinary using the public_id
-                        return;
-                }
-            })
-            .catch(() => {
-                //console.log((err as Error).name);
-                addNotification({ type: "error", msg: "error occured uploading." });
-            });
-    }
-
+function PageBody({
+    currentImg,
+    fileBrowseEl,
+    handleSelectedImage,
+    cancel,
+    publish,
+    browseFiles,
+    isLoading,
+    removeImg,
+    tags,
+    setTags,
+}: PageBodyProps) {
     return (
         <div className="tw-flex tw-w-11/12 tw-container tw-mx-auto tw-h-screen tw-flex-col tw-justify-center tw-items-center tw-font-Quicksand md:tw-max-w-md">
             <input
@@ -258,6 +132,193 @@ function Publish() {
                 </section>
             </div>
         </div>
+    );
+}
+
+function Publish() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const fileBrowseEl = useRef(null);
+    const { addNotification } = useNotification();
+    const [isLoading, setIsLoading] = useState(false);
+    const [currentImg, setCurrentImg] = useState<ImgObj | undefined>(undefined);
+    const [tags, setTags] = useState<[] | string[]>([]);
+    const [uploadFeedback, setUploadFeedback] = useState("");
+
+    console.log(fileBrowseEl);
+
+    function cancel(): void {
+        if (location.state) {
+            navigate((location.state as LocationState).path);
+            return;
+        }
+
+        navigate("/");
+
+        return;
+    }
+
+    async function readImgData(imgData: File) {
+        try {
+            const reader = new FileReader();
+            reader.readAsDataURL(imgData);
+            console.log(imgData);
+
+            reader.addEventListener("loadstart", () => {
+                //is loading true;
+                setIsLoading(true);
+            });
+
+            reader.addEventListener("load", (evt) => {
+                const base64Str = evt.target?.result;
+                if (base64Str) {
+                    setCurrentImg({ url: URL.createObjectURL(imgData), base64Rep: base64Str });
+                }
+                setIsLoading(false);
+            });
+
+            reader.addEventListener("error", () => {
+                setIsLoading(false);
+                addNotification({ type: "error", msg: "Error occurred while processing your image. Please try again" });
+            });
+        } catch (error) {
+            setIsLoading(false);
+            addNotification({ type: "error", msg: "couldn't process your selected image. Please try again" });
+            return;
+        }
+    }
+
+    async function handleSelectedImage(evt: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+        const fileData = evt.target.files?.item(0);
+        if (!fileData) {
+            addNotification({ type: "error", msg: "No image was selected." });
+            return;
+        }
+
+        console.log(fileData);
+
+        if (/^image\/\w+$/gi.test(fileData?.type as string)) {
+            readImgData(fileData);
+            return;
+        }
+
+        addNotification({ type: "error", msg: "Only image file types are allowed." });
+        return;
+    }
+
+    function browseFiles(evt: React.MouseEvent): void {
+        evt.stopPropagation();
+
+        if (isLoading) {
+            return;
+        }
+
+        if (fileBrowseEl.current) {
+            (fileBrowseEl.current as HTMLInputElement).click();
+        }
+
+        return;
+    }
+
+    function removeImg(): void {
+        setCurrentImg(undefined);
+        const imageEl = document.querySelector("#fileBrowse") as HTMLInputElement;
+        imageEl.value = "";
+        return;
+    }
+
+    function publish(): void {
+        //todo send tags, description and image base 64 url to cloudinary, then send the public url to backend to store in server
+        const description = (document.getElementById("description") as HTMLTextAreaElement).value;
+        const cloudinaryUrl = "https://api.cloudinary.com/v1_1/karerisspace/image/upload";
+
+        if (!currentImg) {
+            addNotification({ type: "error", msg: "no image was selected." });
+            return;
+        }
+
+        if (tags.length <= 0) {
+            addNotification({ type: "error", msg: "tags are required" });
+            return;
+        }
+
+        if (description.length <= 0) {
+            addNotification({ type: "error", msg: "description is required" });
+            return;
+        }
+
+        const uploadData = new FormData();
+
+        uploadData.append("file", currentImg?.base64Rep as string);
+        uploadData.append("upload_preset", "trialToUpload");
+        uploadData.append("tags", tags.toString().replace(/\[|\]/g, ""));
+        uploadData.append("context", `alt=${description}`);
+
+        fetch(cloudinaryUrl, { body: uploadData, method: "post" })
+            .then((res) => {
+                if (res.ok) {
+                    return res.json();
+                }
+
+                throw new Error("Couldn't upload image");
+            })
+            .then(async (parsedJsonRes) => {
+                const { public_id, asset_id, url, secure_url } = parsedJsonRes as unknown as CloudinaryRes;
+
+                const dbRes = await (
+                    await fetch("/api/image/publish", {
+                        method: "post",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ public_id, asset_id, url, secure_url }),
+                    })
+                ).json();
+
+                switch (dbRes.msg.toLowerCase()) {
+                    case "published":
+                        //todo popover message redirect to user
+                        setUploadFeedback("success");
+                        return;
+                    default:
+                        //todo delete the image from cloudinary using the public_id
+                        //fetch(`api/image/:${asset_id}`, { method: "delete" });
+                        addNotification({ type: "error", msg: "cannot publish image" });
+                        return;
+                }
+            })
+            .catch(() => {
+                //console.log((err as Error).name);
+                addNotification({ type: "error", msg: "error occured uploading." });
+            });
+    }
+
+    //navigate to profile on successful upload
+    function uploadFeedbackPrimaryAction(): void {
+        navigate("/profile", { replace: true });
+        return;
+    }
+
+    return uploadFeedback === "success" ? (
+        <Popover
+            secondaryAction={false}
+            message={"Image uploaded successfully. You will be redirected to your profile."}
+            handlePrimaryAction={uploadFeedbackPrimaryAction}
+            primaryActionValue={"ok"}
+        />
+    ) : (
+        <PageBody
+            currentImg={currentImg}
+            fileBrowseEl={fileBrowseEl}
+            handleSelectedImage={handleSelectedImage}
+            cancel={cancel}
+            publish={publish}
+            browseFiles={browseFiles}
+            isLoading={isLoading}
+            removeImg={removeImg}
+            tags={tags}
+            setTags={setTags}
+        />
     );
 }
 

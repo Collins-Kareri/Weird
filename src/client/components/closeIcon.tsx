@@ -6,6 +6,7 @@ function Close({ backgroundColor, shadowColor, fillColor, strokeColor, position,
             className={`${backgroundColor} tw-h-10 tw-w-10 tw-p-1 tw-text-center tw-rounded-full ${position} tw-cursor-pointer tw-shadow-inner ${shadowColor} ${
                 typeof extraStyle === "string" && extraStyle
             } main-transition tw-flex tw-flex-col tw-justify-center tw-items-center`}
+            id="closeIcon"
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"

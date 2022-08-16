@@ -46,3 +46,18 @@ export async function publish(req: Request, res: Response) {
         return;
     }
 }
+
+export async function deleteImgNode(public_id: string) {
+    const driver = getDriver();
+    const session = driver.session();
+    const query = `MATCH (img:Image {public_id:$public_id})
+    DETACH DELETE img`;
+
+    try {
+        const dbRes = await writeService(session, query, { public_id });
+        console.log(dbRes);
+        return "ok";
+    } catch (error) {
+        return "fail";
+    }
+}

@@ -6,7 +6,7 @@ function Home() {
     const location = useLocation();
 
     return (
-        <div className="tw-flex tw-h-screen tw-w-full tw-justify-center tw-items-center tw-font-extrabold">
+        <div className="tw-flex tw-h-screen tw-w-full tw-justify-center tw-items-center tw-font-extrabold tw-flex-wrap">
             <Link
                 className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-text-xl tw-uppercase tw-mr-4"
                 to={"/createAccount"}
@@ -18,6 +18,7 @@ function Home() {
             >
                 create account
             </Link>
+
             <Link
                 className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-uppercase tw-text-xl tw-mr-4"
                 to={"/login"}
@@ -29,6 +30,7 @@ function Home() {
             >
                 login
             </Link>
+
             <Link
                 className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-uppercase tw-text-xl tw-mr-4"
                 to={"/publish"}
@@ -39,6 +41,13 @@ function Home() {
                 }}
             >
                 publish
+            </Link>
+
+            <Link
+                className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-uppercase tw-text-xl tw-mr-4"
+                to={"/profile"}
+            >
+                profile
             </Link>
         </div>
     );

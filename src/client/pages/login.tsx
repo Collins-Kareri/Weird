@@ -112,7 +112,6 @@ function Login() {
 
         switch (userLoginResponse.toLowerCase()) {
             case "successful":
-                console.log(location.state);
                 if (location.state && (location.state as LocationState).from) {
                     navigate((location.state as LocationState).from, { replace: true });
                     return;

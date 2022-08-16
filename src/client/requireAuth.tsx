@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
-import Modal from "@components/modal";
+import Popover from "@src/client/components/popover";
 import checkAuth from "@clientUtils/checkAuth";
 
 function RequireAuth() {
@@ -24,7 +24,7 @@ function RequireAuth() {
     return isAuth ? (
         <Outlet />
     ) : (
-        <Modal
+        <Popover
             secondaryAction={true}
             message={"You need to login first"}
             handlePrimaryAction={handleModalPrimaryAction}

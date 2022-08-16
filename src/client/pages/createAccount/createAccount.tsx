@@ -270,7 +270,7 @@ function CreateAccount(): JSX.Element {
                     return;
                 }
 
-                navigate("/profile");
+                navigate("/profile", { replace: true });
                 return;
             default:
                 addNotification({

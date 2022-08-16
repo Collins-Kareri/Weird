@@ -19,6 +19,7 @@ describe("login", () => {
                 cy.get("button[type='submit']").contains("login", { matchCase: false }).click();
 
                 cy.wait("@loginUser").its("response.statusCode").should("eq", 200);
+                cy.url().should("include", "/profile");
 
                 cy.checkAuthStatus(credentials);
             });

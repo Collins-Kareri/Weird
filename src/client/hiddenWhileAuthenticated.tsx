@@ -13,7 +13,7 @@ function HiddenWhileAuthenticated() {
         return;
     }, []);
 
-    return isAuth ? <Navigate to={"/publish"} /> : <Outlet />;
+    return isAuth ? <Navigate to={"/profile"} /> : <Outlet />;
 }
 
 export default HiddenWhileAuthenticated;

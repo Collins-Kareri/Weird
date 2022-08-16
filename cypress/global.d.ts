@@ -4,7 +4,7 @@ declare namespace Cypress {
          * Create a new user by using UI.
          * @example cy.register(credentials)
          */
-        register(credentials: User): void;
+        createUser(credentials: User): void;
         /**
          * Create a new user by using UI.
          * @example cy.checkAuthStatus(credentials)

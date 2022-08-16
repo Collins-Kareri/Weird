@@ -10,7 +10,7 @@ describe("create a user and authenticate them", () => {
         cy.get<User>("@userData").then((credentials: User) => {
             cy.intercept("post", "api/user/create").as("createUser");
 
-            cy.register(credentials);
+            cy.createUser(credentials);
 
             cy.wait("@createUser");
 
@@ -54,6 +54,7 @@ describe("create a user and authenticate them", () => {
         cy.get<User>("@userData").then((credentials: User) => {
             cy.intercept(`api/user/:${credentials.username}`, { msg: "not found" }).as("user");
             cy.intercept(`api/user/:${credentials.email}`, { msg: "not found" }).as("email");
+
             cy.get("input[name='username']").type(credentials.username);
             cy.get("input[name='email']").type(credentials.email);
             cy.get("button[type='submit'").click();
@@ -75,10 +76,15 @@ describe("create a user and authenticate them", () => {
             cy.get("input[name='username']").type(credentials.username);
 
             cy.get("input[name='email']").type(credentials.email);
+            cy.wait("@usernameExists");
 
             cy.get("button[type='submit']").click();
+            cy.wait("@emailExists");
+
             cy.wait("@usernameExists");
             cy.wait("@emailExists");
+            // eslint-disable-next-line cypress/no-unnecessary-waiting
+            cy.wait(500);
 
             cy.get("button[type='button']").contains("back", { matchCase: false }).click();
 
