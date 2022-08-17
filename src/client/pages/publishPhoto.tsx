@@ -145,8 +145,6 @@ function Publish() {
     const [tags, setTags] = useState<[] | string[]>([]);
     const [uploadFeedback, setUploadFeedback] = useState("");
 
-    console.log(fileBrowseEl);
-
     function cancel(): void {
         if (location.state) {
             navigate((location.state as LocationState).path);
@@ -162,7 +160,6 @@ function Publish() {
         try {
             const reader = new FileReader();
             reader.readAsDataURL(imgData);
-            console.log(imgData);
 
             reader.addEventListener("loadstart", () => {
                 //is loading true;
@@ -194,8 +191,6 @@ function Publish() {
             addNotification({ type: "error", msg: "No image was selected." });
             return;
         }
-
-        console.log(fileData);
 
         if (/^image\/\w+$/gi.test(fileData?.type as string)) {
             readImgData(fileData);
@@ -288,7 +283,6 @@ function Publish() {
                 }
             })
             .catch(() => {
-                //console.log((err as Error).name);
                 addNotification({ type: "error", msg: "error occured uploading." });
             });
     }

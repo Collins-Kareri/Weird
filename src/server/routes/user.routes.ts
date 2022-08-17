@@ -1,23 +1,26 @@
 import { Router } from "express";
 import { create, remove, find } from "@src/server/handlers/user.handlers";
 import passport from "passport";
+import parseParam from "@serverUtils/parseParam";
 
 const router = Router();
 
 router.get("/:id", async (req, res) => {
     // id sample :/
     const { id } = req.params;
-    const formattedId = id.replace(":", "");
+    const formattedId = parseParam(id);
     // const idRegex = /^[0-9A-F-]+$/i;
     const usernameRegex = /^[0-9a-z._]+$/i;
     const emailRegex = /^\S+@\S+\.\S+$/;
 
-    //find by id
-    // if (idRegex.test(formattedId)) {
-    //     const findRes = await find(formattedId, "id");
-    //     res.json(findRes);
-    //     return;
-    // }
+    /*
+    find by id
+     if (idRegex.test(formattedId)) {
+         const findRes = await find(formattedId, "id");
+         res.json(findRes);
+         return;
+     }
+    */
 
     //find by user
     if (usernameRegex.test(formattedId)) {

@@ -32,7 +32,8 @@
         "@assets/*":["./src/assets/*"],
         "@clientUtils/*":["./src/client/utils/*"],
         "@pages/*":["./src/client/pages/*"],
-        "@server/*":["./src/server/*"]
+        "@server/*":["./src/server/*"],
+        "@serverUtils/*":["./src/server/utils/*"],
       }
     },
     "include": [

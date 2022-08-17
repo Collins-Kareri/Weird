@@ -1,3 +1,4 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 describe("publish image to neo4j and cloudinary", () => {
     //todo cancel button should take you back to previous page.
     //todo check if image preview works and when the remove button is clicked the image display is removed.
@@ -16,6 +17,7 @@ describe("publish image to neo4j and cloudinary", () => {
     it("should display a preview of selected image", () => {
         cy.get<User>("@userData").then((credentials: User) => {
             cy.request("post", "api/user/create", credentials).then(() => {
+                cy.wait(1000);
                 cy.visit("/publish");
                 cy.get("#fileBrowse").selectFile(
                     { contents: "@testImg", fileName: "testImg", mimeType: "image/jpg" },
@@ -88,19 +90,18 @@ describe("publish image to neo4j and cloudinary", () => {
                     cy.wait("@publishImage").then((dbRes) => {
                         expect(dbRes.response?.statusCode).eq(201);
 
-                        // eslint-disable-next-line cypress/no-unnecessary-waiting
                         cy.wait(1000);
 
                         cy.get("button[type='submit']").click();
 
                         cy.url().should("include", "/profile");
 
-                        // cy.request("delete", `api/image/:${cloudinaryUploadRes.response?.body.public_id}`).then(
-                        //     (imageDeleteRes) => {
-                        //         expect(imageDeleteRes.status).to.eq(200);
-                        //         expect(imageDeleteRes.body).haveOwnProperty("msg", "ok");
-                        //     }
-                        // );
+                        cy.request("delete", `api/image/:${cloudinaryUploadRes.response?.body.public_id}`).then(
+                            (imageDeleteRes) => {
+                                expect(imageDeleteRes.status).to.eq(200);
+                                expect(imageDeleteRes.body).haveOwnProperty("msg", "ok");
+                            }
+                        );
                     });
                 });
             });

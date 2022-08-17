@@ -5,6 +5,7 @@ import { Neo4jError } from "neo4j-driver";
 import { writeService, readService } from "@server/neo4j/neo4j.transactions";
 import { Request, Response } from "express";
 import "cookie-session";
+import parseParam from "@serverUtils/parseParam";
 
 type UsernameObj = Omit<User, "email" | "password">;
 
@@ -97,7 +98,7 @@ export async function remove(req: Request, res: Response) {
         DETACH DELETE usr`;
 
         const queryRes = await writeService<UsernameObj>(session, query, {
-            username: username.replace(":", ""),
+            username: parseParam(username),
         });
 
         const { counters } = queryRes.summary;
@@ -126,14 +127,11 @@ export async function find(identifier: string, identifierType: string) {
         const queryRes = await readService(session, query, { identifier });
 
         if (queryRes.records.length > 0 && queryRes.records[0].length > 0) {
-            // const user = queryRes.records[0].get("user");
-            // console.log(user);
             return { msg: "found" };
         }
 
         return { msg: "not found" };
     } catch (err) {
-        console.log((err as Error).message);
-        return { msg: "can't find user", error: (err as Error).name };
+        return { msg: "can't find user" };
     }
 }

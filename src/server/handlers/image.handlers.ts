@@ -47,6 +47,10 @@ export async function publish(req: Request, res: Response) {
     }
 }
 
+/**
+ * Deletes image from neo4j using public_id
+ * @param  {string} public_id
+ */
 export async function deleteImgNode(public_id: string) {
     const driver = getDriver();
     const session = driver.session();
@@ -55,9 +59,15 @@ export async function deleteImgNode(public_id: string) {
 
     try {
         const dbRes = await writeService(session, query, { public_id });
-        console.log(dbRes);
-        return "ok";
+        const nodesDeleted = dbRes.summary.counters.updates().nodesDeleted;
+        const relationshipsDeleted = dbRes.summary.counters.updates().relationshipsDeleted;
+
+        if (nodesDeleted === 1 && relationshipsDeleted === 1) {
+            return "ok";
+        }
+
+        return "not found";
     } catch (error) {
-        return "fail";
+        throw "error deleting node";
     }
 }
