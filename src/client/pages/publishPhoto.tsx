@@ -1,22 +1,20 @@
 import React, { useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import ImageInput, { ImgObj } from "@components/imageInput";
 import Button from "@components/button";
 import AddIcon from "@components/addIcon";
 import { useNotification } from "@context/notifications.context";
 import Spinner from "@components/spinner";
 import Close from "@components/closeIcon";
 import TagsInput from "@components/tagsInput";
+import TextArea from "@components/textArea";
 import Popover from "@src/client/components/popover";
-
-interface ImgObj {
-    url: string;
-    base64Rep: string | ArrayBuffer;
-}
 
 interface PageBodyProps {
     currentImg: ImgObj | undefined;
-    fileBrowseEl: React.MutableRefObject<null>;
-    handleSelectedImage: (evt: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+    browseFilesElement: React.MutableRefObject<null>;
+    setImageData: React.Dispatch<React.SetStateAction<ImgObj | undefined>>;
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
     cancel: () => void;
     publish: () => void;
     browseFiles: (evt: React.MouseEvent) => void;
@@ -28,8 +26,8 @@ interface PageBodyProps {
 
 function PageBody({
     currentImg,
-    fileBrowseEl,
-    handleSelectedImage,
+    browseFilesElement,
+    setImageData,
     cancel,
     publish,
     browseFiles,
@@ -37,16 +35,14 @@ function PageBody({
     removeImg,
     tags,
     setTags,
+    setIsLoading,
 }: PageBodyProps) {
     return (
         <div className="tw-flex tw-w-11/12 tw-container tw-mx-auto tw-h-screen tw-flex-col tw-justify-center tw-items-center tw-font-Quicksand md:tw-max-w-md">
-            <input
-                type={"file"}
-                ref={fileBrowseEl}
-                className="tw-hidden"
-                accept="image/*"
-                id="fileBrowse"
-                onChange={handleSelectedImage}
+            <ImageInput
+                browseFilesElement={browseFilesElement}
+                setImageData={setImageData}
+                setIsLoading={setIsLoading}
             />
 
             {/* container */}
@@ -112,18 +108,7 @@ function PageBody({
                 <TagsInput tags={tags} setTags={setTags} />
 
                 {/* description input */}
-                <label
-                    htmlFor="description"
-                    className="tw-block tw-font-semibold tw-m-2 tw-text-neutral-900 tw-text-lg"
-                >
-                    Description
-                </label>
-                <textarea
-                    className="tw-w-full tw-text-neutral-900 tw-bg-neutral-200 tw-rounded-md focus:tw-ring-normal-800 valid:tw-ring-success-700 tw-ring-1 tw-outline-none tw-border-none invalid:tw-ring-error-700 "
-                    placeholder="Photo description"
-                    name="description"
-                    id="description"
-                />
+                <TextArea name={"description"} label={"description"} />
 
                 {/*Buttons */}
                 <section className="tw-flex tw-justify-start tw-w-full tw-mt-4">
@@ -138,10 +123,10 @@ function PageBody({
 function Publish() {
     const navigate = useNavigate();
     const location = useLocation();
-    const fileBrowseEl = useRef(null);
+    const browseFilesElement = useRef(null);
     const { addNotification } = useNotification();
     const [isLoading, setIsLoading] = useState(false);
-    const [currentImg, setCurrentImg] = useState<ImgObj | undefined>(undefined);
+    const [imgData, setImgData] = useState<ImgObj | undefined>(undefined);
     const [tags, setTags] = useState<[] | string[]>([]);
     const [uploadFeedback, setUploadFeedback] = useState("");
 
@@ -156,51 +141,6 @@ function Publish() {
         return;
     }
 
-    async function readImgData(imgData: File) {
-        try {
-            const reader = new FileReader();
-            reader.readAsDataURL(imgData);
-
-            reader.addEventListener("loadstart", () => {
-                //is loading true;
-                setIsLoading(true);
-            });
-
-            reader.addEventListener("load", (evt) => {
-                const base64Str = evt.target?.result;
-                if (base64Str) {
-                    setCurrentImg({ url: URL.createObjectURL(imgData), base64Rep: base64Str });
-                }
-                setIsLoading(false);
-            });
-
-            reader.addEventListener("error", () => {
-                setIsLoading(false);
-                addNotification({ type: "error", msg: "Error occurred while processing your image. Please try again" });
-            });
-        } catch (error) {
-            setIsLoading(false);
-            addNotification({ type: "error", msg: "couldn't process your selected image. Please try again" });
-            return;
-        }
-    }
-
-    async function handleSelectedImage(evt: React.ChangeEvent<HTMLInputElement>): Promise<void> {
-        const fileData = evt.target.files?.item(0);
-        if (!fileData) {
-            addNotification({ type: "error", msg: "No image was selected." });
-            return;
-        }
-
-        if (/^image\/\w+$/gi.test(fileData?.type as string)) {
-            readImgData(fileData);
-            return;
-        }
-
-        addNotification({ type: "error", msg: "Only image file types are allowed." });
-        return;
-    }
-
     function browseFiles(evt: React.MouseEvent): void {
         evt.stopPropagation();
 
@@ -208,26 +148,26 @@ function Publish() {
             return;
         }
 
-        if (fileBrowseEl.current) {
-            (fileBrowseEl.current as HTMLInputElement).click();
+        if (browseFilesElement.current) {
+            (browseFilesElement.current as HTMLInputElement).click();
         }
 
         return;
     }
 
     function removeImg(): void {
-        setCurrentImg(undefined);
+        setImgData(undefined);
         const imageEl = document.querySelector("#fileBrowse") as HTMLInputElement;
         imageEl.value = "";
         return;
     }
 
-    function publish(): void {
+    function publishPhoto(): void {
         //todo send tags, description and image base 64 url to cloudinary, then send the public url to backend to store in server
         const description = (document.getElementById("description") as HTMLTextAreaElement).value;
         const cloudinaryUrl = "https://api.cloudinary.com/v1_1/karerisspace/image/upload";
 
-        if (!currentImg) {
+        if (!imgData) {
             addNotification({ type: "error", msg: "no image was selected." });
             return;
         }
@@ -244,7 +184,7 @@ function Publish() {
 
         const uploadData = new FormData();
 
-        uploadData.append("file", currentImg?.base64Rep as string);
+        uploadData.append("file", imgData?.base64Rep as string);
         uploadData.append("upload_preset", "trialToUpload");
         uploadData.append("tags", tags.toString().replace(/\[|\]/g, ""));
         uploadData.append("context", `alt=${description}`);
@@ -302,16 +242,17 @@ function Publish() {
         />
     ) : (
         <PageBody
-            currentImg={currentImg}
-            fileBrowseEl={fileBrowseEl}
-            handleSelectedImage={handleSelectedImage}
+            currentImg={imgData}
+            browseFilesElement={browseFilesElement}
+            setImageData={setImgData}
             cancel={cancel}
-            publish={publish}
+            publish={publishPhoto}
             browseFiles={browseFiles}
             isLoading={isLoading}
             removeImg={removeImg}
             tags={tags}
             setTags={setTags}
+            setIsLoading={setIsLoading}
         />
     );
 }

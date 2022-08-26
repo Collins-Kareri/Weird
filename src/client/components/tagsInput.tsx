@@ -20,13 +20,35 @@ function TagsInput({ tags, setTags }: TagsProps) {
     function handleKeyDown(evt: React.KeyboardEvent<HTMLInputElement>): void {
         const el = evt.target as HTMLInputElement;
 
-        if (el.value.length <= 0) {
+        if (el.value.length <= 0 && (evt.code.toLowerCase() === "comma" || evt.code.toLowerCase() === "enter")) {
+            evt.preventDefault();
             return;
         }
 
-        if (evt.key === "Enter" || evt.key === ",") {
+        if (evt.code.toLowerCase() === "enter" || evt.code.toLowerCase() === "comma") {
             evt.preventDefault();
             const value = el.value;
+            setTags([...tags, value]);
+            el.value = "";
+            return;
+        }
+
+        return;
+    }
+
+    function handleInput(evt: React.FormEvent<HTMLInputElement>) {
+        const el = evt.target as HTMLInputElement;
+        const evtData = (evt.nativeEvent as InputEvent).data;
+
+        if (el.value.length <= 1 && evtData && evtData === ",") {
+            el.value = "";
+            return;
+        }
+
+        if (evtData && evtData === ",") {
+            evt.preventDefault();
+            //alert("ya");
+            const value = el.value.replace(/,/g, "");
             setTags([...tags, value]);
             el.value = "";
             return;
@@ -81,6 +103,7 @@ function TagsInput({ tags, setTags }: TagsProps) {
                     id="tagInput"
                     className="tw-border-none tw-p-0 tw-ring-0 focus:tw-ring-0 tw-inline-block tw-bg-neutral-200 tw-text-neutral-500"
                     onKeyDown={handleKeyDown}
+                    onInput={handleInput}
                 />
             </div>
         </>
