@@ -2,7 +2,7 @@ describe("login", () => {
     //todo on logo click should take you to home.
     beforeEach(() => {
         cy.visit("/login");
-        cy.fixture("../fixtures/user.json").as("userData");
+        cy.fixture("user.json").as("userData");
     });
 
     it("should login user and authenticate creating a cookie session", () => {
@@ -66,7 +66,7 @@ describe("login", () => {
     // });
 
     after(() => {
-        cy.fixture("../fixtures/user.json").as("userData");
+        cy.fixture("user.json").as("userData");
         cy.get<User>("@userData").then((credentials: User) => {
             cy.deleteUserByApi(credentials.username);
         });

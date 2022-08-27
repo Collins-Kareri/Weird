@@ -209,7 +209,7 @@ function CreateAccount(): JSX.Element {
     function cancel(): void {
         //go back to previous page
         if (location.state) {
-            navigate((location.state as LocationState).path);
+            navigate((location.state as LocationState).from);
             return;
         }
 
@@ -266,7 +266,7 @@ function CreateAccount(): JSX.Element {
         switch (userCreateResponse.toLowerCase()) {
             case "created":
                 if (location.state) {
-                    navigate((location.state as LocationState).path);
+                    navigate((location.state as LocationState).from);
                     return;
                 }
 

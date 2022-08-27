@@ -21,7 +21,7 @@ function Login() {
 
     function cancel(): void {
         if (location.state) {
-            navigate((location.state as LocationState).path);
+            navigate((location.state as LocationState).from);
             return;
         }
 

@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "dev": "concurrently \"npm run client:dev\" \"npm run server:dev\" ",
+    "dev": "concurrently \"npm run client:dev\" \"npm run server\" ",
     "client:dev": "cross-env NODE_ENV=development webpack serve --config config/webpack.dev.js",
     "client:build": "cross-env NODE_ENV=production webpack --config config/webpack.prod.js",
-    "server:dev": "nodemon --config config/nodemon.config.json",
+    "server": "nodemon --config config/nodemon.config.json",
     "cypress:open": "cypress open --config-file config/cypress.config.js",
     "cypress": "cypress run --config-file config/cypress.config.js"
   },

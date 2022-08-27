@@ -4,13 +4,12 @@ describe("publish image to neo4j and cloudinary", () => {
     //todo check if image preview works and when the remove button is clicked the image display is removed.
     //todo check if that one cannot upload image while unauthenticated.
     beforeEach(() => {
-        cy.fixture("../fixtures/user.json").as("userData");
+        cy.fixture("user.json").as("userData");
         cy.fixture("testImg-unsplash.jpg", null).as("testImg");
         cy.visit("/publish");
     });
 
     it("should not allow upload image while unauthenticated", () => {
-        cy.intercept("post", "api/user/create", {});
         cy.get("#popover").find("p").contains("you need to login first.", { matchCase: false });
     });
 
@@ -19,10 +18,12 @@ describe("publish image to neo4j and cloudinary", () => {
             cy.request("post", "api/user/create", credentials).then(() => {
                 cy.wait(1000);
                 cy.visit("/publish");
+
                 cy.get("#fileBrowse").selectFile(
                     { contents: "@testImg", fileName: "testImg", mimeType: "image/jpg" },
                     { force: true }
                 );
+
                 cy.get("#imageEl").should("exist").and("have.attr", "src");
             });
         });
@@ -109,7 +110,7 @@ describe("publish image to neo4j and cloudinary", () => {
     });
 
     after(() => {
-        cy.fixture("../fixtures/user.json").as("userData");
+        cy.fixture("user.json").as("userData");
 
         cy.get<User>("@userData").then((credentials: User) => {
             cy.deleteUserByApi(credentials.username);

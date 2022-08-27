@@ -36,7 +36,7 @@ function Home() {
                 to={"/publish"}
                 onClick={(evt) => {
                     evt.preventDefault();
-                    navigate("/publish", { state: { path: location.pathname }, replace: false });
+                    navigate("/publish", { state: { from: location.pathname }, replace: false });
                     return;
                 }}
             >

@@ -10,7 +10,7 @@ import passport from "passport";
 import "@server/passport/passport";
 
 const APP = EXPRESS();
-const PORT = process.env.server_port;
+const PORT = process.env.server_port || 3000;
 
 // Connect to Neo4j and Verify Connectivity
 const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;

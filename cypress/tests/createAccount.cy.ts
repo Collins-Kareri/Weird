@@ -3,7 +3,7 @@ describe("create a user and authenticate them", () => {
     //todo on logo click should take you to home.
     beforeEach(() => {
         cy.visit("/createAccount");
-        cy.fixture("../fixtures/user.json").as("userData");
+        cy.fixture("user.json").as("userData");
     });
 
     it("should create user and authenticate creating a cookie session", () => {
@@ -102,7 +102,7 @@ describe("create a user and authenticate them", () => {
     // });
 
     after(() => {
-        cy.fixture("../fixtures/user.json").as("userData");
+        cy.fixture("user.json").as("userData");
         cy.get<User>("@userData").then((credentials: User) => {
             cy.deleteUserByApi(credentials.username);
         });
