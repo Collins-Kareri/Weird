@@ -41,7 +41,7 @@ function PageBody({
         <div className="tw-flex tw-w-11/12 tw-container tw-mx-auto tw-h-screen tw-flex-col tw-justify-center tw-items-center tw-font-Quicksand md:tw-max-w-md">
             <ImageInput
                 browseFilesElement={browseFilesElement}
-                setImageData={setImageData}
+                setParentImageData={setImageData}
                 setIsLoading={setIsLoading}
             />
 

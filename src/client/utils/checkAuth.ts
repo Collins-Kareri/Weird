@@ -1,11 +1,13 @@
-async function checkAuth() {
+import { AuthenticatedUserSafeProps } from "@context/user.context";
+
+async function checkAuth(): Promise<{ authStatus: boolean; user: AuthenticatedUserSafeProps | undefined }> {
     const authenticated = await (await fetch("/api/auth", { method: "get" })).json();
 
     if (authenticated.user) {
-        return true;
+        return { authStatus: true, user: authenticated.user };
     }
 
-    return false;
+    return { authStatus: false, user: undefined };
 }
 
 export default checkAuth;

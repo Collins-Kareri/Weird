@@ -14,7 +14,7 @@ function _hash(password: string) {
     return hashSync(password, salt);
 }
 
-export async function create(req: Request, res: Response) {
+export async function createUser(req: Request, res: Response) {
     const credentials: User = req.body;
 
     if (credentials.email.length <= 0 || credentials.username.length <= 0 || credentials.password.length <= 0) {
@@ -68,7 +68,7 @@ export async function create(req: Request, res: Response) {
     }
 }
 
-export async function login(username: string, unhashedPassword: string) {
+export async function loginUser(username: string, unhashedPassword: string) {
     const driver = getDriver();
     const session = driver.session();
 
@@ -88,7 +88,7 @@ export async function login(username: string, unhashedPassword: string) {
     }
 }
 
-export async function remove(req: Request, res: Response) {
+export async function deleteUser(req: Request, res: Response) {
     const { username } = req.params;
     const driver = getDriver();
     const session = driver.session();
@@ -116,7 +116,7 @@ export async function remove(req: Request, res: Response) {
     }
 }
 
-export async function find(identifier: string, identifierType: string) {
+export async function findUser(identifier: string, identifierType: string) {
     try {
         const query = `
         MATCH (usr:User {${identifierType}:$identifier})

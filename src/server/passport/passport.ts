@@ -1,6 +1,6 @@
 import passport from "passport";
 import { Strategy } from "passport-local";
-import { login } from "@server/handlers/user.handlers";
+import { loginUser } from "@server/handlers/user.handlers";
 
 const neo4jStrategy = new Strategy({ usernameField: "username", passwordField: "password" }, async function verify(
     username,
@@ -8,7 +8,7 @@ const neo4jStrategy = new Strategy({ usernameField: "username", passwordField: "
     done
 ) {
     try {
-        const loginResults = await login(username, password);
+        const loginResults = await loginUser(username, password);
 
         if (typeof loginResults !== "string") {
             done(null, loginResults);

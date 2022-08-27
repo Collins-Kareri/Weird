@@ -1,9 +1,21 @@
 import { Router } from "express";
 import { publish, deleteImgNode } from "@server/handlers/image.handlers";
-import { deleteAsset } from "@server/cloudinary";
+import { deleteAsset, generateSignature } from "@server/cloudinary";
 import parseParam from "@serverUtils/parseParam";
 
 const router = Router();
+
+router.get("/signature/:upload_preset", (req, res) => {
+    const { upload_preset } = req.params;
+
+    if (req.isAuthenticated() && req.session?.isPopulated) {
+        const signature = generateSignature(parseParam(upload_preset));
+
+        res.json({ msg: "ok", ...signature });
+    }
+
+    res.status(401).json({ msg: "unauthenticated" });
+});
 
 router.post("/publish", publish);
 

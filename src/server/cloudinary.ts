@@ -24,3 +24,14 @@ export async function deleteAsset(public_id: string): Promise<string> {
         });
     });
 }
+
+export function generateSignature(preset: string) {
+    const timestamp = Math.round(new Date().getTime() / 1000);
+
+    const signature = cloudinary.utils.api_sign_request(
+        { timestamp, upload_preset: preset },
+        process.env.CLOUDINARY_API_SECRET as string
+    );
+
+    return { signature, timestamp, apiKey: process.env.CLOUDINARY_API_KEY };
+}

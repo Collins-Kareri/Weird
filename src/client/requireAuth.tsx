@@ -3,16 +3,19 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import Popover from "@src/client/components/popover";
 import checkAuth from "@clientUtils/checkAuth";
+import { useUser } from "@context/user.context";
 
 function RequireAuth() {
     const [isAuth, setIsAuth] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const { setUser } = useUser();
 
     useEffect(() => {
         (async () => {
-            const authStatus = await checkAuth();
-            setIsAuth(authStatus);
+            const isAuthenticated = await checkAuth();
+            setUser(isAuthenticated.user);
+            setIsAuth(isAuthenticated.authStatus);
         })();
         return;
     }, []);

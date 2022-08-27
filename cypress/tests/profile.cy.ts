@@ -1,4 +1,4 @@
-describe("profle page", () => {
+describe("profile page", () => {
     beforeEach(() => {
         cy.fixture("user.json").as("userData");
         cy.visit("/profile");

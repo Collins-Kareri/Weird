@@ -8,12 +8,12 @@ export interface ImgObj {
 
 interface PropTypes {
     browseFilesElement: React.MutableRefObject<null>;
-    setImageData: React.Dispatch<React.SetStateAction<ImgObj | undefined>>;
+    setParentImageData?: React.Dispatch<React.SetStateAction<ImgObj | undefined>>;
     setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
-    submitImage?: (base64Str: string | ArrayBuffer) => Promise<boolean>;
+    publishImage?: (base64Str: string | ArrayBuffer) => Promise<boolean>;
 }
 
-function ImageInput({ browseFilesElement, setImageData, setIsLoading, submitImage }: PropTypes) {
+function ImageInput({ browseFilesElement, setParentImageData, setIsLoading, publishImage }: PropTypes) {
     const { addNotification } = useNotification();
 
     async function readImgData(imgData: File) {
@@ -31,23 +31,29 @@ function ImageInput({ browseFilesElement, setImageData, setIsLoading, submitImag
             reader.addEventListener("load", async (evt) => {
                 const base64Str = evt.target?.result;
 
-                if (submitImage && base64Str) {
-                    const submitRes = await submitImage(base64Str);
+                // if (publishImage && base64Str) {
+                //     const submitRes = await publishImage(base64Str);
 
-                    if (submitRes) {
-                        setImageData({ url: URL.createObjectURL(imgData), base64Rep: base64Str });
-                        if (setIsLoading) {
-                            setIsLoading(false);
-                        }
-                    } else {
-                        addNotification({ type: "error", msg: "couldn't change profile picture." });
-                    }
+                //     if (submitRes) {
+                //         if (setParentImageData) {
+                //             setParentImageData({ url: URL.createObjectURL(imgData), base64Rep: base64Str });
+                //         }
 
-                    return;
-                }
+                //         addNotification({ type: "success", msg: "profile picture updated successfuly." });
+                //         if (setIsLoading) {
+                //             setIsLoading(false);
+                //         }
+                //     } else {
+                //         addNotification({ type: "error", msg: "couldn't change profile picture." });
+                //     }
+
+                //     return;
+                // }
 
                 if (base64Str) {
-                    setImageData({ url: URL.createObjectURL(imgData), base64Rep: base64Str });
+                    if (setParentImageData) {
+                        setParentImageData({ url: URL.createObjectURL(imgData), base64Rep: base64Str });
+                    }
                 }
 
                 if (setIsLoading) {

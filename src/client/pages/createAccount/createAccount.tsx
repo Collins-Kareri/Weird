@@ -129,6 +129,7 @@ function CreateAccount(): JSX.Element {
 
     function handleKeyup(evt: React.KeyboardEvent<HTMLInputElement>): void {
         const el = evt.target as HTMLInputElement;
+
         if (el.type === "password") {
             const compareVal = document.getElementById("password") as HTMLInputElement;
             const confirmPassword = document.getElementById("confirm_password") as HTMLInputElement;
@@ -138,6 +139,7 @@ function CreateAccount(): JSX.Element {
                 }, 2000);
             }
         }
+
         return;
     }
 

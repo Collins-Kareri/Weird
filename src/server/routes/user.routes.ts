@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { create, remove, find } from "@src/server/handlers/user.handlers";
+import { createUser, deleteUser, findUser } from "@src/server/handlers/user.handlers";
 import passport from "passport";
 import parseParam from "@serverUtils/parseParam";
 
@@ -24,14 +24,14 @@ router.get("/:id", async (req, res) => {
 
     //find by user
     if (usernameRegex.test(formattedId)) {
-        const findRes = await find(formattedId, "name");
+        const findRes = await findUser(formattedId, "name");
         res.json(findRes);
         return;
     }
 
     //find by email
     if (emailRegex.test(formattedId)) {
-        const findRes = await find(formattedId, "email");
+        const findRes = await findUser(formattedId, "email");
         res.json(findRes);
         return;
     }
@@ -39,7 +39,7 @@ router.get("/:id", async (req, res) => {
     res.status(404).json({ error: "route not valid" });
 });
 
-router.post("/create", create);
+router.post("/create", createUser);
 
 router.post("/login", function (req, res, next) {
     //call passport authenticate as an iife.
@@ -70,6 +70,15 @@ router.post("/login", function (req, res, next) {
     })(req, res, next);
 });
 
-router.delete("/:username", remove);
+router.put("/update", (req, res) => {
+    // const updateData = req.body;
+    if (req.isAuthenticated() && req.session?.isPopulated) {
+        res.json({ msg: "updated" });
+    }
+
+    res.status(401).json({ msg: "unauthenticated" });
+});
+
+router.delete("/:username", deleteUser);
 
 export default router;

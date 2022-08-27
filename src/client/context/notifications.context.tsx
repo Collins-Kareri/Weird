@@ -47,7 +47,7 @@ export const useNotification = () => {
     return useContext(NotificationContext);
 };
 
-export const NotficationConsumer = ({ children }: NotificationProps) => {
+export const NotificationConsumer = ({ children }: NotificationProps) => {
     return (
         <NotificationContext.Consumer>
             {(notifications) => notifications.currentNotifications.length > 0 && children}
