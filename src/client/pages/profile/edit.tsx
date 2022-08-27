@@ -4,7 +4,7 @@ import { useUser } from "@context/user.context";
 import { useNotification } from "@context/notifications.context";
 import Input from "@components/inputField";
 import Button from "@components/button";
-import ChangeProfilePic from "@pages/profile/changeProfilePic";
+import ProfilePic from "@src/client/pages/profile/profilePic";
 
 function EditProfile() {
     const { currentUser, setUser } = useUser();
@@ -57,7 +57,7 @@ function EditProfile() {
 
     return (
         <div className="tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-screen tw-p-4 tw-w-11/12">
-            <ChangeProfilePic />
+            <ProfilePic />
             <Input
                 type={"text"}
                 label={"username"}
@@ -80,7 +80,7 @@ function EditProfile() {
                 value={currentUser?.email}
                 isAutoFocus={true}
             />
-            <section className="tw-flex tw-flex-row tw-items-start tw-w-full">
+            <section className="tw-flex tw-flex-row tw-justify-between md:tw-justify-start tw-w-full">
                 <Button
                     priority="secondary"
                     value="cancel"

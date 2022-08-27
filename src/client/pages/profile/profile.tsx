@@ -3,7 +3,7 @@ import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import CollectionsModal from "@components/collectionsModal";
 import Button from "@components/button";
 import Logo from "@assets/logo.svg";
-import ChangeProfilePic from "@pages/profile/changeProfilePic";
+import ProfilePic from "@src/client/pages/profile/profilePic";
 import { useUser } from "@context/user.context";
 
 interface PlaceHolderContentPropTypes {
@@ -116,7 +116,7 @@ function Profile() {
     return location.pathname === "/profile" ? (
         <>
             <div className=" tw-flex tw-flex-col tw-justify-center tw-items-center  tw-font-Quicksand tw-font-semibold tw-p-4 tw-text-neutral-800 md:tw-flex-row">
-                <ChangeProfilePic />
+                <ProfilePic />
 
                 <section className="tw-flex tw-flex-col tw-items-center tw-justify-center">
                     <span className="tw-text-lg">{currentUser?.username}</span>

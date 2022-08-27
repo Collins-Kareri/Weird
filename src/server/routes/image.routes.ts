@@ -12,6 +12,7 @@ router.get("/signature/:upload_preset", (req, res) => {
         const signature = generateSignature(parseParam(upload_preset));
 
         res.json({ msg: "ok", ...signature });
+        return;
     }
 
     res.status(401).json({ msg: "unauthenticated" });

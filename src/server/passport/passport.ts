@@ -24,8 +24,7 @@ const neo4jStrategy = new Strategy({ usernameField: "username", passwordField: "
 passport.use(neo4jStrategy);
 
 passport.serializeUser((user, done) => {
-    const currentUser: UserSafeProps = user as UserSafeProps;
-    done(null, { id: currentUser.id, username: currentUser.username, email: currentUser.email });
+    done(null, user as UserSafeProps);
 });
 
 passport.deserializeUser((user, done) => {

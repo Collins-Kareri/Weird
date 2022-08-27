@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser, deleteUser, findUser } from "@src/server/handlers/user.handlers";
+import { createUser, deleteUser, findUser, updateUser } from "@src/server/handlers/user.handlers";
 import passport from "passport";
 import parseParam from "@serverUtils/parseParam";
 
@@ -58,6 +58,8 @@ router.post("/login", function (req, res, next) {
             return;
         }
 
+        console.log(req.user);
+
         return req.login(user, (loginErr) => {
             if (loginErr) {
                 res.status(401).json({ msg: "authentication failed", error: (loginErr as Error).name });
@@ -70,10 +72,32 @@ router.post("/login", function (req, res, next) {
     })(req, res, next);
 });
 
-router.put("/update", (req, res) => {
-    // const updateData = req.body;
+router.put("/update", async (req, res) => {
+    const newUserData = req.body;
+
     if (req.isAuthenticated() && req.session?.isPopulated) {
-        res.json({ msg: "updated" });
+        const { id } = req.user as UserSafeProps;
+
+        const updatedUserData = await updateUser(newUserData, id);
+
+        if (typeof updatedUserData === "undefined") {
+            res.status(500).json({ msg: "failed" });
+            return;
+        }
+
+        req.login(updatedUserData, (loginErr) => {
+            if (loginErr) {
+                res.status(401).json({ msg: "authentication failed", error: (loginErr as Error).name });
+                return;
+            }
+
+            res.json({ msg: "successful" });
+            return;
+        });
+
+        console.log(req.user);
+
+        return;
     }
 
     res.status(401).json({ msg: "unauthenticated" });

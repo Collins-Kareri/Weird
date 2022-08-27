@@ -31,24 +31,28 @@ function ImageInput({ browseFilesElement, setParentImageData, setIsLoading, publ
             reader.addEventListener("load", async (evt) => {
                 const base64Str = evt.target?.result;
 
-                // if (publishImage && base64Str) {
-                //     const submitRes = await publishImage(base64Str);
+                if (publishImage && base64Str) {
+                    const submitRes = await publishImage(base64Str);
 
-                //     if (submitRes) {
-                //         if (setParentImageData) {
-                //             setParentImageData({ url: URL.createObjectURL(imgData), base64Rep: base64Str });
-                //         }
+                    if (submitRes) {
+                        if (setParentImageData) {
+                            setParentImageData({ url: URL.createObjectURL(imgData), base64Rep: base64Str });
+                        }
 
-                //         addNotification({ type: "success", msg: "profile picture updated successfuly." });
-                //         if (setIsLoading) {
-                //             setIsLoading(false);
-                //         }
-                //     } else {
-                //         addNotification({ type: "error", msg: "couldn't change profile picture." });
-                //     }
+                        addNotification({ type: "success", msg: "profile picture updated successfuly." });
 
-                //     return;
-                // }
+                        if (setIsLoading) {
+                            setIsLoading(false);
+                        }
+                    } else {
+                        addNotification({ type: "error", msg: "couldn't change profile picture." });
+                        if (setIsLoading) {
+                            setIsLoading(false);
+                        }
+                    }
+
+                    return;
+                }
 
                 if (base64Str) {
                     if (setParentImageData) {
@@ -79,6 +83,7 @@ function ImageInput({ browseFilesElement, setParentImageData, setIsLoading, publ
 
     async function handleSelectedImage(evt: React.ChangeEvent<HTMLInputElement>): Promise<void> {
         const fileData = evt.target.files?.item(0);
+        const inputEl = document.querySelector("#fileBrowse") as HTMLInputElement;
 
         if (!fileData) {
             addNotification({ type: "error", msg: "No image was selected." });
@@ -87,10 +92,12 @@ function ImageInput({ browseFilesElement, setParentImageData, setIsLoading, publ
 
         if (/^image\/\w+$/gi.test(fileData?.type as string)) {
             readImgData(fileData);
+            inputEl.value = "";
             return;
         }
 
         addNotification({ type: "error", msg: "Only image file types are allowed." });
+        inputEl.value = "";
         return;
     }
 

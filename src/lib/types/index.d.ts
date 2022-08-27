@@ -8,7 +8,9 @@ declare global {
     }
 
     interface UserSafeProps extends Omit<User, "password"> {
-        id: number;
+        id: string;
+        profilePicPublicId?: string;
+        profilePicUrl?: string;
     }
 
     interface IconProps {
@@ -64,6 +66,7 @@ declare global {
             google: [string, number];
             cloudinary: [string, number];
         };
+        delete_token: string;
     }
 
     interface LocationState {

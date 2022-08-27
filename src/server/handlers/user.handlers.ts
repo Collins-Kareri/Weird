@@ -9,6 +9,13 @@ import parseParam from "@serverUtils/parseParam";
 
 type UsernameObj = Omit<User, "email" | "password">;
 
+interface UpdateUser {
+    username?: string;
+    email?: string;
+    public_id?: string;
+    url?: string;
+}
+
 function _hash(password: string) {
     const salt = genSaltSync();
     return hashSync(password, salt);
@@ -74,15 +81,16 @@ export async function loginUser(username: string, unhashedPassword: string) {
 
     const query = `
         MATCH (u:User { name:$username })
-        RETURN {id:u.id, username: u.name, email: u.email, hashedPassword: u.password } as user
+        RETURN { id: u.id, password: u.password, email: u.email, username: u.email, 
+            profilePicPublicId: u.profilePicPublicId, profilePicUrl: u.profilePicUrl } as user
         `;
 
     const queryRes = await readService<UsernameObj>(session, query, { username });
 
     if (queryRes.records.length > 0 && queryRes.records[0].length > 0) {
-        const { hashedPassword, ...safeProps } = queryRes.records[0].get("user");
+        const { password, ...safeProps } = queryRes.records[0].get("user");
 
-        return compareSync(unhashedPassword, hashedPassword) ? safeProps : "password not valid";
+        return compareSync(unhashedPassword, password) ? safeProps : "password not valid";
     } else {
         return "username doesn't exist";
     }
@@ -133,5 +141,82 @@ export async function findUser(identifier: string, identifierType: string) {
         return { msg: "not found" };
     } catch (err) {
         return { msg: "can't find user" };
+    }
+}
+
+export async function updateUser(updateData: UpdateUser, id: string): Promise<User | undefined> {
+    const { username, email, public_id, url } = updateData;
+    const driver = getDriver();
+    const session = driver.session();
+    let query;
+
+    try {
+        if (public_id && url) {
+            query = `MATCH (u:User {id:$id})
+            SET u.profilePicPublicId= $public_id, u.profilePicUrl= $url
+            return {username:u.name, email:u.email,public_id:u.profilePicPublicId, url:u.profilePicUrl} as user`;
+
+            const queryRes = await writeService(session, query, {
+                id,
+                public_id,
+                url,
+            });
+
+            const user = queryRes.records[0].get("user");
+
+            return user;
+        }
+
+        if (username && email) {
+            query = `MATCH (u:User {id:$id})
+            SET u.name = $newUsername, u.email = $newEmail
+            return u as user`;
+
+            const queryRes = await writeService(session, query, {
+                id,
+                newEmail: email,
+                newUsername: username,
+            });
+
+            const user = queryRes.records[0].get("user");
+            delete user.password;
+            return user;
+        }
+
+        if (username) {
+            query = `MATCH (u:User {name:$username})
+            SET u.name = $newUsername
+            return u as user`;
+
+            const queryRes = await writeService(session, query, {
+                id,
+                public_id,
+                url,
+            });
+
+            const user = queryRes.records[0].get("user");
+            delete user.password;
+            return user;
+        }
+
+        if (email) {
+            query = `MATCH (u:User {name:$username})
+            SET u.email = $newEmail
+            return u as user`;
+
+            const queryRes = await writeService(session, query, {
+                id,
+                public_id,
+                url,
+            });
+
+            const user = queryRes.records[0].get("user");
+            delete user.password;
+            return user;
+        }
+
+        return;
+    } catch (error) {
+        return;
     }
 }
