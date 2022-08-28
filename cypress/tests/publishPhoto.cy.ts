@@ -97,12 +97,13 @@ describe("publish image to neo4j and cloudinary", () => {
 
                         cy.url().should("include", "/profile");
 
-                        cy.request("delete", `api/image/:${cloudinaryUploadRes.response?.body.public_id}`).then(
-                            (imageDeleteRes) => {
-                                expect(imageDeleteRes.status).to.eq(200);
-                                expect(imageDeleteRes.body).haveOwnProperty("msg", "ok");
-                            }
-                        );
+                        cy.request(
+                            "delete",
+                            `api/image/:${cloudinaryUploadRes.response?.body.public_id.replace(/\//g, "_")}`
+                        ).then((imageDeleteRes) => {
+                            expect(imageDeleteRes.status).to.eq(200);
+                            expect(imageDeleteRes.body).haveOwnProperty("msg", "ok");
+                        });
                     });
                 });
             });

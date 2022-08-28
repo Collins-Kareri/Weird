@@ -47,7 +47,10 @@ function PlaceHolderContent({ active, setCollectionsModalStatus }: PlaceHolderCo
     }
 
     return (
-        <div className="tw-flex tw-flex-col tw-w-fit tw-mx-auto tw-justify-center tw-items-center tw-mb-11 tw-p-4">
+        <div
+            className="tw-flex tw-flex-col tw-w-fit tw-mx-auto tw-justify-center tw-items-center tw-mb-11 tw-p-4"
+            id="placeholderContent"
+        >
             <img src={Logo as string} alt="app logo" className="tw-relative tw-w-8/12" />
             <span className="tw-font-Quicksand tw-font-medium tw-text-center">
                 {placeholderContent[active as keyof PlaceholderContentToShow].msg}
@@ -75,7 +78,10 @@ function Tabs({ setActiveTab, activeTab, noOfImages, noOfCollections }: TabsProp
         setActiveTab(tabName);
     }
     return (
-        <div className="tw-flex tw-flex-row tw-justify-start tw-font-Quicksand tw-font-bold tw-text-lg tw-text-neutral-800 tw-p-2 lg:tw-p-4">
+        <div
+            className="tw-flex tw-flex-row tw-justify-start tw-font-Quicksand tw-font-bold tw-text-lg tw-text-neutral-800 tw-p-2 lg:tw-p-4"
+            id="tab"
+        >
             <span
                 className={`tw-p-2 tw-cursor-pointer ${
                     activeTab.toLowerCase() === "images" ? tabStyles.active : tabStyles.inactive
@@ -83,6 +89,7 @@ function Tabs({ setActiveTab, activeTab, noOfImages, noOfCollections }: TabsProp
                 onClick={() => {
                     toggleActiveTab("images");
                 }}
+                id="imageTab"
             >
                 {`images ${noOfImages}`}
             </span>
@@ -94,6 +101,7 @@ function Tabs({ setActiveTab, activeTab, noOfImages, noOfCollections }: TabsProp
                 onClick={() => {
                     toggleActiveTab("collections");
                 }}
+                id="collectionTab"
             >
                 {`collections ${noOfCollections}`}
             </span>
@@ -118,9 +126,13 @@ function Profile() {
             <div className=" tw-flex tw-flex-col tw-justify-center tw-items-center  tw-font-Quicksand tw-font-semibold tw-p-4 tw-text-neutral-800 md:tw-flex-row">
                 <ProfilePic />
 
-                <section className="tw-flex tw-flex-col tw-items-center tw-justify-center">
-                    <span className="tw-text-lg">{currentUser?.username}</span>
-                    <span className="tw-text-lg">{currentUser?.email}</span>
+                <section className="tw-flex tw-flex-col tw-items-center tw-justify-center" id="profileInfo">
+                    <span className="tw-text-lg" id="username">
+                        {currentUser?.username}
+                    </span>
+                    <span className="tw-text-lg" id="email">
+                        {currentUser?.email}
+                    </span>
                     <Button
                         priority={"primary"}
                         value={"edit profile"}

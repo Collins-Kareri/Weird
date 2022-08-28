@@ -58,7 +58,7 @@ router.post("/login", function (req, res, next) {
             return;
         }
 
-        console.log(req.user);
+        req.user;
 
         return req.login(user, (loginErr) => {
             if (loginErr) {
@@ -95,7 +95,7 @@ router.put("/update", async (req, res) => {
             return;
         });
 
-        console.log(req.user);
+        req.user;
 
         return;
     }

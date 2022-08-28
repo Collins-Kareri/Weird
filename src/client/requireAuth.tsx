@@ -5,12 +5,6 @@ import Popover from "@src/client/components/popover";
 import checkAuth from "@clientUtils/checkAuth";
 import { useUser } from "@context/user.context";
 
-interface UserSafeProps extends Omit<User, "profilePicPublicId" | " profilePicUrl"> {
-    id: string;
-    url?: string;
-    public_id?: string;
-}
-
 function RequireAuth() {
     const [isAuth, setIsAuth] = useState(false);
     const navigate = useNavigate();
@@ -20,22 +14,14 @@ function RequireAuth() {
     useEffect(() => {
         (async () => {
             const isAuthenticated = await checkAuth();
-            const { url, public_id, ...others } = isAuthenticated.user as UserSafeProps;
-            let user;
 
-            if (url && public_id) {
-                user = { profilePic: { url, public_id }, ...others };
-            } else {
-                user = { ...others };
-            }
-
-            setUser(user);
+            setUser(isAuthenticated.user);
             setIsAuth(isAuthenticated.authStatus);
         })();
         return;
     }, []);
 
-    function handleModalPrimaryAction() {
+    function handlePopoverPrimaryAction() {
         navigate("/login", { state: { from: location.pathname } });
     }
 
@@ -44,8 +30,8 @@ function RequireAuth() {
     ) : (
         <Popover
             secondaryAction={true}
-            message={"You need to login first"}
-            handlePrimaryAction={handleModalPrimaryAction}
+            message={"You need to login first."}
+            handlePrimaryAction={handlePopoverPrimaryAction}
             primaryActionValue={"login"}
         />
     );

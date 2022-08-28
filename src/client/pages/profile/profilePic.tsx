@@ -5,12 +5,14 @@ import ImageInput from "@components/imageInput";
 import EditIcon from "@assets/edit.svg";
 import Button from "@components/button";
 import Spinner from "@components/spinner";
+import { useNotification } from "@context/notifications.context";
 
 function ProfilePic() {
     const browseFilesElement = useRef(null);
     const { setUser, currentUser } = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const location = useLocation();
+    const { addNotification } = useNotification();
 
     function openFileBrowser(evt: React.MouseEvent) {
         evt.stopPropagation();
@@ -36,12 +38,14 @@ function ProfilePic() {
                 return false;
             }
 
+            //data required to upload to cloudinary
             const uploadData = new FormData();
 
             uploadData.append("file", base64Str as string);
             uploadData.append("signature", signatureRes.signature);
             uploadData.append("timestamp", signatureRes.timestamp);
             uploadData.append("api_key", signatureRes.apiKey);
+            uploadData.append("folder", "profilePictures_Weird");
 
             if (currentUser?.profilePic) {
                 uploadData.append("public_id", currentUser?.profilePic?.public_id as string);
@@ -49,12 +53,16 @@ function ProfilePic() {
 
             uploadData.append("upload_preset", "profilePic");
 
+            //cloudinary upload request
             const uploadImage: CloudinaryRes = await (
                 await fetch(cloudinaryUrl, { method: "post", body: uploadData })
             ).json();
 
+            //update user details
+
             if (uploadImage.url && currentUser) {
                 const { public_id, secure_url, delete_token } = uploadImage;
+
                 const updateUser = await (
                     await fetch("/api/user/update", {
                         method: "put",
@@ -65,7 +73,8 @@ function ProfilePic() {
                     })
                 ).json();
 
-                if (updateUser.msg.toLowerCase() !== "successful") {
+                //if update user details fails
+                if (updateUser.msg.toLowerCase() !== "successful" || typeof updateUser.msg === "undefined") {
                     const deleteToken = new FormData();
                     deleteToken.append("token", delete_token);
 
@@ -77,13 +86,30 @@ function ProfilePic() {
                     throw "failed";
                 }
 
-                setUser({ profilePic: { public_id, url: secure_url }, ...currentUser });
+                setUser({ profilePic: { public_id: public_id, url: secure_url }, ...currentUser });
                 return true;
             }
 
             return false;
         } catch (error) {
             return false;
+        }
+    }
+
+    async function deleteProfilePic() {
+        try {
+            if (currentUser?.profilePic && currentUser.profilePic.public_id) {
+                fetch("/api/user/delete/profilePic", {
+                    method: "delete",
+                    body: JSON.stringify({ public_id: currentUser.profilePic.public_id }),
+                    headers: { "Content-Type": "application/json" },
+                });
+                return;
+            }
+            return;
+        } catch (error) {
+            addNotification({ type: "error", msg: "failed to delete profile picture" });
+            return;
         }
     }
 
@@ -106,7 +132,7 @@ function ProfilePic() {
                         <Spinner height={"tw-h-8"} width={"tw-w-8"} borderColor={""} position={""} />
                     </div>
                 )}
-                <span className={"tw-bg-neutral-300 tw-rounded-full tw-inline-block tw-w-28 tw-h-28"}>
+                <span className={"tw-bg-neutral-300 tw-rounded-full tw-inline-block tw-w-28 tw-h-28"} id="profilePic">
                     {currentUser?.profilePic && (
                         <img
                             className="tw-object-cover tw-rounded-full tw-w-full tw-h-full tw-relative"
@@ -121,6 +147,7 @@ function ProfilePic() {
                     <div
                         className="tw-absolute tw-bottom-0 tw-right-0 tw-w-8 tw-h-8 tw-bg-neutral-800 tw-rounded-full tw-flex tw-flex-row tw-justify-center tw-items-center tw-cursor-pointer md:tw-h-9 md:tw-w-9 tw-ring tw-ring-neutral-800 tw-border-0 hover:tw-ring-offset-1 hover:tw-ring-offset-neutral-800 main-transition"
                         onClick={openFileBrowser}
+                        id="editProfilePic"
                     >
                         <img src={EditIcon as string} alt="edit icon" className="tw-w-9/12" />
                     </div>
@@ -136,7 +163,15 @@ function ProfilePic() {
                         handleClick={openFileBrowser}
                         isLoading={isLoading}
                     />
-                    <Button priority={"tertiary"} value={"delete"} isLoading={isLoading} />
+                    <Button
+                        priority={"tertiary"}
+                        value={"delete"}
+                        isLoading={isLoading}
+                        handleClick={() => {
+                            deleteProfilePic();
+                            return;
+                        }}
+                    />
                 </div>
             )}
         </>

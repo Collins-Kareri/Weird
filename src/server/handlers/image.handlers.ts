@@ -2,6 +2,11 @@ import { writeService } from "@server/neo4j/neo4j.transactions";
 import { getDriver } from "@src/server/neo4j/neo4j.driver";
 import { Request, Response } from "express";
 
+/**
+ * Creates image node in neo4j db
+ * @param  {Request} req
+ * @param  {Response} res
+ */
 export async function publish(req: Request, res: Response) {
     const driver = getDriver();
     const session = driver.session();

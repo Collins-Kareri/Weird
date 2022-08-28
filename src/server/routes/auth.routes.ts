@@ -5,13 +5,14 @@ const router = Router();
 //gets the authenticated user
 router.get("/", (req, res) => {
     if (req.isAuthenticated() && req.session?.isPopulated) {
-        const { profilePicPublicId, profilePicUrl } = req.user as UserSafeProps;
+        const { public_id, url, ...others } = req.user as UserSafeProps;
+
         let user;
 
-        if (profilePicPublicId && profilePicUrl) {
-            user = { profilePic: { public_id: profilePicPublicId, url: profilePicUrl }, ...req.user };
+        if (public_id && url) {
+            user = { profilePic: { public_id, url }, ...others };
         } else {
-            user = req.user;
+            user = others;
         }
 
         res.json({ msg: "authenticated", user });

@@ -9,8 +9,8 @@ declare global {
 
     interface UserSafeProps extends Omit<User, "password"> {
         id: string;
-        profilePicPublicId?: string;
-        profilePicUrl?: string;
+        public_id?: string;
+        url?: string;
     }
 
     interface IconProps {

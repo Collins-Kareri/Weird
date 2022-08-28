@@ -80,9 +80,9 @@ export async function loginUser(username: string, unhashedPassword: string) {
     const session = driver.session();
 
     const query = `
-        MATCH (u:User { name:$username })
-        RETURN { id: u.id, password: u.password, email: u.email, username: u.email, 
-            profilePicPublicId: u.profilePicPublicId, profilePicUrl: u.profilePicUrl } as user
+        MATCH (usr:User { name:$username })
+        RETURN { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
+            public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user
         `;
 
     const queryRes = await readService<UsernameObj>(session, query, { username });
@@ -128,7 +128,9 @@ export async function findUser(identifier: string, identifierType: string) {
     try {
         const query = `
         MATCH (usr:User {${identifierType}:$identifier})
-        RETURN {${identifierType}:usr.${identifierType}} as user`;
+        RETURN { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
+            public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user`;
+
         const driver = getDriver();
         const session = driver.session();
 
@@ -146,15 +148,18 @@ export async function findUser(identifier: string, identifierType: string) {
 
 export async function updateUser(updateData: UpdateUser, id: string): Promise<User | undefined> {
     const { username, email, public_id, url } = updateData;
+
     const driver = getDriver();
     const session = driver.session();
     let query;
 
     try {
         if (public_id && url) {
-            query = `MATCH (u:User {id:$id})
-            SET u.profilePicPublicId= $public_id, u.profilePicUrl= $url
-            return {username:u.name, email:u.email,public_id:u.profilePicPublicId, url:u.profilePicUrl} as user`;
+            query = `MATCH (usr:User { id:$id })
+            SET usr.profilePicPublicId= $public_id, usr.profilePicUrl= $url
+
+            return { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
+                public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user`;
 
             const queryRes = await writeService(session, query, {
                 id,
@@ -168,9 +173,11 @@ export async function updateUser(updateData: UpdateUser, id: string): Promise<Us
         }
 
         if (username && email) {
-            query = `MATCH (u:User {id:$id})
-            SET u.name = $newUsername, u.email = $newEmail
-            return u as user`;
+            query = `MATCH (usr:User { id:$id })
+            SET usr.name = $newUsername, usr.email = $newEmail
+
+            return { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
+                public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user`;
 
             const queryRes = await writeService(session, query, {
                 id,
@@ -184,9 +191,11 @@ export async function updateUser(updateData: UpdateUser, id: string): Promise<Us
         }
 
         if (username) {
-            query = `MATCH (u:User {name:$username})
-            SET u.name = $newUsername
-            return u as user`;
+            query = `MATCH (usr:User {name:$username})
+            SET usr.name = $newUsername
+
+            return { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
+                public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user`;
 
             const queryRes = await writeService(session, query, {
                 id,
@@ -200,9 +209,10 @@ export async function updateUser(updateData: UpdateUser, id: string): Promise<Us
         }
 
         if (email) {
-            query = `MATCH (u:User {name:$username})
-            SET u.email = $newEmail
-            return u as user`;
+            query = `MATCH (usr:User {name:$username})
+            SET usr.email = $newEmail
+            return { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
+                public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user`;
 
             const queryRes = await writeService(session, query, {
                 id,

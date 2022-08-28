@@ -56,7 +56,8 @@ function EditProfile() {
     }
 
     return (
-        <div className="tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-screen tw-p-4 tw-w-11/12">
+        <div className="tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-screen tw-p-4 tw-w-full md:tw-w-2/4 md:tw-mx-auto">
+            <h1 className="tw-font-Quicksand tw-font-extrabold tw-mb-7">EDIT PROFILE</h1>
             <ProfilePic />
             <Input
                 type={"text"}
@@ -78,9 +79,9 @@ function EditProfile() {
                     return;
                 }}
                 value={currentUser?.email}
-                isAutoFocus={true}
+                isAutoFocus={false}
             />
-            <section className="tw-flex tw-flex-row tw-justify-between md:tw-justify-start tw-w-full">
+            <section className="tw-flex tw-flex-row tw-justify-between tw-w-full">
                 <Button
                     priority="secondary"
                     value="cancel"

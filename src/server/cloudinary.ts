@@ -25,13 +25,32 @@ export async function deleteAsset(public_id: string): Promise<string> {
     });
 }
 
-export function generateSignature(preset: string) {
+export function generateSignature(
+    preset: string,
+    public_id?: string | undefined,
+    extraParams?: { context: { alt: string }; tag: string }
+) {
     const timestamp = Math.round(new Date().getTime() / 1000);
+    let paramsToSign = {};
+    let folder;
 
-    const signature = cloudinary.utils.api_sign_request(
-        { timestamp, upload_preset: preset },
-        process.env.CLOUDINARY_API_SECRET as string
-    );
+    if (preset.toLowerCase() === "profilepic") {
+        folder = "profilePictures_Weird";
+    } else {
+        folder = "weird";
+    }
+
+    if (public_id) {
+        paramsToSign = { timestamp, upload_preset: preset, public_id, folder };
+    } else {
+        paramsToSign = { timestamp, upload_preset: preset, folder };
+    }
+
+    if (extraParams) {
+        paramsToSign = { ...paramsToSign, ...extraParams };
+    }
+
+    const signature = cloudinary.utils.api_sign_request(paramsToSign, process.env.CLOUDINARY_API_SECRET as string);
 
     return { signature, timestamp, apiKey: process.env.CLOUDINARY_API_KEY };
 }

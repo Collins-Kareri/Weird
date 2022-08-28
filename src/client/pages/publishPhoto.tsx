@@ -16,7 +16,7 @@ interface PageBodyProps {
     setImageData: React.Dispatch<React.SetStateAction<ImgObj | undefined>>;
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
     cancel: () => void;
-    publish: () => void;
+    publishPhoto: () => void;
     browseFiles: (evt: React.MouseEvent) => void;
     isLoading: boolean;
     removeImg: () => void;
@@ -29,7 +29,7 @@ function PageBody({
     browseFilesElement,
     setImageData,
     cancel,
-    publish,
+    publishPhoto,
     browseFiles,
     isLoading,
     removeImg,
@@ -112,8 +112,22 @@ function PageBody({
 
                 {/*Buttons */}
                 <section className="tw-flex tw-justify-start tw-w-full tw-mt-4">
-                    <Button priority={"secondary"} value={"cancel"} handleClick={cancel} extraStyles={"tw-mr-4"} />
-                    <Button priority={"primary"} value={"publish"} handleClick={publish} typeOfButton={"submit"} />
+                    <Button
+                        priority={"secondary"}
+                        value={"cancel"}
+                        handleClick={cancel}
+                        extraStyles={"tw-mr-4"}
+                        typeOfButton="button"
+                    />
+                    <Button
+                        priority={"primary"}
+                        value={"publish"}
+                        handleClick={() => {
+                            publishPhoto();
+                            return;
+                        }}
+                        typeOfButton={"submit"}
+                    />
                 </section>
             </div>
         </div>
@@ -155,14 +169,14 @@ function Publish() {
         return;
     }
 
-    function removeImg(): void {
+    async function removeImg(): Promise<void> {
         setImgData(undefined);
         const imageEl = document.querySelector("#fileBrowse") as HTMLInputElement;
         imageEl.value = "";
         return;
     }
 
-    function publishPhoto(): void {
+    async function publishPhoto(): Promise<void> {
         //todo send tags, description and image base 64 url to cloudinary, then send the public url to backend to store in server
         const description = (document.getElementById("description") as HTMLTextAreaElement).value;
         const cloudinaryUrl = "https://api.cloudinary.com/v1_1/karerisspace/image/upload";
@@ -182,12 +196,31 @@ function Publish() {
             return;
         }
 
+        const signatureRes = await (
+            await fetch("/api/image/signature/:weird", {
+                method: "post",
+                body: JSON.stringify({ context: `alt=${description}`, tags: tags.toString().replace(/\[|\]/g, "") }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+        ).json();
+
+        if (signatureRes.msg === "fail" || typeof signatureRes.msg === "undefined") {
+            setIsLoading(!isLoading);
+            return;
+        }
+
         const uploadData = new FormData();
 
         uploadData.append("file", imgData?.base64Rep as string);
-        uploadData.append("upload_preset", "trialToUpload");
+        uploadData.append("upload_preset", "weird");
         uploadData.append("tags", tags.toString().replace(/\[|\]/g, ""));
         uploadData.append("context", `alt=${description}`);
+        uploadData.append("signature", signatureRes.signature);
+        uploadData.append("timestamp", signatureRes.timestamp);
+        uploadData.append("api_key", signatureRes.apiKey);
+        uploadData.append("folder", "weird");
 
         fetch(cloudinaryUrl, { body: uploadData, method: "post" })
             .then((res) => {
@@ -246,7 +279,7 @@ function Publish() {
             browseFilesElement={browseFilesElement}
             setImageData={setImgData}
             cancel={cancel}
-            publish={publishPhoto}
+            publishPhoto={publishPhoto}
             browseFiles={browseFiles}
             isLoading={isLoading}
             removeImg={removeImg}
