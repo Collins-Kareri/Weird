@@ -11,7 +11,11 @@ cloudinary.config({
  * Deletes an image from cloudinary using public_id
  * @param  {string} public_id
  */
-export async function deleteAsset(public_id: string): Promise<string> {
+export async function deleteAsset(public_id: string | undefined): Promise<string> {
+    if (!public_id) {
+        return "ok";
+    }
+
     return new Promise((success, fail) => {
         cloudinary.uploader.destroy(public_id, { resource_type: "image" }, (error, deleteRes) => {
             if (error) {

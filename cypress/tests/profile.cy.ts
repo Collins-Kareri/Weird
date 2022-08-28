@@ -9,7 +9,7 @@ describe("profile page", () => {
         cy.get("#popover").find("p").contains("you need to login first.", { matchCase: false });
     });
 
-    it("displays username and profile photo and cta take you edit profile page.", () => {
+    it("displays username and profile photo container with no profile image and a button to take you edit profile page.", () => {
         cy.get<User>("@userData").then((credentials: User) => {
             cy.request("post", "api/user/create", credentials).then(() => {
                 cy.wait(1000);
@@ -17,7 +17,8 @@ describe("profile page", () => {
 
                 cy.get("#username").should("exist").and("contain.text", credentials.username);
                 cy.get("#email").should("exist").and("contain.text", credentials.email);
-                cy.get("#profilePic").should("exist");
+                cy.get("#profilePicContainer").should("exist");
+                cy.get("#profilePic").should("not.exist");
 
                 cy.get("#profileInfo").find("button").contains("edit profile", { matchCase: false }).click();
                 cy.wait(1000);
@@ -107,13 +108,11 @@ describe("profile page", () => {
         });
     });
 
-    it("should create a collection", () => {});
-
-    it("should display image modal on image click.", () => {});
-
     //test image logic
 
     it("displays user images.", () => {});
+
+    // it("should display image modal on image click.", () => {});
 
     it("should display edit image modal on image edit button click.", () => {});
 
@@ -122,6 +121,7 @@ describe("profile page", () => {
     it("should delete selected image.", () => {});
 
     //test collection logic
+    it("should create a collection", () => {});
 
     it("should display collections.", () => {});
 

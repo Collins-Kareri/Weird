@@ -18,17 +18,10 @@ export type ButtonPropTypes = Readonly<{
     handleClick?: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }>;
 
-function Button({
-    typeOfButton,
-    priority,
-    value,
-    isLoading,
-    extraStyles: utilityClasses,
-    handleClick,
-}: ButtonPropTypes): JSX.Element {
+function Button({ typeOfButton, priority, value, isLoading, extraStyles, handleClick }: ButtonPropTypes): JSX.Element {
     const buttonStyles: ButtonStyles = {
         common: `tw-relative tw-inline-flex tw-items-center tw-justify-start tw-flex-row ${
-            typeof utilityClasses === "string" && utilityClasses
+            typeof extraStyles === "string" && extraStyles
         } ${
             isLoading ? "tw-cursor-wait" : "tw-cursor-pointer"
         } tw-font-Quicksand tw-text-neutral-900 tw-align-middle tw-font-medium tw-text-base tw-w-fit tw-h-fit tw-p-2.5 tw-mt-4 tw-rounded main-transition md:tw-p-3`,

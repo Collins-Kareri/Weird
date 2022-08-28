@@ -15,7 +15,8 @@ function EditProfile() {
         const userEl = document.querySelector("#username") as HTMLInputElement;
         const emailEl = document.querySelector("#email") as HTMLInputElement;
 
-        function _update(userData: { username?: string; email?: string }) {
+        //update user requestHandler
+        function _updateHandler(userData: { username?: string; email?: string }) {
             fetch("/api/user/update", { method: "put", body: JSON.stringify(userData) })
                 .then((serverRes) => {
                     if (serverRes.status >= 400) {
@@ -38,17 +39,17 @@ function EditProfile() {
         }
 
         if (userEl.value !== currentUser?.username && emailEl.value !== currentUser?.email) {
-            _update({ username: userEl.value, email: emailEl.value });
+            _updateHandler({ username: userEl.value, email: emailEl.value });
             return;
         }
 
         if (userEl.value !== currentUser?.username) {
-            _update({ username: userEl.value });
+            _updateHandler({ username: userEl.value });
             return;
         }
 
         if (emailEl.value !== currentUser?.email) {
-            _update({ email: emailEl.value });
+            _updateHandler({ email: emailEl.value });
             return;
         }
 
@@ -59,6 +60,7 @@ function EditProfile() {
         <div className="tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-screen tw-p-4 tw-w-full md:tw-w-2/4 md:tw-mx-auto">
             <h1 className="tw-font-Quicksand tw-font-extrabold tw-mb-7">EDIT PROFILE</h1>
             <ProfilePic />
+
             <Input
                 type={"text"}
                 label={"username"}

@@ -98,14 +98,30 @@ function ProfilePic() {
 
     async function deleteProfilePic() {
         try {
-            if (currentUser?.profilePic && currentUser.profilePic.public_id) {
-                fetch("/api/user/delete/profilePic", {
-                    method: "delete",
-                    body: JSON.stringify({ public_id: currentUser.profilePic.public_id }),
-                    headers: { "Content-Type": "application/json" },
+            // if (currentUser?.profilePic && currentUser.profilePic.public_id) {
+            //     fetch("/api/image/profilePic", {
+            //         method: "delete",
+            //     });
+            //     return;
+            // }
+            setIsLoading(true);
+            fetch("/api/image/profileImage/delete", {
+                method: "delete",
+            })
+                .then((res) => res.json())
+                .then((parsedRes) => {
+                    if (parsedRes.msg.toLowerCase() !== "ok") {
+                        throw "fail";
+                    }
+
+                    setIsLoading(false);
+                    setUser(parsedRes.user);
+                    addNotification({ type: "success", msg: "successfully deleted profile image." });
+                })
+                .catch(() => {
+                    setIsLoading(false);
+                    addNotification({ type: "error", msg: "failed deleting profile image" });
                 });
-                return;
-            }
             return;
         } catch (error) {
             addNotification({ type: "error", msg: "failed to delete profile picture" });
@@ -132,12 +148,16 @@ function ProfilePic() {
                         <Spinner height={"tw-h-8"} width={"tw-w-8"} borderColor={""} position={""} />
                     </div>
                 )}
-                <span className={"tw-bg-neutral-300 tw-rounded-full tw-inline-block tw-w-28 tw-h-28"} id="profilePic">
+                <span
+                    className={"tw-bg-neutral-300 tw-rounded-full tw-inline-block tw-w-28 tw-h-28"}
+                    id="profilePicContainer"
+                >
                     {currentUser?.profilePic && (
                         <img
                             className="tw-object-cover tw-rounded-full tw-w-full tw-h-full tw-relative"
                             src={currentUser.profilePic.url}
                             alt={"profile picture"}
+                            id="profilePic"
                         />
                     )}
                 </span>
@@ -155,7 +175,10 @@ function ProfilePic() {
             </section>
 
             {location.pathname === "/profile/edit" && (
-                <div className="tw-flex tw-flex-row tw-justify-center tw-w-full tw-m-0 tw-mb-7">
+                <div
+                    className="tw-flex tw-flex-row tw-justify-center tw-w-full tw-m-0 tw-mb-7"
+                    data-within="profilePicActions"
+                >
                     <Button
                         priority={"secondary"}
                         value={"change"}

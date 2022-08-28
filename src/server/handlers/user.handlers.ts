@@ -3,6 +3,7 @@ import { getDriver } from "@src/server/neo4j/neo4j.driver";
 import { genSaltSync, hashSync, compareSync } from "bcryptjs";
 import { Neo4jError } from "neo4j-driver";
 import { writeService, readService } from "@server/neo4j/neo4j.transactions";
+import { deleteAsset } from "@server/cloudinary";
 import { Request, Response } from "express";
 import "cookie-session";
 import parseParam from "@serverUtils/parseParam";
@@ -97,27 +98,48 @@ export async function loginUser(username: string, unhashedPassword: string) {
 }
 
 export async function deleteUser(req: Request, res: Response) {
+    // if (!req.isAuthenticated() && !req.session?.isPopulated) {
+    //     res.status(401).json({ msg: "unauthenticated" });
+    //     return;
+    // }
+
     const { username } = req.params;
+    // const { public_id } = req.user as UserSafeProps;
+    const public_id = undefined;
     const driver = getDriver();
     const session = driver.session();
+
     try {
-        const query = `
-        MATCH (usr:User {name:$username})
+        const query = `MATCH (usr:User {name:$username})
         DETACH DELETE usr`;
 
-        const queryRes = await writeService<UsernameObj>(session, query, {
-            username: parseParam(username),
-        });
+        const deleteUserRes = await Promise.all([
+            deleteAsset(public_id),
+            writeService<UsernameObj>(session, query, {
+                username: parseParam(username),
+            }),
+        ]);
+
+        const queryRes = deleteUserRes[1];
 
         const { counters } = queryRes.summary;
 
         if (counters.containsUpdates() && counters.updates().nodesDeleted === 1) {
+            req.logout({ keepSessionInfo: false }, (err) => {
+                if (err) {
+                    console.log(err, "err");
+                    return;
+                }
+
+                return;
+            });
+
             res.json({ msg: "ok" });
             return;
+        } else {
+            res.json({ msg: "not found" });
+            return;
         }
-
-        res.status(404).json({ msg: "user not found" });
-        return;
     } catch (error) {
         res.status(500).json({ msg: "couldn't delete user" });
         return;
@@ -146,7 +168,7 @@ export async function findUser(identifier: string, identifierType: string) {
     }
 }
 
-export async function updateUser(updateData: UpdateUser, id: string): Promise<User | undefined> {
+export async function updateUser(updateData: UpdateUser, id: string): Promise<UserSafeProps | undefined> {
     const { username, email, public_id, url } = updateData;
 
     const driver = getDriver();
