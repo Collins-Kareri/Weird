@@ -1,26 +1,96 @@
-import React from "react";
+import React, { useReducer } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "@context/user.context";
+import { useUser, AuthenticatedUserSafeProps } from "@context/user.context";
 import { useNotification } from "@context/notifications.context";
 import Input from "@components/inputField";
 import Button from "@components/button";
 import ProfilePic from "@src/client/pages/profile/profilePic";
+import { isValidEmail, isValidUsername, checkIfCredentialExist } from "@pages/createAccount/createAccount.validators";
+import { ErrorTypes, reducer } from "@pages/createAccount/createAccount";
 
 function EditProfile() {
+    //todo make sure the new username is valid as well as the email
+    const errTypes: ErrorTypes = {
+        username: "",
+        email: "",
+        password: "",
+        confirm_password: "",
+    };
+
     const { currentUser, setUser } = useUser();
     const { addNotification } = useNotification();
     const redirect = useNavigate();
+    const [err, dispatch] = useReducer(reducer, errTypes);
+
+    async function handleBlur(evt: React.FocusEvent<HTMLInputElement>): Promise<void> {
+        const el = evt.target as HTMLInputElement;
+        let msg: string | undefined;
+
+        if (el.value.length === 0) {
+            if (el.name === "email") {
+                el.value = (currentUser as AuthenticatedUserSafeProps)[el.name];
+            }
+
+            if (el.name === "username") {
+                el.value = (currentUser as AuthenticatedUserSafeProps)[el.name];
+            }
+
+            return;
+        }
+
+        if (
+            el.type === "email" &&
+            el.name === "email" &&
+            el.value !== (currentUser as AuthenticatedUserSafeProps)[el.name]
+        ) {
+            isValidEmail(el, dispatch);
+            if (el.validity.valid && typeof checkIfCredentialExist === "function") {
+                const alreadyExist = await checkIfCredentialExist(el.value);
+                if (alreadyExist) {
+                    msg = "email exists";
+                    el.setCustomValidity(msg);
+                    dispatch({ type: "email", payload: msg });
+                }
+            }
+            return;
+        }
+
+        if (
+            el.name === "username" &&
+            el.name === "username" &&
+            el.value !== (currentUser as AuthenticatedUserSafeProps)[el.name]
+        ) {
+            isValidUsername(el, dispatch);
+            if (el.validity.valid && typeof checkIfCredentialExist === "function") {
+                const alreadyExist = await checkIfCredentialExist(el.value);
+                if (alreadyExist) {
+                    msg = "username exists";
+                    el.setCustomValidity(msg);
+                    dispatch({ type: "username", payload: msg });
+                }
+            }
+
+            return;
+        }
+    }
 
     function updateUserData() {
         const userEl = document.querySelector("#username") as HTMLInputElement;
         const emailEl = document.querySelector("#email") as HTMLInputElement;
 
-        //update user requestHandler
+        /**
+         * update user
+         * @param userData
+         */
         function _updateHandler(userData: { username?: string; email?: string }) {
-            fetch("/api/user/update", { method: "put", body: JSON.stringify(userData) })
+            fetch("/api/user/update", {
+                method: "put",
+                body: JSON.stringify(userData),
+                headers: { "Content-Type": "application/json" },
+            })
                 .then((serverRes) => {
                     if (serverRes.status >= 400) {
-                        throw "coudln't update user";
+                        throw "couldn't update user";
                     }
 
                     return serverRes.json();
@@ -28,6 +98,7 @@ function EditProfile() {
                 .then((parsedRes) => {
                     setUser(parsedRes.user);
                     addNotification({ type: "success", msg: "successfully updated" });
+                    return;
                 })
                 .catch((err) => {
                     addNotification({ type: "error", msg: err });
@@ -71,9 +142,11 @@ function EditProfile() {
                 }}
                 value={currentUser?.username}
                 isAutoFocus={true}
+                inputErrMsg={err.username}
+                handleBlur={handleBlur}
             />
             <Input
-                type={"text"}
+                type={"email"}
                 label={"email"}
                 placeholder={"email"}
                 name={"email"}
@@ -82,8 +155,10 @@ function EditProfile() {
                 }}
                 value={currentUser?.email}
                 isAutoFocus={false}
+                inputErrMsg={err.username}
+                handleBlur={handleBlur}
             />
-            <section className="tw-flex tw-flex-row tw-justify-between tw-w-full">
+            <section className="tw-flex tw-flex-row tw-justify-between tw-w-full" id="updateUserDataCtaContainer">
                 <Button
                     priority="secondary"
                     value="cancel"

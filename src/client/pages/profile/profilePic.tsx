@@ -8,12 +8,17 @@ import Spinner from "@components/spinner";
 import { useNotification } from "@context/notifications.context";
 
 function ProfilePic() {
+    /**Contains ref to hidden input type file */
     const browseFilesElement = useRef(null);
     const { setUser, currentUser } = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const location = useLocation();
     const { addNotification } = useNotification();
 
+    /**
+     * Open input type file on element click.
+     * @returns void
+     */
     function openFileBrowser(evt: React.MouseEvent) {
         evt.stopPropagation();
 
@@ -24,6 +29,10 @@ function ProfilePic() {
         return;
     }
 
+    /**
+     * Upload profile picture logic.
+     * @returns Promise<boolean>
+     */
     async function publishProfilePic(base64Str: string | ArrayBuffer): Promise<boolean> {
         //todo send to cloudinary then send to neo4j
         //todo delete current image
@@ -96,32 +105,36 @@ function ProfilePic() {
         }
     }
 
+    /**
+     * Delete profile picture logic.
+     * @returns void
+     */
     async function deleteProfilePic() {
         try {
-            // if (currentUser?.profilePic && currentUser.profilePic.public_id) {
-            //     fetch("/api/image/profilePic", {
-            //         method: "delete",
-            //     });
-            //     return;
-            // }
-            setIsLoading(true);
-            fetch("/api/image/profileImage/delete", {
-                method: "delete",
-            })
-                .then((res) => res.json())
-                .then((parsedRes) => {
-                    if (parsedRes.msg.toLowerCase() !== "ok") {
-                        throw "fail";
-                    }
+            if (currentUser?.profilePic && currentUser.profilePic.public_id) {
+                setIsLoading(true);
 
-                    setIsLoading(false);
-                    setUser(parsedRes.user);
-                    addNotification({ type: "success", msg: "successfully deleted profile image." });
+                fetch("/api/image/profileImage/delete", {
+                    method: "delete",
                 })
-                .catch(() => {
-                    setIsLoading(false);
-                    addNotification({ type: "error", msg: "failed deleting profile image" });
-                });
+                    .then((res) => res.json())
+                    .then((parsedRes) => {
+                        if (parsedRes.msg.toLowerCase() !== "ok") {
+                            throw "fail";
+                        }
+
+                        setIsLoading(false);
+                        setUser(parsedRes.user);
+                        addNotification({ type: "success", msg: "successfully deleted profile image." });
+                    })
+                    .catch(() => {
+                        setIsLoading(false);
+                        addNotification({ type: "error", msg: "failed deleting profile image" });
+                    });
+
+                return;
+            }
+
             return;
         } catch (error) {
             addNotification({ type: "error", msg: "failed to delete profile picture" });

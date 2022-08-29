@@ -10,19 +10,19 @@ import {
     checkIfCredentialExist,
 } from "@pages/createAccount/createAccount.validators";
 
-interface ErrorTypes {
+export interface ErrorTypes {
     username: string;
     email: string;
     password: string;
     confirm_password: string;
 }
 
-interface ErrorDispatchActions {
+export interface ErrorDispatchActions {
     type: string;
     payload?: string;
 }
 
-function reducer(currentState: ErrorTypes, action: ErrorDispatchActions) {
+export function reducer(currentState: ErrorTypes, action: ErrorDispatchActions) {
     if (typeof action.payload === "undefined") {
         action.payload = "";
     }

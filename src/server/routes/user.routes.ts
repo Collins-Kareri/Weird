@@ -91,11 +91,9 @@ router.put("/update", async (req, res) => {
                 return;
             }
 
-            res.json({ msg: "successful" });
+            res.json({ msg: "successful", user: updatedUserData });
             return;
         });
-
-        req.user;
 
         return;
     }

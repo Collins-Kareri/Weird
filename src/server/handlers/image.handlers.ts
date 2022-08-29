@@ -76,3 +76,29 @@ export async function deleteImgNode(public_id: string) {
         throw "error deleting node";
     }
 }
+
+/**
+ * Deletes profile picture from user node
+ * @param id
+ * @returns UsersafeProps | undefined
+ */
+export async function deleteProfileImage(id: string): Promise<UserSafeProps | undefined> {
+    const driver = getDriver();
+    const session = driver.session();
+    const query = `MATCH (usr:User {id:$id})
+    REMOVE usr.profilePicPublicId, usr.profilePicUrl
+    RETURN {id: usr.id, username: usr.name, email: usr.email } as user`;
+
+    try {
+        const queryRes = await writeService<{ id: string }>(session, query, { id });
+        const { counters } = queryRes.summary;
+
+        if (counters.containsUpdates() && counters.updates().propertiesSet === 2) {
+            return queryRes.records[0].get("user") as UserSafeProps;
+        }
+
+        return;
+    } catch (error) {
+        return;
+    }
+}

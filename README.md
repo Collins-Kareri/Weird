@@ -2,6 +2,8 @@ A stock site to display weird images.
 
 NOTE: requires setup credentials of a neo4j database as well as cloudinary in a .env file.
 
+NOTE: add constraints to user node in neo4j. ie name and email constraints.
+
 # DEPENDENCIES
 npm install
 

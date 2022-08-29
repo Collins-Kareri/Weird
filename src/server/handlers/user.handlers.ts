@@ -59,15 +59,18 @@ export async function createUser(req: Request, res: Response) {
             });
         }
     } catch (error) {
-        if ((error as Neo4jError).code === "Neo.ClientError.Schema.ConstraintValidationFailed") {
+        if (
+            (error as Error).name.toLowerCase() === "neo4jerror" &&
+            (error as Neo4jError).code === "Neo.ClientError.Schema.ConstraintValidationFailed"
+        ) {
             const errMsg = (error as Neo4jError).message;
 
             if (errMsg.includes("property") && errMsg.includes("email")) {
-                res.status(401).json({ msg: "email taken" });
+                res.status(400).json({ msg: "email taken" });
                 return;
             }
 
-            res.status(401).json({ msg: "username taken" });
+            res.status(400).json({ msg: "username taken" });
             return;
         }
 
@@ -98,13 +101,13 @@ export async function loginUser(username: string, unhashedPassword: string) {
 }
 
 export async function deleteUser(req: Request, res: Response) {
-    // if (!req.isAuthenticated() && !req.session?.isPopulated) {
+    const { username } = req.params;
+
+    // if ((!req.isAuthenticated() && !req.session?.isPopulated) || (req.user as UserSafeProps).username !== username) {
     //     res.status(401).json({ msg: "unauthenticated" });
     //     return;
     // }
 
-    const { username } = req.params;
-    // const { public_id } = req.user as UserSafeProps;
     const public_id = undefined;
     const driver = getDriver();
     const session = driver.session();
@@ -127,7 +130,7 @@ export async function deleteUser(req: Request, res: Response) {
         if (counters.containsUpdates() && counters.updates().nodesDeleted === 1) {
             req.logout({ keepSessionInfo: false }, (err) => {
                 if (err) {
-                    console.log(err, "err");
+                    res.json({ msg: "logout failed" });
                     return;
                 }
 
@@ -196,15 +199,15 @@ export async function updateUser(updateData: UpdateUser, id: string): Promise<Us
 
         if (username && email) {
             query = `MATCH (usr:User { id:$id })
-            SET usr.name = $newUsername, usr.email = $newEmail
+            SET usr.name = $username, usr.email = $email
 
             return { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
                 public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user`;
 
             const queryRes = await writeService(session, query, {
                 id,
-                newEmail: email,
-                newUsername: username,
+                email,
+                username,
             });
 
             const user = queryRes.records[0].get("user");
@@ -213,16 +216,15 @@ export async function updateUser(updateData: UpdateUser, id: string): Promise<Us
         }
 
         if (username) {
-            query = `MATCH (usr:User {name:$username})
-            SET usr.name = $newUsername
+            query = `MATCH (usr:User {id:$id})
+            SET usr.name = $username
 
             return { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
                 public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user`;
 
             const queryRes = await writeService(session, query, {
                 id,
-                public_id,
-                url,
+                username,
             });
 
             const user = queryRes.records[0].get("user");
@@ -231,15 +233,14 @@ export async function updateUser(updateData: UpdateUser, id: string): Promise<Us
         }
 
         if (email) {
-            query = `MATCH (usr:User {name:$username})
-            SET usr.email = $newEmail
+            query = `MATCH (usr:User {id: $id})
+            SET usr.email = $email
             return { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
                 public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user`;
 
             const queryRes = await writeService(session, query, {
                 id,
-                public_id,
-                url,
+                email,
             });
 
             const user = queryRes.records[0].get("user");
@@ -249,6 +250,7 @@ export async function updateUser(updateData: UpdateUser, id: string): Promise<Us
 
         return;
     } catch (error) {
+        console.log((error as Neo4jError).code);
         return;
     }
 }

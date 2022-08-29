@@ -64,8 +64,11 @@ describe("profile edit page functionality", () => {
                 );
 
                 cy.wait("@signatureGeneration");
+                cy.wait(1000);
                 cy.wait("@profilePicUpload");
+                cy.wait(1000);
                 cy.wait("@updateUser");
+                cy.wait(1000);
 
                 cy.request("/api/auth").then((res) => {
                     expect(res.body).to.haveOwnProperty("user");
@@ -101,6 +104,70 @@ describe("profile edit page functionality", () => {
                 cy.wait("@deleteProfilePic");
 
                 cy.get("#profilePic").should("not.exist");
+            });
+        });
+    });
+
+    it("should update username and email.", () => {
+        cy.get<User>("@userData").then((credentials: User) => {
+            cy.request("post", "api/user/login", {
+                username: credentials.username,
+                password: credentials.password,
+            }).then((res) => {
+                cy.intercept("/api/user/update").as("updateUser");
+                cy.intercept("get", `api/user/:${credentials.username}`).as("previous_userExist");
+                cy.intercept("get", `api/user/:${credentials.email}`).as("previous_emailExist");
+                cy.intercept("get", "api/user/:newUsername").as("new_userExist");
+                cy.intercept("get", "api/user/:newemail@mail.com").as("new_emailExist");
+
+                expect(res.status).eq(200);
+                expect(res.body).to.haveOwnProperty("msg", "successful");
+
+                cy.visit("/profile/edit");
+                cy.wait(1000);
+
+                //check whether the ui displays the correct information
+                cy.get("#profilePic").should("not.exist");
+                cy.get("#username").should("contain.value", credentials.username);
+                cy.get("#email").should("contain.value", credentials.email);
+
+                cy.get("#updateUserDataCtaContainer")
+                    .find(">button")
+                    .should("exist")
+                    .first()
+                    .contains("cancel", { matchCase: false });
+
+                cy.get("#updateUserDataCtaContainer")
+                    .find(">button")
+                    .should("exist")
+                    .last()
+                    .contains("update", { matchCase: false });
+
+                //update username
+                cy.get("#username").focus().clear().type("newUsername").blur();
+                cy.wait("@new_userExist");
+                cy.get("#updateUserDataCtaContainer").find(">button").last().click();
+                cy.wait("@updateUser");
+                cy.get("#username").should("contain.value", "newUsername");
+
+                //update email
+                cy.get("#email").focus().clear().type("newemail@mail.com").blur();
+                cy.wait("@new_emailExist");
+                cy.get("#updateUserDataCtaContainer").find(">button").last().click();
+                cy.wait("@updateUser");
+                cy.get("#email").should("contain.value", "newemail@mail.com");
+
+                //return username and email to previous credentials
+                cy.get("#username").focus().clear().type(credentials.username).blur();
+                cy.wait("@previous_userExist");
+                cy.get("#email").focus().clear().type(credentials.email).blur();
+                cy.wait("@previous_emailExist");
+                cy.get("#updateUserDataCtaContainer").find(">button").last().click();
+                cy.wait("@updateUser");
+
+                //check if email and username match the ones from the fixture ie they returned to normal
+                cy.get("#username").should("contain.value", credentials.username);
+                cy.get("#email").should("contain.value", credentials.email);
             });
         });
     });
