@@ -4,8 +4,8 @@ import EXPRESS from "express";
 import SESSIONS from "cookie-session";
 import HELMET from "helmet";
 import CORS from "cors";
-import ROUTER from "@src/server/routes/main.routes";
-import { initDriver } from "@src/server/neo4j/neo4j.driver";
+import ROUTER from "@server/routes/main.routes";
+import { initDriver } from "@server/neo4j/neo4j.driver";
 import passport from "passport";
 import "@server/passport/passport";
 

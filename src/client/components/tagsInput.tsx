@@ -1,6 +1,6 @@
 import React from "react";
 import Close from "@components/closeIcon";
-import generateKeys from "@src/lib/utils/generateKeys";
+import generateKeys from "@src/shared/utils/generateKeys";
 
 interface TagsProps {
     tags: [] | string[];

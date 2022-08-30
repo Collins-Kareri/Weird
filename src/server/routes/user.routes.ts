@@ -1,42 +1,24 @@
 import { Router } from "express";
-import { createUser, deleteUser, findUser, updateUser } from "@src/server/handlers/user.handlers";
+import { createUser, deleteUser, findUser, updateUser } from "@server/handlers/user.handlers";
 import passport from "passport";
 import parseParam from "@serverUtils/parseParam";
 
 const router = Router();
 
-router.get("/:id", async (req, res) => {
+router.get("/:username", async (req, res) => {
     // id sample :/
-    const { id } = req.params;
-    const formattedId = parseParam(id);
-    // const idRegex = /^[0-9A-F-]+$/i;
-    const usernameRegex = /^[0-9a-z._]+$/i;
-    const emailRegex = /^\S+@\S+\.\S+$/;
+    const { username } = req.params;
+    const formattedId = parseParam(username);
 
-    /*
-    find by id
-     if (idRegex.test(formattedId)) {
-         const findRes = await find(formattedId, "id");
-         res.json(findRes);
-         return;
-     }
-    */
+    const findRes = await findUser(formattedId);
 
-    //find by user
-    if (usernameRegex.test(formattedId)) {
-        const findRes = await findUser(formattedId, "name");
-        res.json(findRes);
+    if (findRes.msg === "can't find user") {
+        res.status(500).json(findRes);
         return;
     }
 
-    //find by email
-    if (emailRegex.test(formattedId)) {
-        const findRes = await findUser(formattedId, "email");
-        res.json(findRes);
-        return;
-    }
-
-    res.status(404).json({ error: "route not valid" });
+    res.json(findRes);
+    return;
 });
 
 router.post("/create", createUser);
@@ -57,8 +39,6 @@ router.post("/login", function (req, res, next) {
             }
             return;
         }
-
-        req.user;
 
         return req.login(user, (loginErr) => {
             if (loginErr) {

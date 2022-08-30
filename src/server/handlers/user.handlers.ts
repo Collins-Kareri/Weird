@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { getDriver } from "@src/server/neo4j/neo4j.driver";
+import { getDriver } from "@server/neo4j/neo4j.driver";
 import { genSaltSync, hashSync, compareSync } from "bcryptjs";
 import { Neo4jError } from "neo4j-driver";
 import { writeService, readService } from "@server/neo4j/neo4j.transactions";
@@ -86,15 +86,19 @@ export async function loginUser(username: string, unhashedPassword: string) {
     const query = `
         MATCH (usr:User { name:$username })
         RETURN { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
-            public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user
+            public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user , SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (usr)-[:CURATED]->(:Collection) ) as noOfCollections
         `;
 
     const queryRes = await readService<UsernameObj>(session, query, { username });
 
     if (queryRes.records.length > 0 && queryRes.records[0].length > 0) {
         const { password, ...safeProps } = queryRes.records[0].get("user");
+        const noOfUploadedImages = queryRes.records[0].get("noOfUploadedImages").toNumber();
+        const noOfCollections = queryRes.records[0].get("noOfCollections").toNumber();
 
-        return compareSync(unhashedPassword, password) ? safeProps : "password not valid";
+        return compareSync(unhashedPassword, password)
+            ? { noOfUploadedImages, noOfCollections, safeProps }
+            : "password not valid";
     } else {
         return "username doesn't exist";
     }
@@ -149,20 +153,23 @@ export async function deleteUser(req: Request, res: Response) {
     }
 }
 
-export async function findUser(identifier: string, identifierType: string) {
+export async function findUser(username: string) {
     try {
         const query = `
-        MATCH (usr:User {${identifierType}:$identifier})
-        RETURN { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
-            public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user`;
+        MATCH (usr:User { name: $username })
+        RETURN { id: usr.id, username: usr.name, email: usr.email, url: usr.profilePicUrl } as user, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (usr)-[:CURATED]->(:Collection) ) as noOfCollections`;
 
         const driver = getDriver();
         const session = driver.session();
 
-        const queryRes = await readService(session, query, { identifier });
+        const queryRes = await readService(session, query, { username });
 
         if (queryRes.records.length > 0 && queryRes.records[0].length > 0) {
-            return { msg: "found" };
+            const noOfUploadedImages = queryRes.records[0].get("noOfUploadedImages").toNumber();
+            const noOfCollections = queryRes.records[0].get("noOfCollections").toNumber();
+            const { url, ...other } = queryRes.records[0].get("user");
+
+            return { msg: "found", user: { profilePic: { url }, ...other, noOfCollections, noOfUploadedImages } };
         }
 
         return { msg: "not found" };

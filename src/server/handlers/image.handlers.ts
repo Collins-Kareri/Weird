@@ -1,5 +1,6 @@
-import { writeService } from "@server/neo4j/neo4j.transactions";
-import { getDriver } from "@src/server/neo4j/neo4j.driver";
+import { writeService, readService } from "@server/neo4j/neo4j.transactions";
+import { getDriver } from "@server/neo4j/neo4j.driver";
+import { toNativeTypes } from "@serverUtils/neo4j.utils";
 import { Request, Response } from "express";
 
 /**
@@ -24,12 +25,13 @@ export async function publish(req: Request, res: Response) {
     MERGE (img)<-[rel:UPLOADED]-(usr)
     RETURN img as image,rel`;
 
-    if (!req.isAuthenticated() && !req.session?.isPopulated) {
-        res.status(401).json({ msg: "login first" });
-        return;
-    }
+    // if (!req.isAuthenticated() && !req.session?.isPopulated) {
+    //     res.status(401).json({ msg: "login first" });
+    //     return;
+    // }
 
-    const { username } = req.user as User;
+    // const { username } = req.user as User;
+    const username = "johnDoe";
     const { public_id, asset_id, url, secure_url } = req.body;
 
     if (username.length <= 0 || (url && url.length <= 0)) {
@@ -100,5 +102,30 @@ export async function deleteProfileImage(id: string): Promise<UserSafeProps | un
         return;
     } catch (error) {
         return;
+    }
+}
+
+export async function getUsersImages(username: string, skip: number, limit = 6) {
+    const driver = getDriver();
+    const session = driver.session();
+
+    const query = `MATCH ( usr:User { name:$username } )-[:UPLOADED]->( img:Image )
+    RETURN { url: img.secure_url, public_id: img.public_id } as image ORDER BY img.createdAt DESC SKIP $skip LIMIT $limit`;
+
+    try {
+        const readRes = await readService<{ username: string; skip: number; limit: number }>(session, query, {
+            username,
+            skip: skip + 1,
+            limit,
+        });
+
+        if (readRes.records && readRes.records[0].length > 0) {
+            return { msg: "found", images: readRes.records.map((record) => toNativeTypes(record.get("image"))) };
+        }
+
+        return { msg: "no images found" };
+    } catch (error) {
+        console.log(error);
+        return { msg: "can't read images" };
     }
 }

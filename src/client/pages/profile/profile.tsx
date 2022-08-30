@@ -3,7 +3,7 @@ import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import CollectionsModal from "@components/collectionsModal";
 import Button from "@components/button";
 import Logo from "@assets/logo.svg";
-import ProfilePic from "@src/client/pages/profile/profilePic";
+import ProfilePic from "@pages/profile/profilePic";
 import { useUser } from "@context/user.context";
 
 interface PlaceHolderContentPropTypes {
@@ -110,6 +110,7 @@ function Tabs({ setActiveTab, activeTab, noOfImages, noOfCollections }: TabsProp
 }
 
 function Profile() {
+    //todo fetch profile images and collections
     const [activeTab, setActiveTab] = useState("images");
     const [collectionsModalStatus, setCollectionsModalStatus] = useState("closed");
     const { currentUser } = useUser();

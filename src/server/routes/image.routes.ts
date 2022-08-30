@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { publish, deleteImgNode, deleteProfileImage } from "@server/handlers/image.handlers";
+import { publish, deleteImgNode, deleteProfileImage, getUsersImages } from "@server/handlers/image.handlers";
 import { deleteAsset, generateSignature } from "@server/cloudinary";
 import parseParam from "@serverUtils/parseParam";
 
@@ -23,6 +23,30 @@ router.get("/signature/:upload_preset", (req, res) => {
     }
 
     res.status(401).json({ msg: "unauthenticated" });
+});
+
+router.get("/:username", async (req, res) => {
+    //get images uploaded by user
+    const { username } = req.params;
+    const { skip, limit } = req.query;
+    if ((skip && limit) || skip) {
+        const limitVal = typeof limit === "undefined" ? undefined : parseInt(limit as string, 10);
+
+        const images = await getUsersImages(parseParam(username), parseInt(skip as string, 10), limitVal);
+
+        if (images.msg.includes("no")) {
+            res.json({ ...images });
+        } else if (images.msg.includes("can't")) {
+            res.status(500).json({ ...images });
+        } else {
+            res.json({ ...images });
+        }
+
+        return;
+    }
+
+    res.status(400).json({ msg: "invalid request" });
+    return;
 });
 
 router.post("/publish", publish);

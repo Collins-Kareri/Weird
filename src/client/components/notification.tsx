@@ -1,7 +1,7 @@
 import React from "react";
-import Close from "@src/client/components/closeIcon";
+import Close from "@components/closeIcon";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
-import generateKey from "@src/lib/utils/generateKeys";
+import generateKey from "@src/shared/utils/generateKeys";
 import { useNotification } from "@context/notifications.context";
 
 export type NotificationDescription = {

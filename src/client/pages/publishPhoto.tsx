@@ -8,7 +8,7 @@ import Spinner from "@components/spinner";
 import Close from "@components/closeIcon";
 import TagsInput from "@components/tagsInput";
 import TextArea from "@components/textArea";
-import Popover from "@src/client/components/popover";
+import Popover from "@components/popover";
 
 interface PageBodyProps {
     currentImg: ImgObj | undefined;
