@@ -2,7 +2,7 @@ import passport from "passport";
 import { Strategy } from "passport-local";
 import { loginUser } from "@server/handlers/user.handlers";
 
-function parseUser(user: UserSafeProps) {
+export function parseUser(user: UserSafeProps) {
     const { public_id, url, ...others } = user;
 
     let parsedUser;

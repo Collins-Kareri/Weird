@@ -180,7 +180,12 @@ function Profile() {
             {collectionsModalStatus === "open" && <CreateCollection closeCollectionModal={closeCollectionModal} />}
 
             {/**collection grid container */}
-            {activeTab === "collections" && <Collections username={currentUser?.username} />}
+            {activeTab === "collections" && (
+                <Collections
+                    username={currentUser?.username}
+                    noOfCollections={currentUser ? currentUser.noOfCollections : 0}
+                />
+            )}
 
             {/**Image container */}
             {/* <div className="tw-container tw-mx-auto tw-p-4 tw-mb-10 tw-columns-1 md:tw-columns-2 lg:tw-columns-3 2xl:tw-columns-4 tw-gap-x-4 tw-w-full">

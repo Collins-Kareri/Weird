@@ -3,6 +3,7 @@ import { getDriver } from "@server/neo4j/neo4j.driver";
 import { Request, Response } from "express";
 import parseParam from "@serverUtils/parseParam";
 import { toNativeTypes } from "@serverUtils/neo4j.utils";
+import { parseUser } from "@server/passport/passport";
 
 /**
  * Creates a collection.
@@ -86,8 +87,52 @@ export async function getCollections(req: Request, res: Response) {
         });
         return;
     } catch (error) {
-        console.log(error);
         res.status(500).json({ msg: "error occured finding collection" });
+        return;
+    }
+}
+/**
+ * Delete collection
+ * @param  {Request} req
+ * @param  {Response} res
+ */
+export async function deleteCollection(req: Request, res: Response) {
+    const { collectionName } = req.params;
+    const { username } = req.user as UserSafeProps;
+    const driver = getDriver();
+    const session = driver.session();
+
+    const query = `MATCH (usr:User { name: $username })-[:CURATED]->(col:Collection {name: $collectionName })
+    CALL {
+        WITH col
+        DETACH DELETE col
+    }
+    RETURN { id: usr.id, username: usr.name, email: usr.email , 
+        public_id: usr.profilePicPublicId, url: usr.profilePicUrl, noOfUploadedImages:  SIZE((usr)-[:UPLOADED]->(:Image)), noOfCollections: SIZE( (usr)-[:CURATED]->(:Collection) )  } as user
+  `;
+
+    try {
+        const queryRes = await writeService(session, query, { username, collectionName: parseParam(collectionName) });
+
+        const { counters } = queryRes.summary;
+        const user = queryRes.records.map((record) => toNativeTypes(record.get("user")));
+
+        if (counters.containsUpdates() && counters.updates().nodesDeleted === 1) {
+            return req.login(user[0], (err) => {
+                if (err) {
+                    res.status(401).json({ msg: "ok" });
+                    return;
+                }
+
+                res.json({ msg: "ok", user: parseUser(user[0] as unknown as UserSafeProps) });
+                return;
+            });
+        } else {
+            res.json({ msg: "not found" });
+            return;
+        }
+    } catch (error) {
+        res.status(500).json({ msg: "error occured deleting collection" });
         return;
     }
 }

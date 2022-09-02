@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createCollection, getCollections } from "@server/handlers/collection.handlers";
+import { createCollection, getCollections, deleteCollection } from "@server/handlers/collection.handlers";
 import requireAuth from "@server/middleware/requireAuth";
 
 const router = Router();
@@ -17,8 +17,6 @@ router.post("/", requireAuth, createCollection);
 //     //todo delete image from collection.
 // });
 
-// router.delete("/:collectionName", (req, res) => {
-//     //todo delete a collection.
-// });
+router.delete("/:collectionName", requireAuth, deleteCollection);
 
 export default router;

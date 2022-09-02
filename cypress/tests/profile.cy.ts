@@ -170,7 +170,46 @@ describe("profile page", () => {
 
     // it("should take you to recent and trending images page on browse images click.", () => {});
 
-    // it("should delete a collection.", () => {});
+    it("should delete a collection.", () => {
+        cy.get<User>("@userData").then((credentials: User) => {
+            //login first
+            cy.request("post", "api/user/login", {
+                username: credentials.username,
+                password: credentials.password,
+            }).then((res) => {
+                expect(res.status).eq(200);
+                expect(res.body).to.haveOwnProperty("msg", "successful");
+
+                cy.intercept("/api/collection/:arts").as("deleteCollection");
+                cy.intercept(`/api/collection/:${credentials.username}`).as("fetchCollections");
+
+                cy.visit("/profile");
+                cy.get("#collectionTab").click();
+                cy.wait("@fetchCollections");
+
+                cy.get("div[data-within=collection]").should("exist");
+                cy.get("div[data-within=collection]").should("have.length", 1);
+
+                cy.get("div[data-within=collection]").first().find(">p").first().should("contain.text", "Arts");
+                cy.get("div[data-within=collection]").first().find(">p").last().should("contain.text", "0 items");
+
+                cy.get("div[data-within=collection]").first().find(">button").first().should("contain.text", "Edit");
+                cy.get("div[data-within=collection]")
+                    .first()
+                    .find(">button")
+                    .last()
+                    .should("contain.text", "Delete")
+                    .click();
+
+                cy.wait("@deleteCollection").then((interceptionRes) => {
+                    const { response } = interceptionRes;
+                    expect(response?.statusCode).to.eq(200);
+                    expect(response?.body).to.haveOwnProperty("user");
+                    expect(response?.body).to.haveOwnProperty("msg", "ok");
+                });
+            });
+        });
+    });
 
     // //test image logic
 
