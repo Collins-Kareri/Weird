@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import CollectionsModal from "@components/collectionsModal";
+import Collections from "@components/collections";
+import CreateCollection from "@src/client/components/createCollection";
 import Button from "@components/button";
 import Logo from "@assets/logo.svg";
 import ProfilePic from "@pages/profile/profilePic";
@@ -9,6 +10,8 @@ import { useUser } from "@context/user.context";
 interface PlaceHolderContentPropTypes {
     active: string;
     setCollectionsModalStatus: React.Dispatch<React.SetStateAction<string>>;
+    noOfCollections?: number;
+    noOfImages?: number;
 }
 
 interface PlaceholderContentToShow {
@@ -23,7 +26,12 @@ interface TabsPropTypes {
     noOfCollections: number;
 }
 
-function PlaceHolderContent({ active, setCollectionsModalStatus }: PlaceHolderContentPropTypes) {
+function PlaceHolderContent({
+    active,
+    setCollectionsModalStatus,
+    noOfCollections,
+    noOfImages,
+}: PlaceHolderContentPropTypes) {
     const placeholderContent: PlaceholderContentToShow = {
         images: {
             msg: "Publish an image. Join the community.",
@@ -34,6 +42,13 @@ function PlaceHolderContent({ active, setCollectionsModalStatus }: PlaceHolderCo
             callToAction: "create",
         },
     };
+
+    if (
+        (noOfCollections && noOfCollections > 0 && active === "collections") ||
+        (noOfImages && noOfImages > 0 && active === "images")
+    ) {
+        return <></>;
+    }
 
     const redirect = useNavigate();
 
@@ -146,31 +161,26 @@ function Profile() {
             </div>
 
             {/**tabs */}
-            <Tabs setActiveTab={setActiveTab} activeTab={activeTab} noOfImages={0} noOfCollections={0} />
+            <Tabs
+                setActiveTab={setActiveTab}
+                activeTab={activeTab}
+                noOfImages={currentUser ? currentUser.noOfUploadedImages : 0}
+                noOfCollections={currentUser ? currentUser.noOfCollections : 0}
+            />
 
             {/**placeholder */}
-            <PlaceHolderContent active={activeTab} setCollectionsModalStatus={setCollectionsModalStatus} />
+            <PlaceHolderContent
+                active={activeTab}
+                setCollectionsModalStatus={setCollectionsModalStatus}
+                noOfCollections={currentUser?.noOfCollections}
+                noOfImages={currentUser?.noOfUploadedImages}
+            />
 
             {/**create collection */}
-            {collectionsModalStatus === "open" && <CollectionsModal closeCollectionModal={closeCollectionModal} />}
-
-            <Outlet />
+            {collectionsModalStatus === "open" && <CreateCollection closeCollectionModal={closeCollectionModal} />}
 
             {/**collection grid container */}
-            {/* <div className="tw-container tw-mx-auto tw-p-4 tw-grid tw-grid-flow-row tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 xl:tw-grid-4 2xl:tw-grid-5 tw-place-content-center tw-place-items-center">
-                <section className="tw-inline-block tw-bg-neutral-100 tw-w-80 tw-mx-2 tw-h-80 tw-rounded-md tw-px-4 tw-py-2 tw-mb-10 tw-ring-1 tw-ring-neutral-800 ">
-                    <Button priority={"secondary"} value={"edit"} />
-                    <Button priority={"tertiary"} value={"delete"} />
-                    <div className="tw-relative tw-bg-neutral-100 tw-my-4 tw-h-44 tw-rounded-md tw-shadow-inner tw-shadow-neutral-800">
-                        <img
-                            src={randomImage}
-                            alt="random image from fakerjs"
-                            className="tw-relative tw-cursor-pointer tw-w-full tw-h-full tw-object-cover tw-rounded-md tw-shadow-inner tw-shadow-neutral-800"
-                        />
-                    </div>
-                    <p className="tw-cursor-pointer tw-font-semibold">{capitalizeFirstChar("collection name")}</p>
-                </section>
-            </div> */}
+            {activeTab === "collections" && <Collections username={currentUser?.username} />}
 
             {/**Image container */}
             {/* <div className="tw-container tw-mx-auto tw-p-4 tw-mb-10 tw-columns-1 md:tw-columns-2 lg:tw-columns-3 2xl:tw-columns-4 tw-gap-x-4 tw-w-full">

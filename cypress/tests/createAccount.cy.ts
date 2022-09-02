@@ -33,19 +33,19 @@ describe("create a user and authenticate them", () => {
         cy.get<User>("@userData").then((credentials: User) => {
             cy.intercept("get", `api/user/:${credentials.username}`).as("userExist");
 
-            cy.get("input[name='username']").type(credentials.username).blur();
+            cy.get("#username").type(credentials.username).blur();
             cy.wait("@userExist").then(() => {
                 //get the username input and then see if there is an error message
-                cy.get("input[name='username']").parent().find("p").contains("username exists", { matchCase: false });
+                cy.get("#username").parent().find("p").contains("username exists", { matchCase: false });
             });
 
             cy.intercept("get", `api/user/:${credentials.email}`).as("emailExist");
 
-            cy.get("input[name='email']").type(credentials.email).blur();
+            cy.get("#email").focus().type(credentials.email).blur();
 
             cy.wait("@emailExist").then(() => {
                 //get the email input and then see if there is an error message
-                cy.get("input[name='email']").parent().find("p").contains("email exists", { matchCase: false });
+                cy.get("#email").parent().find("p").contains("email exists", { matchCase: false });
             });
         });
     });

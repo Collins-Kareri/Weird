@@ -22,7 +22,7 @@
         "node",
         "react",
         "react-dom",
-        "./src/lib/types/"
+        "./src/shared/types/"
       ],
       "paths": {
         "@src/*":["./src/*"],

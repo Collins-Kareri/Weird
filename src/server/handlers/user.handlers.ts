@@ -97,7 +97,7 @@ export async function loginUser(username: string, unhashedPassword: string) {
         const noOfCollections = queryRes.records[0].get("noOfCollections").toNumber();
 
         return compareSync(unhashedPassword, password)
-            ? { noOfUploadedImages, noOfCollections, safeProps }
+            ? { noOfUploadedImages, noOfCollections, ...safeProps }
             : "password not valid";
     } else {
         return "username doesn't exist";
@@ -106,11 +106,6 @@ export async function loginUser(username: string, unhashedPassword: string) {
 
 export async function deleteUser(req: Request, res: Response) {
     const { username } = req.params;
-
-    // if ((!req.isAuthenticated() && !req.session?.isPopulated) || (req.user as UserSafeProps).username !== username) {
-    //     res.status(401).json({ msg: "unauthenticated" });
-    //     return;
-    // }
 
     const public_id = undefined;
     const driver = getDriver();
@@ -153,16 +148,22 @@ export async function deleteUser(req: Request, res: Response) {
     }
 }
 
-export async function findUser(username: string) {
-    try {
-        const query = `
-        MATCH (usr:User { name: $username })
-        RETURN { id: usr.id, username: usr.name, email: usr.email, url: usr.profilePicUrl } as user, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (usr)-[:CURATED]->(:Collection) ) as noOfCollections`;
+export async function findUser(id: string) {
+    const emailRegex = /^\S+@\S+\.\S+$/g;
 
+    let query = `MATCH (usr:User { name: $id })
+    RETURN { id: usr.id, username: usr.name, email: usr.email, url: usr.profilePicUrl } as user, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (usr)-[:CURATED]->(:Collection) ) as noOfCollections`;
+
+    if (emailRegex.test(id)) {
+        query = `MATCH (usr:User { email: $id })
+        RETURN { id: usr.id, username: usr.name, email: usr.email, url: usr.profilePicUrl } as user, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (usr)-[:CURATED]->(:Collection) ) as noOfCollections`;
+    }
+
+    try {
         const driver = getDriver();
         const session = driver.session();
 
-        const queryRes = await readService(session, query, { username });
+        const queryRes = await readService(session, query, { id });
 
         if (queryRes.records.length > 0 && queryRes.records[0].length > 0) {
             const noOfUploadedImages = queryRes.records[0].get("noOfUploadedImages").toNumber();

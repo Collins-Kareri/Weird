@@ -8,6 +8,8 @@ export interface AuthenticatedUserSafeProps {
         url: string;
         public_id: string;
     };
+    noOfUploadedImages: number;
+    noOfCollections: number;
 }
 
 interface UserContext {

@@ -4,6 +4,7 @@ import ImageInput, { ImgObj } from "@components/imageInput";
 import Button from "@components/button";
 import AddIcon from "@components/addIcon";
 import { useNotification } from "@context/notifications.context";
+import { useUser } from "@context/user.context";
 import Spinner from "@components/spinner";
 import Close from "@components/closeIcon";
 import TagsInput from "@components/tagsInput";
@@ -143,6 +144,7 @@ function Publish() {
     const [imgData, setImgData] = useState<ImgObj | undefined>(undefined);
     const [tags, setTags] = useState<[] | string[]>([]);
     const [uploadFeedback, setUploadFeedback] = useState("");
+    const { setUser } = useUser();
 
     function cancel(): void {
         if (location.state) {
@@ -247,6 +249,7 @@ function Publish() {
                     case "published":
                         //todo popover message redirect to user
                         setUploadFeedback("success");
+                        setUser(dbRes.user);
                         return;
                     default:
                         //todo delete the image from cloudinary using the public_id

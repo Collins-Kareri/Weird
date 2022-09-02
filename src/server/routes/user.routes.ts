@@ -2,15 +2,15 @@ import { Router } from "express";
 import { createUser, deleteUser, findUser, updateUser } from "@server/handlers/user.handlers";
 import passport from "passport";
 import parseParam from "@serverUtils/parseParam";
+import requireAuth from "@server/middleware/requireAuth";
 
 const router = Router();
 
-router.get("/:username", async (req, res) => {
+router.get("/:id", async (req, res) => {
     // id sample :/
-    const { username } = req.params;
-    const formattedId = parseParam(username);
+    const { id } = req.params;
 
-    const findRes = await findUser(formattedId);
+    const findRes = await findUser(parseParam(id));
 
     if (findRes.msg === "can't find user") {
         res.status(500).json(findRes);
@@ -52,33 +52,29 @@ router.post("/login", function (req, res, next) {
     })(req, res, next);
 });
 
-router.put("/update", async (req, res) => {
+router.put("/update", requireAuth, async (req, res) => {
     const newUserData = req.body;
 
-    if (req.isAuthenticated() && req.session?.isPopulated) {
-        const { id } = req.user as UserSafeProps;
+    const { id } = req.user as UserSafeProps;
 
-        const updatedUserData = await updateUser(newUserData, id);
+    const updatedUserData = await updateUser(newUserData, id);
 
-        if (typeof updatedUserData === "undefined") {
-            res.status(500).json({ msg: "failed" });
-            return;
-        }
-
-        req.login(updatedUserData, (loginErr) => {
-            if (loginErr) {
-                res.status(401).json({ msg: "authentication failed", error: (loginErr as Error).name });
-                return;
-            }
-
-            res.json({ msg: "successful", user: updatedUserData });
-            return;
-        });
-
+    if (typeof updatedUserData === "undefined") {
+        res.status(500).json({ msg: "failed" });
         return;
     }
 
-    res.status(401).json({ msg: "unauthenticated" });
+    req.login(updatedUserData, (loginErr) => {
+        if (loginErr) {
+            res.status(401).json({ msg: "authentication failed", error: (loginErr as Error).name });
+            return;
+        }
+
+        res.json({ msg: "successful", user: updatedUserData });
+        return;
+    });
+
+    return;
 });
 
 router.delete("/:username", deleteUser);

@@ -11,6 +11,8 @@ declare global {
         id: string;
         public_id?: string;
         url?: string;
+        noOfUploadedImages: number;
+        noOfCollections: number;
     }
 
     interface IconProps {

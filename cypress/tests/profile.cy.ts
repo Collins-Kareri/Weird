@@ -108,32 +108,81 @@ describe("profile page", () => {
         });
     });
 
-    //test image logic
-
-    it("displays user images.", () => {});
-
-    // it("should display image modal on image click.", () => {});
-
-    it("should display edit image modal on image edit button click.", () => {});
-
-    it("should edit tags of a specific image.", () => {});
-
-    it("should delete selected image.", () => {});
-
     //test collection logic
-    it("should create a collection", () => {});
+    it("should create a collection", () => {
+        cy.get<User>("@userData").then((credentials: User) => {
+            //login first
+            cy.request("post", "api/user/login", {
+                username: credentials.username,
+                password: credentials.password,
+            }).then((res) => {
+                expect(res.status).eq(200);
+                expect(res.body).to.haveOwnProperty("msg", "successful");
+                cy.intercept("/api/collection/").as("createCollection");
+                cy.intercept(`/api/collection/:${credentials.username}`).as("fetchCollections");
 
-    it("should display collections.", () => {});
+                cy.visit("/profile");
+                cy.get("#collectionTab").click();
+                cy.wait("@fetchCollections");
 
-    it("should display edit collection page on collection edit button click.", () => {});
+                cy.get("#placeholderContent")
+                    .should("exist")
+                    .find("span")
+                    .contains("Start curating images. Start a collection.", { matchCase: false });
 
-    it("should delete image in collection.", () => {});
+                cy.get("#placeholderContent")
+                    .should("exist")
+                    .find("button")
+                    .contains("create", { matchCase: false })
+                    .click();
 
-    it("should allow editing of collection name and description.", () => {});
+                cy.get("#collection").type("arts");
+                cy.get("#description").type("artworks etc...");
+                cy.get("button[type=submit]").should("exist").click();
 
-    it("should take you to recent and trending images page on browse images click.", () => {});
+                cy.intercept(`/api/collection/:${credentials.username}`).as("fetchCollections");
 
-    it("should delete a collection.", () => {});
+                cy.wait("@createCollection").then((res) => {
+                    expect(res.response?.statusCode).to.eq(201);
+                    cy.wait(1000);
+
+                    cy.get("#imageTab").click();
+                    cy.get("#collectionTab").click();
+
+                    cy.wait("@fetchCollections");
+
+                    cy.get("div[data-within=collection]").should("exist");
+                    cy.get("div[data-within=collection]").should("have.length", 1);
+                    cy.get("div[data-within=collection]").first().find(">p").first().should("contain.text", "Arts");
+                    cy.get("div[data-within=collection]").first().find(">p").last().should("contain.text", "0 items");
+                });
+            });
+        });
+    });
+
+    // it("should display collections.", () => {});
+
+    // it("should display edit collection page on collection edit button click.", () => {});
+
+    // it("should delete image in collection.", () => {});
+
+    // it("should allow editing of collection name and description.", () => {});
+
+    // it("should take you to recent and trending images page on browse images click.", () => {});
+
+    // it("should delete a collection.", () => {});
+
+    // //test image logic
+
+    // it("displays user images.", () => {});
+
+    // // it("should display image modal on image click.", () => {});
+
+    // it("should display edit image modal on image edit button click.", () => {});
+
+    // it("should edit tags of a specific image.", () => {});
+
+    // it("should delete selected image.", () => {});
 
     after(() => {
         cy.fixture("user.json").as("userData");

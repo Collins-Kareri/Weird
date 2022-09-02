@@ -1,16 +1,15 @@
 import { isInt, isDate, isDateTime, isTime, isLocalDateTime, isLocalTime, isDuration, int } from "neo4j-driver";
 
-// tag::toNativeTypes[]
 /**
  * Convert Neo4j Properties back into JavaScript types
  *
- * @param {Record<string, any>} properties
- * @return {Record<string, any>}
+ * @param {Record<string, unknown>} myValue
+ * @return {Record<string, unknown>}
  */
-export function toNativeTypes(properties: Record<string, unknown>) {
+export function toNativeTypes(myValue: Record<string, unknown>): Record<string, unknown> {
     return Object.fromEntries(
-        Object.keys(properties).map((key) => {
-            const value = valueToNativeType(properties[key]);
+        Object.keys(myValue).map((key) => {
+            const value = valueToNativeType(myValue[key]);
 
             return [key, value];
         })
@@ -20,10 +19,10 @@ export function toNativeTypes(properties: Record<string, unknown>) {
 /**
  * Convert an individual value to its JavaScript equivalent
  *
- * @param {any} value
- * @returns {any}
+ * @param {unknown} value
+ * @returns {unknown}
  */
-function valueToNativeType(value: unknown) {
+function valueToNativeType(value: unknown): unknown {
     if (Array.isArray(value)) {
         value = value.map((innerValue) => valueToNativeType(innerValue));
     } else if (isInt(value)) {
@@ -44,14 +43,19 @@ function valueToNativeType(value: unknown) {
     return value;
 }
 
-export function neo4jTypes(values: unknown) {
+/**
+ * Takes an object and changes conflicting js types to native neo4j types, as neo4j uses java and some of the js types differ.
+ * @param  { unknown} values
+ * @return {unknown}
+ */
+export function neo4jTypes(values: unknown): unknown {
     const toChange = values;
 
-    Object.keys(toChange as string).forEach((key) => {
-        const value = (toChange as Record<string, unknown>)[key as keyof Record<string, unknown>];
+    Object.keys(toChange as Record<string, unknown>).forEach((key) => {
+        const value = (toChange as Record<string, unknown>)[key];
 
         if (typeof value === "number") {
-            (toChange as Record<string, unknown>)[key as keyof Record<string, unknown>] = int(value);
+            (toChange as Record<string, unknown>)[key] = int(value);
         }
     });
     return toChange;

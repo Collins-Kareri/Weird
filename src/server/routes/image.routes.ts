@@ -1,28 +1,25 @@
 import { Router } from "express";
 import { publish, deleteImgNode, deleteProfileImage, getUsersImages } from "@server/handlers/image.handlers";
 import { deleteAsset, generateSignature } from "@server/cloudinary";
+import requireAuth from "@server/middleware/requireAuth";
 import parseParam from "@serverUtils/parseParam";
 
 const router = Router();
 
-router.get("/signature/:upload_preset", (req, res) => {
+router.get("/signature/:upload_preset", requireAuth, (req, res) => {
     const { upload_preset } = req.params;
 
-    if (req.isAuthenticated() && req.session?.isPopulated) {
-        const { public_id } = req.user as UserSafeProps;
-        const signature = generateSignature(parseParam(upload_preset), { public_id });
+    const { public_id } = req.user as UserSafeProps;
+    const signature = generateSignature(parseParam(upload_preset), { public_id });
 
-        if (typeof signature === "string") {
-            res.json({ msg: signature });
-            return;
-        }
-
-        res.json({ msg: "ok", ...signature });
-
+    if (typeof signature === "string") {
+        res.json({ msg: signature });
         return;
     }
 
-    res.status(401).json({ msg: "unauthenticated" });
+    res.json({ msg: "ok", ...signature });
+
+    return;
 });
 
 router.get("/:username", async (req, res) => {
@@ -49,29 +46,27 @@ router.get("/:username", async (req, res) => {
     return;
 });
 
-router.post("/publish", publish);
+router.post("/publish", requireAuth, publish);
 
-router.post("/signature/:upload_preset", (req, res) => {
+router.post("/signature/:upload_preset", requireAuth, (req, res) => {
     const { upload_preset } = req.params;
     const extraParams = req.body;
 
-    if (req.isAuthenticated() && req.session?.isPopulated) {
-        const { public_id } = req.user as UserSafeProps;
+    const { public_id } = req.user as UserSafeProps;
 
-        const signature = generateSignature(parseParam(upload_preset), { public_id, ...extraParams });
+    const signature = generateSignature(parseParam(upload_preset), { public_id, ...extraParams });
 
-        if (typeof signature === "string") {
-            res.json({ msg: signature });
-            return;
-        }
-
-        res.json({ msg: "ok", ...signature });
-
+    if (typeof signature === "string") {
+        res.json({ msg: signature });
         return;
     }
+
+    res.json({ msg: "ok", ...signature });
+
+    return;
 });
 
-router.delete("/:public_id", async (req, res) => {
+router.delete("/:public_id", requireAuth, async (req, res) => {
     const { public_id } = req.params;
 
     const parsedId = parseParam(public_id).replace(/_/g, "/");
@@ -85,34 +80,30 @@ router.delete("/:public_id", async (req, res) => {
         });
 });
 
-router.delete("/profileImage/delete", async (req, res) => {
-    if (req.isAuthenticated() && req.session?.isPopulated) {
-        const { id, public_id } = req.user as UserSafeProps;
+router.delete("/profileImage/delete", requireAuth, async (req, res) => {
+    const { id, public_id } = req.user as UserSafeProps;
 
-        const deleteRes: [UserSafeProps | undefined, string] = await Promise.all([
-            deleteProfileImage(id),
-            deleteAsset(public_id),
-        ]);
+    const deleteRes: [UserSafeProps | undefined, string] = await Promise.all([
+        deleteProfileImage(id),
+        deleteAsset(public_id),
+    ]);
 
-        if (typeof deleteRes[0] === "undefined" || deleteRes[1] === "failed") {
-            res.status(500).json({ msg: "fail" });
-        } else {
-            req.login(deleteRes[0], (loginErr) => {
-                if (loginErr) {
-                    res.status(401).json({ msg: "authentication failed", error: (loginErr as Error).name });
-                    return;
-                }
-
-                res.json({ msg: "ok", user: deleteRes[0] });
+    if (typeof deleteRes[0] === "undefined" || deleteRes[1] === "failed") {
+        res.status(500).json({ msg: "fail" });
+    } else {
+        req.login(deleteRes[0], (loginErr) => {
+            if (loginErr) {
+                res.status(401).json({ msg: "authentication failed", error: (loginErr as Error).name });
                 return;
-            });
-            return;
-        }
+            }
 
+            res.json({ msg: "ok", user: deleteRes[0] });
+            return;
+        });
         return;
     }
 
-    res.status(401).json({ msg: "unauthenticated." });
+    return;
 });
 
 export default router;

@@ -23,15 +23,9 @@ export async function publish(req: Request, res: Response) {
             createdAt:dateTime()
         })
     MERGE (img)<-[rel:UPLOADED]-(usr)
-    RETURN img as image,rel`;
+    RETURN img as image, rel, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (usr)-[:CURATED]->(:Collection) ) as noOfCollections, {id: usr.id, username: usr.name, email: usr.email, public_id: usr.profilePicPublicId, url: usr.profilePicUrl} as user`;
 
-    // if (!req.isAuthenticated() && !req.session?.isPopulated) {
-    //     res.status(401).json({ msg: "login first" });
-    //     return;
-    // }
-
-    // const { username } = req.user as User;
-    const username = "johnDoe";
+    const { username } = req.user as User;
     const { public_id, asset_id, url, secure_url } = req.body;
 
     if (username.length <= 0 || (url && url.length <= 0)) {
@@ -43,7 +37,19 @@ export async function publish(req: Request, res: Response) {
         const dbRes = await writeService(session, query, { username, url, secure_url, public_id, asset_id });
 
         if (dbRes.records[0].length > 0) {
-            res.status(201).json({ msg: "published" });
+            const { public_id, url, ...others } = dbRes.records[0].get("user");
+            const noOfUploadedImages = dbRes.records[0].get("noOfUploadedImages").toNumber();
+            const noOfCollections = dbRes.records[0].get("noOfCollections").toNumber();
+
+            let userProps;
+
+            if (public_id && url) {
+                userProps = { profilePic: { public_id, url }, ...others };
+            } else {
+                userProps = others;
+            }
+
+            res.status(201).json({ msg: "published", user: { ...userProps, noOfUploadedImages, noOfCollections } });
             return;
         }
 
