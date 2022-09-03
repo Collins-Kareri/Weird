@@ -91,6 +91,7 @@ export async function getCollections(req: Request, res: Response) {
         return;
     }
 }
+
 /**
  * Delete collection
  * @param  {Request} req

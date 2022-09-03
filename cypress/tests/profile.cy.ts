@@ -211,11 +211,11 @@ describe("profile page", () => {
         });
     });
 
-    // //test image logic
+    //test image logic
 
     // it("displays user images.", () => {});
 
-    // // it("should display image modal on image click.", () => {});
+    // it("should display image modal on image click.", () => {});
 
     // it("should display edit image modal on image edit button click.", () => {});
 
