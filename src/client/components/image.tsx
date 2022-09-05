@@ -28,7 +28,10 @@ function Image({ images }: ImageProps) {
     // }
 
     return (
-        <div className="tw-container tw-mx-auto tw-p-4 tw-mb-10 tw-columns-1 md:tw-columns-2 lg:tw-columns-3 2xl:tw-columns-4 tw-gap-x-4 tw-w-full">
+        <div
+            className="tw-container tw-mx-auto tw-p-4 tw-mb-10 tw-columns-1 md:tw-columns-2 lg:tw-columns-3 2xl:tw-columns-4 tw-gap-x-4 tw-w-full"
+            data-within="images"
+        >
             {images.map(({ url }) => {
                 return <ImageBody url={url} key={generateKey()} />;
             })}

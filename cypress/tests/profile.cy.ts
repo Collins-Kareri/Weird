@@ -160,11 +160,75 @@ describe("profile page", () => {
         });
     });
 
-    // it("should display edit collection page on collection edit button click.", () => {});
+    it("should allow editing of collection.", () => {
+        //todo visit edit collection page.
+        //todo remove image from collection.
+        //todo edit collection details.
+        cy.get<User>("@userData").then((credentials: User) => {
+            //login first
+            cy.request("post", "api/user/login", {
+                username: credentials.username,
+                password: credentials.password,
+            }).then((res) => {
+                cy.intercept(`/api/collection/:${credentials.username}`).as("fetchCollections");
+                expect(res.status).eq(200);
+                expect(res.body).to.haveOwnProperty("msg", "successful");
 
-    // it("should delete image in collection.", () => {});
+                cy.visit("/profile");
+                cy.get("#collectionTab").click();
 
-    // it("should allow editing of collection name and description.", () => {});
+                cy.wait("@fetchCollections");
+
+                //check ui of the page
+                cy.get("div[data-within=collection]")
+                    .first()
+                    .find(">button")
+                    .first()
+                    .should("contain.text", "edit")
+                    .click();
+
+                cy.url().should("include", "/profile/edit/collection");
+
+                cy.get("div[data-within=collectionDetails]").first().find(">span").should("have.length", 3);
+                cy.get("div[data-within=collectionDetails]").first().find(">span").first().should("have.text", "Arts");
+
+                cy.get("div[data-within=collectionDetails]").first().find(">button").should("have.length", 2);
+                cy.get("div[data-within=collectionDetails]")
+                    .first()
+                    .find(">button")
+                    .last()
+                    .should("have.text", "Edit")
+                    .click();
+
+                cy.intercept("updateCollection").as("updateCollection");
+                cy.intercept("removeImage").as("removeImage");
+
+                //Update collection data.
+                cy.get("div[data-within=editCollection]").first().should("exist");
+                cy.get("#collectionName").clear().type("Crafts");
+                cy.get("div[data-within=editCollection]")
+                    .first()
+                    .find(">section")
+                    .first()
+                    .find(">button")
+                    .last()
+                    .should("contain.text", "Update")
+                    .click();
+                cy.wait("@updateCollection");
+                cy.get("div[data-within=collectionDetails]")
+                    .first()
+                    .find(">span")
+                    .first()
+                    .should("have.text", "Crafts");
+
+                //remove Image
+                cy.get("div[data-within=images]").first().find(">section").should("have.length", 3);
+                cy.get("div[data-within=images]").first().find(">section").find("button").first().click();
+                cy.wait("removeImage");
+                cy.get("div[data-within=images]").first().find(">section").should("have.length", 2);
+            });
+        });
+    });
 
     it("should delete a collection.", () => {
         cy.get<User>("@userData").then((credentials: User) => {

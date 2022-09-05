@@ -33,8 +33,6 @@ function EditCollectionModal({
     toggleModalStatus,
     setCollectionDetails,
 }: EditCollectionModalProps) {
-    // const redirect = useNavigate();
-    // const { setUser } = useUser();
     const { addNotification } = useNotification();
 
     function update() {
@@ -73,7 +71,10 @@ function EditCollectionModal({
 
     return (
         <div className="tw-absolute tw-w-full tw-h-full tw-z-30 tw-bg-neutral-700 tw-top-0 tw-bg-opacity-80 tw-flex tw-flex-col tw-items-center tw-justify-center">
-            <div className="tw-relative tw-bg-neutral-50  tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-fit tw-p-4 tw-w-11/12 md:tw-w-2/4 md:tw-mx-auto tw-drop-shadow-xl tw-shadow-neutral-500 tw-rounded-md tw-my-4">
+            <div
+                className="tw-relative tw-bg-neutral-50  tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-fit tw-p-4 tw-w-11/12 md:tw-w-2/4 md:tw-mx-auto tw-drop-shadow-xl tw-shadow-neutral-500 tw-rounded-md tw-my-4"
+                data-within="editCollection"
+            >
                 <CloseIcon
                     backgroundColor={"tw-bg-neutral-50"}
                     shadowColor={"tw-shadow-neutral-50"}
@@ -179,7 +180,10 @@ function PageBody({ collectionName, description, noOfItems }: CollectionInfo) {
                     setCollectionDetails={setCollectionDetails}
                 />
             )}
-            <div className="tw-font-Quicksand tw-flex tw-flex-col tw-w-full tw-items-center tw-mt-10">
+            <div
+                className="tw-font-Quicksand tw-flex tw-flex-col tw-w-full tw-items-center tw-mt-10"
+                data-within="collectionDetails"
+            >
                 <span className="tw-block tw-font-bold tw-text-4xl">{capitalizeFirstChar(collectionName)}</span>
                 {collectionDetails.description && (
                     <span className="tw-text-lg tw-text-center tw-font-medium">

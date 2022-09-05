@@ -30,16 +30,16 @@ router.post("/", requireAuth, createCollection);
 
 router.delete("/:collectionName", requireAuth, parseParams, deleteCollection);
 
-router.delete("/image/:public_id", requireAuth, parseParams, (req, res) => {
-    const { public_id } = req.params;
-    const { collectionName } = req.query;
-    const query = `MATCH (col:Collection { name:$collectionName })-[:CURATED_BY]->(:User { name:$username }) 
-    MATCH (Img:Image { public_id:$public_id })-[rel:PARTOF]->(col)
-    CALL {
-        WITH Img
-        DELETE rel
-    }
-    return { collectionName:col.name, description:col.description, noOfItems:SIZE ( (:Image)-[:PARTOF]->(col) ) }`;
-});
+// router.delete("/image/:public_id", requireAuth, parseParams, (req, res) => {
+//     const { public_id } = req.params;
+//     const { collectionName } = req.query;
+//     const query = `MATCH (col:Collection { name:$collectionName })-[:CURATED_BY]->(:User { name:$username })
+//     MATCH (Img:Image { public_id:$public_id })-[rel:PARTOF]->(col)
+//     CALL {
+//         WITH Img
+//         DELETE rel
+//     }
+//     return { collectionName:col.name, description:col.description, noOfItems:SIZE ( (:Image)-[:PARTOF]->(col) ) }`;
+// });
 
 export default router;
