@@ -23,7 +23,7 @@ export async function publish(req: Request, res: Response) {
             createdAt:dateTime()
         })
     MERGE (img)<-[rel:UPLOADED]-(usr)
-    RETURN img as image, rel, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (usr)-[:CURATED]->(:Collection) ) as noOfCollections, {id: usr.id, username: usr.name, email: usr.email, public_id: usr.profilePicPublicId, url: usr.profilePicUrl} as user`;
+    RETURN img as image, rel, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (:Collection)-[:CURATED_BY]->(usr) ) as noOfCollections, {id: usr.id, username: usr.name, email: usr.email, public_id: usr.profilePicPublicId, url: usr.profilePicUrl} as user`;
 
     const { username } = req.user as User;
     const { public_id, asset_id, url, secure_url } = req.body;
@@ -131,7 +131,6 @@ export async function getUsersImages(username: string, skip: number, limit = 6) 
 
         return { msg: "no images found" };
     } catch (error) {
-        console.log(error);
         return { msg: "can't read images" };
     }
 }

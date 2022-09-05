@@ -7,7 +7,8 @@ import CreateAccount from "@pages/createAccount/createAccount";
 import Login from "@pages/login";
 import Publish from "@pages/publishPhoto";
 import Profile from "@pages/profile/profile";
-import EditProfile from "@pages/profile/edit";
+import EditProfile from "@pages/profile/edit.Profile";
+import EditCollection from "@pages/profile/edit.Collection";
 import { NotificationProvider, NotificationConsumer } from "@context/notifications.context";
 import { UserProvider, UserConsumer } from "./context/user.context";
 import RequireAuth from "./requireAuth";
@@ -39,6 +40,7 @@ function App() {
                                 }
                             >
                                 <Route path="edit" element={<EditProfile />} />
+                                <Route path="edit/collection" element={<EditCollection />} />
                             </Route>
                         </Route>
                     </Routes>

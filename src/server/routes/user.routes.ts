@@ -1,16 +1,16 @@
 import { Router } from "express";
 import { createUser, deleteUser, findUser, updateUser } from "@server/handlers/user.handlers";
 import passport from "passport";
-import parseParam from "@serverUtils/parseParam";
+import parseParam from "@server/middleware/parseParam";
 import requireAuth from "@server/middleware/requireAuth";
 
 const router = Router();
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", parseParam, async (req, res) => {
     // id sample :/
     const { id } = req.params;
 
-    const findRes = await findUser(parseParam(id));
+    const findRes = await findUser(id);
 
     if (findRes.msg === "can't find user") {
         res.status(500).json(findRes);
@@ -77,6 +77,6 @@ router.put("/update", requireAuth, async (req, res) => {
     return;
 });
 
-router.delete("/:username", deleteUser);
+router.delete("/:username", parseParam, deleteUser);
 
 export default router;

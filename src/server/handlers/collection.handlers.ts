@@ -1,7 +1,6 @@
 import { writeService, readService } from "@server/neo4j/neo4j.transactions";
 import { getDriver } from "@server/neo4j/neo4j.driver";
 import { Request, Response } from "express";
-import parseParam from "@serverUtils/parseParam";
 import { toNativeTypes } from "@serverUtils/neo4j.utils";
 import { parseUser } from "@server/passport/passport";
 
@@ -19,10 +18,10 @@ export async function createCollection(req: Request, res: Response) {
     const { collectionName, description } = req.body as { collectionName: string; description: string };
 
     const query = `MATCH (usr:User { name:$username })
-        MERGE (col:Collection { name: $collectionName })<-[rel:CURATED]-(usr)
+        MERGE (col:Collection { name: $collectionName })-[rel:CURATED_BY]->(usr)
         ON CREATE 
           SET col.createdAt = dateTime(), col.description = $description
-        RETURN rel, SIZE( (usr)-[rel]->(col) ) as noOfCollections`;
+        RETURN rel, SIZE( (col)-[rel]->(user) ) as noOfCollections`;
 
     try {
         const dbRes = await writeService(session, query, { username, collectionName, description });
@@ -45,7 +44,6 @@ export async function createCollection(req: Request, res: Response) {
         res.json({ msg: "not created" });
         return;
     } catch (error) {
-        console.log(error);
         res.status(500).json({ msg: "couldn't create collection" });
         return;
     }
@@ -60,23 +58,27 @@ export async function getCollections(req: Request, res: Response) {
     const driver = getDriver();
     const session = driver.session();
 
-    const query = `MATCH (usr:User { name: $username })-[:CURATED]->(col:Collection)
+    const query = `MATCH (col:Collection)-[:CURATED_BY]->(usr:User { name: $username })
     CALL {
         WITH col
-        MATCH (col)--(img:Image)
-        RETURN count(img) as noOfItems
+        OPTIONAL MATCH (col)--(img:Image)
+        OPTIONAL MATCH (col)<-[:PARTOF]-(IMG:Image)
+        RETURN count(img) as noOfItems, IMG as image ORDER BY IMG.createdAt DESC SKIP 0 LIMIT 1 
     }
-    RETURN  {name: col.name,
-     description: col.description, coverImage: col.coverImage, noOfItems: noOfItems} as collection ORDER BY col.createdAt DESC `;
+    RETURN  SIZE( (:Collection)-[:CURATED_BY]->(usr) ) AS noOfCollections, {name: col.name,
+     description: col.description, coverImage: image.secure_url, noOfItems: noOfItems} as collection ORDER BY col.createdAt DESC`;
 
     try {
-        const dbRes = await readService(session, query, { username: parseParam(username) });
+        const dbRes = await readService(session, query, { username });
 
         if (dbRes && dbRes.records[0] && dbRes.records[0].length > 0) {
             const collections = dbRes.records.map((record) => toNativeTypes(record.get("collection")));
+            const noOfCollections = dbRes.records[0].get("noOfCollections").toNumber();
+
             res.json({
                 msg: "ok",
                 collections,
+                noOfCollections,
             });
             return;
         }
@@ -103,17 +105,17 @@ export async function deleteCollection(req: Request, res: Response) {
     const driver = getDriver();
     const session = driver.session();
 
-    const query = `MATCH (usr:User { name: $username })-[:CURATED]->(col:Collection {name: $collectionName })
+    const query = `MATCH (col:Collection {name: $collectionName })-[:CURATED_BY]->(usr:User { name: $username })
     CALL {
         WITH col
         DETACH DELETE col
     }
     RETURN { id: usr.id, username: usr.name, email: usr.email , 
-        public_id: usr.profilePicPublicId, url: usr.profilePicUrl, noOfUploadedImages:  SIZE((usr)-[:UPLOADED]->(:Image)), noOfCollections: SIZE( (usr)-[:CURATED]->(:Collection) )  } as user
+        public_id: usr.profilePicPublicId, url: usr.profilePicUrl, noOfUploadedImages:  SIZE((usr)-[:UPLOADED]->(:Image)), noOfCollections: SIZE( (:Collection)-[:CURATED_BY]->(usr) )  } as user
   `;
 
     try {
-        const queryRes = await writeService(session, query, { username, collectionName: parseParam(collectionName) });
+        const queryRes = await writeService(session, query, { username, collectionName });
 
         const { counters } = queryRes.summary;
         const user = queryRes.records.map((record) => toNativeTypes(record.get("user")));
@@ -135,5 +137,69 @@ export async function deleteCollection(req: Request, res: Response) {
     } catch (error) {
         res.status(500).json({ msg: "error occured deleting collection" });
         return;
+    }
+}
+
+export async function getImages(req: Request, res: Response) {
+    const { collectionName } = req.params;
+    const { username, limit, skip } = req.query;
+    const driver = getDriver();
+    const session = driver.session();
+
+    const query = `MATCH (col:Collection {name:$collectionName})-[:CURATED_BY]->(usr:User {name:$username})
+    MATCH (img:Image)-[:PARTOF]->(col)
+    RETURN { public_id:img.public_id, url:img.secure_url } as images ORDER BY img.createdAt DESC SKIP $skip LIMIT $limit`;
+
+    try {
+        const dbRes = await readService(session, query, {
+            username,
+            collectionName,
+            limit: parseInt(limit as string, 10),
+            skip: parseInt(skip as string, 10),
+        });
+
+        if (dbRes.records && dbRes.records[0] && dbRes.records[0].length > 0) {
+            const images = dbRes.records.map((record) => toNativeTypes(record.get("images")));
+            res.json({ msg: "ok", images });
+            return;
+        }
+
+        res.json({ msg: "Not found" });
+        return;
+    } catch (error) {
+        res.status(500).json({ msg: "Error occured fetching images." });
+        return;
+    }
+}
+
+export async function updateCollection(req: Request, res: Response) {
+    const { collectionName } = req.params;
+    const { name, description } = req.body as { name?: string; description?: string };
+    const { username } = req.user as UserSafeProps;
+    const driver = getDriver();
+    const session = driver.session();
+    const query = `MATCH (col:Collection { name:$collectionName })-[:CURATED_BY]->(:User { name:$username })
+    SET col.name = $newCollectionName, col.description = $newDescription
+    return {collectionName:col.name, description:col.description, noOfItems:SIZE((:Image)-[:PARTOF]->(col))} AS collection`;
+
+    try {
+        const dbRes = await writeService(session, query, {
+            collectionName,
+            username,
+            newCollectionName: name,
+            newDescription: description,
+        });
+
+        if (dbRes.records && dbRes.records[0] && dbRes.records[0].length > 0) {
+            const collection = toNativeTypes(dbRes.records[0].get("collection"));
+            res.json({ msg: "ok", collection });
+            return;
+        }
+
+        res.json({ msg: "not updated" });
+        return;
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Error occurred updating collection." });
     }
 }

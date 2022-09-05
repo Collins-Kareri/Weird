@@ -6,7 +6,6 @@ import { writeService, readService } from "@server/neo4j/neo4j.transactions";
 import { deleteAsset } from "@server/cloudinary";
 import { Request, Response } from "express";
 import "cookie-session";
-import parseParam from "@serverUtils/parseParam";
 
 type UsernameObj = Omit<User, "email" | "password">;
 
@@ -86,7 +85,7 @@ export async function loginUser(username: string, unhashedPassword: string) {
     const query = `
         MATCH (usr:User { name:$username })
         RETURN { id: usr.id, username: usr.name, email: usr.email, password: usr.password, 
-            public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user , SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (usr)-[:CURATED]->(:Collection) ) as noOfCollections
+            public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user , SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (:Collection)-[:CURATED_BY]->(usr) ) as noOfCollections
         `;
 
     const queryRes = await readService<UsernameObj>(session, query, { username });
@@ -118,7 +117,7 @@ export async function deleteUser(req: Request, res: Response) {
         const deleteUserRes = await Promise.all([
             deleteAsset(public_id),
             writeService<UsernameObj>(session, query, {
-                username: parseParam(username),
+                username,
             }),
         ]);
 
@@ -152,11 +151,11 @@ export async function findUser(id: string) {
     const emailRegex = /^\S+@\S+\.\S+$/g;
 
     let query = `MATCH (usr:User { name: $id })
-    RETURN { id: usr.id, username: usr.name, email: usr.email, url: usr.profilePicUrl } as user, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (usr)-[:CURATED]->(:Collection) ) as noOfCollections`;
+    RETURN { id: usr.id, username: usr.name, email: usr.email, url: usr.profilePicUrl } as user, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (:Collection)-[:CURATED_BY]->(usr) ) as noOfCollections`;
 
     if (emailRegex.test(id)) {
         query = `MATCH (usr:User { email: $id })
-        RETURN { id: usr.id, username: usr.name, email: usr.email, url: usr.profilePicUrl } as user, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (usr)-[:CURATED]->(:Collection) ) as noOfCollections`;
+        RETURN { id: usr.id, username: usr.name, email: usr.email, url: usr.profilePicUrl } as user, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (:Collection)-[:CURATED_BY]->(usr) ) as noOfCollections`;
     }
 
     try {
@@ -258,7 +257,6 @@ export async function updateUser(updateData: UpdateUser, id: string): Promise<Us
 
         return;
     } catch (error) {
-        console.log((error as Neo4jError).code);
         return;
     }
 }

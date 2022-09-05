@@ -109,7 +109,7 @@ function PageBody({
                 <TagsInput tags={tags} setTags={setTags} />
 
                 {/* description input */}
-                <TextArea name={"description"} label={"description"} />
+                <TextArea name={"description"} label={"description"} placeHolder={"Photo description"} />
 
                 {/*Buttons */}
                 <section className="tw-flex tw-justify-start tw-w-full tw-mt-4">

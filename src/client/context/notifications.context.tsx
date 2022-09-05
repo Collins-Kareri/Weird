@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { NotificationDescription } from "@components/notification";
 
 interface NotificationContext {
@@ -23,6 +23,16 @@ const NotificationContext = createContext<NotificationContext>({
 
 export const NotificationProvider = ({ children }: NotificationProps) => {
     const [currentNotifications, setCurrentNotifications] = useState<NotificationDescription[] | []>([]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (currentNotifications.length > 0) {
+                removeNotification(0);
+            }
+        }, 4000);
+
+        return clearInterval(interval);
+    }, [currentNotifications]);
 
     const addNotification = (notification: NotificationDescription) => {
         setCurrentNotifications([...currentNotifications, notification]);

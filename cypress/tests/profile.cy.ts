@@ -160,15 +160,11 @@ describe("profile page", () => {
         });
     });
 
-    // it("should display collections.", () => {});
-
     // it("should display edit collection page on collection edit button click.", () => {});
 
     // it("should delete image in collection.", () => {});
 
     // it("should allow editing of collection name and description.", () => {});
-
-    // it("should take you to recent and trending images page on browse images click.", () => {});
 
     it("should delete a collection.", () => {
         cy.get<User>("@userData").then((credentials: User) => {

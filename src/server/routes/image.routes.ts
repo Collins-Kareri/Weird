@@ -2,15 +2,15 @@ import { Router } from "express";
 import { publish, deleteImgNode, deleteProfileImage, getUsersImages } from "@server/handlers/image.handlers";
 import { deleteAsset, generateSignature } from "@server/cloudinary";
 import requireAuth from "@server/middleware/requireAuth";
-import parseParam from "@serverUtils/parseParam";
+import parseParams from "@server/middleware/parseParam";
 
 const router = Router();
 
-router.get("/signature/:upload_preset", requireAuth, (req, res) => {
+router.get("/signature/:upload_preset", requireAuth, parseParams, (req, res) => {
     const { upload_preset } = req.params;
 
     const { public_id } = req.user as UserSafeProps;
-    const signature = generateSignature(parseParam(upload_preset), { public_id });
+    const signature = generateSignature(upload_preset, { public_id });
 
     if (typeof signature === "string") {
         res.json({ msg: signature });
@@ -22,14 +22,14 @@ router.get("/signature/:upload_preset", requireAuth, (req, res) => {
     return;
 });
 
-router.get("/:username", async (req, res) => {
+router.get("/:username", parseParams, async (req, res) => {
     //get images uploaded by user
     const { username } = req.params;
     const { skip, limit } = req.query;
     if ((skip && limit) || skip) {
         const limitVal = typeof limit === "undefined" ? undefined : parseInt(limit as string, 10);
 
-        const images = await getUsersImages(parseParam(username), parseInt(skip as string, 10), limitVal);
+        const images = await getUsersImages(username, parseInt(skip as string, 10), limitVal);
 
         if (images.msg.includes("no")) {
             res.json({ ...images });
@@ -48,13 +48,13 @@ router.get("/:username", async (req, res) => {
 
 router.post("/publish", requireAuth, publish);
 
-router.post("/signature/:upload_preset", requireAuth, (req, res) => {
+router.post("/signature/:upload_preset", requireAuth, parseParams, (req, res) => {
     const { upload_preset } = req.params;
     const extraParams = req.body;
 
     const { public_id } = req.user as UserSafeProps;
 
-    const signature = generateSignature(parseParam(upload_preset), { public_id, ...extraParams });
+    const signature = generateSignature(upload_preset, { public_id, ...extraParams });
 
     if (typeof signature === "string") {
         res.json({ msg: signature });
@@ -66,10 +66,10 @@ router.post("/signature/:upload_preset", requireAuth, (req, res) => {
     return;
 });
 
-router.delete("/:public_id", requireAuth, async (req, res) => {
+router.delete("/:public_id", requireAuth, parseParams, async (req, res) => {
     const { public_id } = req.params;
 
-    const parsedId = parseParam(public_id).replace(/_/g, "/");
+    const parsedId = public_id.replace(/_/g, "/");
 
     Promise.all([deleteAsset(parsedId), deleteImgNode(parsedId)])
         .then(() => {

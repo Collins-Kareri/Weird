@@ -79,7 +79,7 @@ function CollectionsModal({ closeCollectionModal }: PropTypes) {
                         return;
                     }}
                 />
-                <TextArea name={"description"} label={"description"} />
+                <TextArea name={"description"} label={"description"} placeHolder={"Collection description"} />
                 <Button
                     priority={"secondary"}
                     value={"cancel"}
