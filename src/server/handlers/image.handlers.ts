@@ -111,26 +111,30 @@ export async function deleteProfileImage(id: string): Promise<UserSafeProps | un
     }
 }
 
-export async function getUsersImages(username: string, skip: number, limit = 6) {
+export async function getUsersImages(req: Request, res: Response) {
+    const { username } = req.params;
+    const { skip, limit } = req.query;
+
     const driver = getDriver();
     const session = driver.session();
 
     const query = `MATCH ( usr:User { name:$username } )-[:UPLOADED]->( img:Image )
-    RETURN { url: img.secure_url, public_id: img.public_id } as image ORDER BY img.createdAt DESC SKIP $skip LIMIT $limit`;
+    RETURN { url: img.secure_url, public_id: img.public_id, noOfImages: SIZE((usr)-[:UPLOADED]->(:Image)) } as image ORDER BY img.createdAt DESC SKIP $skip LIMIT $limit`;
 
     try {
         const readRes = await readService<{ username: string; skip: number; limit: number }>(session, query, {
             username,
-            skip: skip + 1,
-            limit,
+            skip: parseInt(skip as string, 10),
+            limit: parseInt(limit as string, 10),
         });
 
         if (readRes.records && readRes.records[0].length > 0) {
-            return { msg: "found", images: readRes.records.map((record) => toNativeTypes(record.get("image"))) };
+            res.json({ msg: "found", images: readRes.records.map((record) => toNativeTypes(record.get("image"))) });
+            return;
         }
 
-        return { msg: "no images found" };
+        return res.json({ msg: "no images found" });
     } catch (error) {
-        return { msg: "can't read images" };
+        return res.status(500).json({ msg: "can't read images" });
     }
 }

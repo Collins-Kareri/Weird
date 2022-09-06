@@ -235,7 +235,6 @@ export async function removeImage(req: Request, res: Response) {
         res.json({ msg: "fail" });
         return;
     } catch (error) {
-        console.log(error);
         res.status(500).json({ msg: "Error occurred removing collection." });
     }
 }

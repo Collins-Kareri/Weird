@@ -22,29 +22,7 @@ router.get("/signature/:upload_preset", requireAuth, parseParams, (req, res) => 
     return;
 });
 
-router.get("/:username", parseParams, async (req, res) => {
-    //get images uploaded by user
-    const { username } = req.params;
-    const { skip, limit } = req.query;
-    if ((skip && limit) || skip) {
-        const limitVal = typeof limit === "undefined" ? undefined : parseInt(limit as string, 10);
-
-        const images = await getUsersImages(username, parseInt(skip as string, 10), limitVal);
-
-        if (images.msg.includes("no")) {
-            res.json({ ...images });
-        } else if (images.msg.includes("can't")) {
-            res.status(500).json({ ...images });
-        } else {
-            res.json({ ...images });
-        }
-
-        return;
-    }
-
-    res.status(400).json({ msg: "invalid request" });
-    return;
-});
+router.get("/:username", parseParams, getUsersImages);
 
 router.post("/publish", requireAuth, publish);
 

@@ -10,7 +10,7 @@ import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
 import Image from "@components/image";
 import CloseIcon from "@components/closeIcon";
 
-interface CollectionInfo {
+export interface CollectionInfo {
     collectionName: string;
     description: string;
     noOfItems: number;
@@ -173,7 +173,6 @@ function PageBody({
                     redirect("/profile");
                     return;
                 } else if (parsedRes.msg.toLowerCase() === "ok") {
-                    redirect("/profile");
                     return;
                 } else {
                     throw "server error";
@@ -195,6 +194,7 @@ function PageBody({
                     setCollectionDetails={setCollectionDetails}
                 />
             )}
+
             <div
                 className="tw-font-Quicksand tw-flex tw-flex-col tw-w-full tw-items-center tw-mt-10"
                 data-within="collectionDetails"
@@ -233,6 +233,7 @@ function PageBody({
                             images={data.images}
                             collectionName={collectionDetails.collectionName}
                             refetch={refetch}
+                            setCollectionDetails={setCollectionDetails}
                         />
                     )}
                 </div>

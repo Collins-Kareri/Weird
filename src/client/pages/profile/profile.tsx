@@ -5,6 +5,7 @@ import CreateCollection from "@src/client/components/createCollection";
 import Button from "@components/button";
 import Logo from "@assets/logo.svg";
 import ProfilePic from "@pages/profile/profilePic";
+import Image from "@components/image";
 import { useUser } from "@context/user.context";
 
 interface PlaceHolderContentPropTypes {
@@ -187,47 +188,8 @@ function Profile() {
                 />
             )}
 
-            {/**Image container */}
-            {/* <div className="tw-container tw-mx-auto tw-p-4 tw-mb-10 tw-columns-1 md:tw-columns-2 lg:tw-columns-3 2xl:tw-columns-4 tw-gap-x-4 tw-w-full">
-                <section className="tw-inline-block tw-relative tw-w-full md:tw-w-80 xl:tw-w-96 tw-bg-neutral-500 tw-h-fit tw-rounded-md tw-mb-7">
-                    <div className="tw-absolute tw-p-2 tw-px-4 tw-z-10 tw-top-0 tw-bg-neutral-100 tw-w-full tw-bg-opacity-50 tw-bg-blend-soft-light">
-                        <Button priority={"secondary"} value={"edit"} extraStyles={"tw-ring-neutral-900"} />
-                        <Button priority={"tertiary"} value={"delete"} />
-                    </div>
-                    <img
-                        src={generateRandomImage()}
-                        alt="random image from fakerjs"
-                        className="tw-relative tw-cursor-pointer tw-w-full tw-object-cover tw-rounded-md tw-shadow-inner tw-shadow-neutral-800"
-                    />
-                </section>
-            </div> */}
-
-            {/**edit image*/}
-            {/* <div className="tw-w-screen tw-h-screen tw-absolute tw-top-0 tw-left-0 tw-z-50 tw-bg-neutral-500 tw-bg-opacity-50 tw-flex tw-flex-col tw-items-center tw-justify-center">
-                <div className=" tw-bg-neutral-50 tw-drop-shadow-xl tw-shadow-neutral-900 tw-p-4 tw-rounded-md tw-w-11/12 tw-font-Quicksand tw-py-5 md:tw-max-w-md lg:tw-max-w-lg">
-                    <CloseIcon
-                        backgroundColor={"tw-bg-neutral-50"}
-                        shadowColor={"tw-shadow-neutral-50"}
-                        fillColor={"tw-fill-neutral-800"}
-                        strokeColor={"tw-stroke-neutral-800"}
-                        position={"tw-absolute -tw-top-4 -tw-right-2"}
-                        onClick={() => {
-                            return;
-                        }}
-                    />
-                    <section className="tw-w-36 tw-h-36 tw-rounded-md tw-ring-1 tw-ring-neutral-800">
-                        <img
-                            src={generateRandomImage()}
-                            alt="random image from fakerjs"
-                            className="tw-relative tw-w-full tw-h-full tw-object-cover tw-rounded-md tw-shadow-inner tw-shadow-neutral-800"
-                        />
-                    </section>
-                    <TagsInput tags={tags} setTags={setTags} />
-                    <TextArea name={"description"} label={"description"} />
-                    <Button priority={"secondary"} value={"cancel"} extraStyles={"tw-mr-8"} />
-                    <Button priority={"primary"} value={"edit"} />
-                </div>
-            </div> */}
+            {/**image grid container */}
+            {activeTab === "images" && <Image username={currentUser?.username} />}
         </>
     ) : (
         <Outlet />
