@@ -199,7 +199,43 @@ export async function updateCollection(req: Request, res: Response) {
         res.json({ msg: "not updated" });
         return;
     } catch (error) {
-        console.log(error);
         res.status(500).json({ msg: "Error occurred updating collection." });
+    }
+}
+
+export async function removeImage(req: Request, res: Response) {
+    const { collectionName } = req.params;
+    const { public_id } = req.body as { public_id: string };
+    const { username } = req.user as UserSafeProps;
+
+    const driver = getDriver();
+    const session = driver.session();
+
+    const query = `MATCH (col:Collection { name:$collectionName })-[:CURATED_BY]->(:User { name:$username })
+    CALL {
+        WITH col
+        MATCH (Img:Image { public_id:$public_id })-[rel:PARTOF]->(col)
+        DELETE rel
+    }
+    return { collectionName:col.name, description:col.description, noOfItems:SIZE ( (:Image)-[:PARTOF]->(col) ) } as collection`;
+
+    try {
+        const dbRes = await writeService(session, query, {
+            collectionName,
+            username,
+            public_id,
+        });
+
+        if (dbRes.records && dbRes.records[0] && dbRes.records[0].length > 0) {
+            const collection = toNativeTypes(dbRes.records[0].get("collection"));
+            res.json({ msg: "ok", collection });
+            return;
+        }
+
+        res.json({ msg: "fail" });
+        return;
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Error occurred removing collection." });
     }
 }

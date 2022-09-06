@@ -18,13 +18,18 @@ interface CollectionInfo {
 
 interface EditCollectionModalProps extends Omit<CollectionInfo, "noOfItems"> {
     toggleModalStatus: () => void;
-    setCollectionDetails: React.Dispatch<
-        React.SetStateAction<{
-            collectionName: string;
-            description: string;
-            noOfItems: number;
-        }>
-    >;
+    setCollectionDetails: React.Dispatch<React.SetStateAction<CollectionInfo>>;
+}
+
+function usePersistantState<T>(defaultValue: T, itemName: string) {
+    const [value, setValue] = useState<T>(JSON.parse(localStorage.getItem(itemName) as string) || defaultValue);
+
+    useEffect(() => {
+        localStorage.setItem(itemName, JSON.stringify(value));
+        return;
+    }, [value]);
+
+    return [value, setValue] as [T, React.Dispatch<React.SetStateAction<T>>];
 }
 
 function EditCollectionModal({
@@ -66,6 +71,7 @@ function EditCollectionModal({
                     return;
                 });
         }
+
         return;
     }
 
@@ -111,28 +117,37 @@ function EditCollectionModal({
     );
 }
 
-function PageBody({ collectionName, description, noOfItems }: CollectionInfo) {
+function PageBody({
+    collectionDetails,
+    setCollectionDetails,
+}: {
+    collectionDetails: CollectionInfo;
+    setCollectionDetails: React.Dispatch<React.SetStateAction<CollectionInfo>>;
+}) {
     const [openModalStatus, setOpenModalStatus] = useState(false);
     const [skip, setSkip] = useState(0);
     const { currentUser, setUser } = useUser();
     const { addNotification } = useNotification();
     const redirect = useNavigate();
-    const [collectionDetails, setCollectionDetails] = useState({ collectionName, description, noOfItems });
 
-    const { data, isLoading, isFetching, isError, isSuccess } = useQuery("fetchCollectionImages", async () => {
-        if (currentUser) {
-            return await (
-                await fetch(
-                    `/api/collection/images/:${collectionName}?username=${currentUser.username}&&skip=${skip}&&limit=6`,
-                    { method: "get" }
-                )
-            ).json();
-        }
-        throw "no user";
-    });
+    const { data, isLoading, isFetching, isError, isSuccess, refetch } = useQuery(
+        "fetchCollectionImages",
+        async () => {
+            if (currentUser) {
+                return await (
+                    await fetch(
+                        `/api/collection/images/:${collectionDetails.collectionName}?username=${currentUser.username}&&skip=${skip}&&limit=6`,
+                        { method: "get" }
+                    )
+                ).json();
+            }
+            throw "no user";
+        },
+        { refetchInterval: false }
+    );
 
     useEffect(() => {
-        if (isSuccess && noOfItems > 6) {
+        if (isSuccess && collectionDetails.noOfItems > 6) {
             setSkip(skip + data.images.length);
         }
 
@@ -149,7 +164,7 @@ function PageBody({ collectionName, description, noOfItems }: CollectionInfo) {
     }
 
     function deleteCollection() {
-        fetch(`/api/collection/:${name}`, { method: "delete" })
+        fetch(`/api/collection/:${collectionDetails.collectionName}`, { method: "delete" })
             .then((res) => res.json())
             .then((parsedRes) => {
                 if (parsedRes.msg.toLowerCase() === "ok" && parsedRes.user) {
@@ -184,7 +199,9 @@ function PageBody({ collectionName, description, noOfItems }: CollectionInfo) {
                 className="tw-font-Quicksand tw-flex tw-flex-col tw-w-full tw-items-center tw-mt-10"
                 data-within="collectionDetails"
             >
-                <span className="tw-block tw-font-bold tw-text-4xl">{capitalizeFirstChar(collectionName)}</span>
+                <span className="tw-block tw-font-bold tw-text-4xl">
+                    {capitalizeFirstChar(collectionDetails.collectionName)}
+                </span>
                 {collectionDetails.description && (
                     <span className="tw-text-lg tw-text-center tw-font-medium">
                         {capitalizeFirstChar(collectionDetails.description)}
@@ -208,8 +225,18 @@ function PageBody({ collectionName, description, noOfItems }: CollectionInfo) {
 
             {isError && <h1>Error fetching images.</h1>}
             {isLoading && <h1>Loading</h1>}
-            {isFetching && <h1>Please wait...</h1>}
-            {isSuccess && <div className="tw-py-10 tw-mt-4">{data.images && <Image images={data.images} />}</div>}
+            {isFetching && !isLoading && <h1>Please wait...</h1>}
+            {isSuccess && (
+                <div className="tw-py-10 tw-mt-4">
+                    {data.images && (
+                        <Image
+                            images={data.images}
+                            collectionName={collectionDetails.collectionName}
+                            refetch={refetch}
+                        />
+                    )}
+                </div>
+            )}
         </>
     );
 }
@@ -217,6 +244,15 @@ function PageBody({ collectionName, description, noOfItems }: CollectionInfo) {
 function EditCollection() {
     //const { addNotification } = useNotification();
     const location = useLocation();
+    const { collectionName, description, noOfItems } = location.state as CollectionInfo;
+    const [collectionDetails, setCollectionDetails] = usePersistantState<CollectionInfo>(
+        {
+            collectionName,
+            description,
+            noOfItems,
+        },
+        "collectionInfo"
+    );
 
     return (
         <div>
@@ -225,11 +261,7 @@ function EditCollection() {
             (location.state as CollectionInfo).collectionName.length <= 0 ? (
                 <h1>{"Couldn't fetch collection"}</h1>
             ) : (
-                <PageBody
-                    collectionName={(location.state as CollectionInfo).collectionName}
-                    description={(location.state as CollectionInfo).description}
-                    noOfItems={(location.state as CollectionInfo).noOfItems}
-                />
+                <PageBody collectionDetails={collectionDetails} setCollectionDetails={setCollectionDetails} />
             )}
         </div>
     );

@@ -33,17 +33,19 @@ export const NotificationProvider = ({ children }: NotificationProps) => {
 
         return clearInterval(interval);
     }, [currentNotifications]);
-
-    const addNotification = (notification: NotificationDescription) => {
-        setCurrentNotifications([...currentNotifications, notification]);
-    };
-
     const removeNotification = (index: number) => {
         setCurrentNotifications(
             currentNotifications.filter((_, i) => {
                 return i !== index;
             })
         );
+    };
+
+    const addNotification = (notification: NotificationDescription) => {
+        setCurrentNotifications([...currentNotifications, notification]);
+        setTimeout(() => {
+            removeNotification(0);
+        }, 2000);
     };
 
     return (
