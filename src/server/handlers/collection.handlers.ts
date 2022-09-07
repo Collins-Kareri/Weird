@@ -21,7 +21,7 @@ export async function createCollection(req: Request, res: Response) {
         MERGE (col:Collection { name: $collectionName })-[rel:CURATED_BY]->(usr)
         ON CREATE 
           SET col.createdAt = dateTime(), col.description = $description
-        RETURN rel, SIZE( (col)-[rel]->(user) ) as noOfCollections`;
+        RETURN rel, SIZE( (col)-[rel]->(usr) ) as noOfCollections`;
 
     try {
         const dbRes = await writeService(session, query, { username, collectionName, description });
@@ -236,5 +236,38 @@ export async function removeImage(req: Request, res: Response) {
         return;
     } catch (error) {
         res.status(500).json({ msg: "Error occurred removing collection." });
+    }
+}
+
+export async function addImage(req: Request, res: Response) {
+    const { username } = req.user as UserSafeProps;
+    const { collectionName } = req.params;
+    const { public_id } = req.query;
+
+    const driver = getDriver();
+    const session = driver.session();
+
+    const query = `MATCH (col:Collection { name:$collectionName })-[:CURATED_BY]->(:User { name:$username })
+    MATCH (img:Image {public_id:$public_id})
+    MERGE (img)-[rel:PARTOF]->(col)
+    return rel,{ collectionName:col.name, description:col.description, noOfItems:SIZE ( (:Image)-[:PARTOF]->(col) ) } as collection`;
+
+    try {
+        const dbRes = await writeService(session, query, {
+            collectionName,
+            username,
+            public_id,
+        });
+
+        if (dbRes.records && dbRes.records[0] && dbRes.records[0].length > 0) {
+            const collection = toNativeTypes(dbRes.records[0].get("collection"));
+            res.status(201).json({ msg: "ok", collection });
+            return;
+        }
+
+        res.json({ msg: "fail" });
+        return;
+    } catch (error) {
+        res.status(500).json({ msg: "Error occurred while adding to collection." });
     }
 }

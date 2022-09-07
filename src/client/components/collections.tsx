@@ -97,7 +97,7 @@ function CollectionContent({ name, coverImage, noOfItems, key, description, refe
             </p>
 
             {/**collection items number */}
-            <p>{`${noOfItems} items`}</p>
+            <p>{`${noOfItems} ${noOfItems >= 2 || noOfItems === 0 ? "items" : "item"}`}</p>
         </div>
     );
 }

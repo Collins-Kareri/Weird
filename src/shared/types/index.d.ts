@@ -75,4 +75,11 @@ declare global {
         path: string;
         from: string;
     }
+
+    interface TestImg {
+        asset_id: string;
+        public_id: string;
+        secure_url: string;
+        url: string;
+    }
 }

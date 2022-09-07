@@ -208,7 +208,7 @@ function Image({ images, collectionName, refetch, setCollectionDetails, username
     );
 
     useEffect(() => {
-        if (isSuccess && data.images.noOfImages && data.images.noOfImages > 6) {
+        if (username && isSuccess && data.Images && data.images.noOfImages && data.images.noOfImages > 6) {
             setSkip(skip + data.images.length);
         }
         return;

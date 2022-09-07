@@ -6,6 +6,7 @@ import {
     getImages,
     updateCollection,
     removeImage,
+    addImage,
 } from "@server/handlers/collection.handlers";
 import requireAuth from "@server/middleware/requireAuth";
 import parseParams from "@server/middleware/parseParam";
@@ -21,13 +22,7 @@ router.put("/:collectionName", requireAuth, parseParams, updateCollection);
 
 router.post("/", requireAuth, createCollection);
 
-// router.post("/:public_id", (req, res) => {
-//     //todo add image to a collection
-// });
-
-// router.delete("/image/:public_id", (req, res) => {
-//     //todo delete image from collection.
-// });
+router.post("/image/:collectionName", requireAuth, parseParams, addImage);
 
 router.delete("/:collectionName", requireAuth, parseParams, deleteCollection);
 

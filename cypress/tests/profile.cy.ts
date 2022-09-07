@@ -2,10 +2,10 @@
 describe("profile page", () => {
     beforeEach(() => {
         cy.fixture("user.json").as("userData");
-        cy.visit("/profile");
     });
 
     it("should not allow user to visit profile while unauthenticated", () => {
+        cy.visit("/profile");
         cy.get("#popover").find("p").contains("you need to login first.", { matchCase: false });
     });
 
@@ -53,9 +53,11 @@ describe("profile page", () => {
             }).then((res) => {
                 expect(res.status).eq(200);
                 expect(res.body).to.haveOwnProperty("msg", "successful");
+                cy.intercept(`/api/image/:${credentials.username}?skip=${0}&&limit=6`).as("fetchUserImages");
 
                 cy.visit("/profile");
                 cy.get("#imageTab").click();
+                cy.wait("@fetchUserImages");
 
                 cy.get("#placeholderContent")
                     .should("exist")
@@ -160,6 +162,48 @@ describe("profile page", () => {
         });
     });
 
+    it("should add image to collection", () => {
+        cy.fixture("/cloudinaryImages/id1.json").as("testImage");
+
+        cy.get<User>("@userData").then((credentials: User) => {
+            //login first
+            cy.request("post", "api/user/login", {
+                username: credentials.username,
+                password: credentials.password,
+            }).then((res) => {
+                expect(res.status).eq(200);
+                expect(res.body).to.haveOwnProperty("msg", "successful");
+
+                cy.intercept(`/api/collection/:${credentials.username}`).as("fetchCollections");
+
+                cy.get<TestImg>("@testImage").then((imgData: TestImg) => {
+                    cy.visit("/profile");
+                    cy.request("post", `/api/collection/image/:arts?public_id=${imgData.public_id}`).then((res) => {
+                        expect(res.status).eq(201);
+                        expect(res.body).to.haveOwnProperty("msg", "ok");
+
+                        cy.get("#collectionTab").click();
+                        cy.wait("@fetchCollections");
+
+                        cy.get("#imageTab").click();
+                        cy.get("#collectionTab").click();
+
+                        cy.wait("@fetchCollections");
+
+                        cy.get("div[data-within=collection]").should("exist");
+                        cy.get("div[data-within=collection]").should("have.length", 1);
+                        cy.get("div[data-within=collection]").first().find(">p").first().should("contain.text", "Arts");
+                        cy.get("div[data-within=collection]")
+                            .first()
+                            .find(">p")
+                            .last()
+                            .should("contain.text", "1 item");
+                    });
+                });
+            });
+        });
+    });
+
     it("should allow editing of collection.", () => {
         //todo visit edit collection page.
         //todo remove image from collection.
@@ -171,6 +215,10 @@ describe("profile page", () => {
                 password: credentials.password,
             }).then((res) => {
                 cy.intercept(`/api/collection/:${credentials.username}`).as("fetchCollections");
+                cy.intercept(`api/collection/images/:arts?username=${credentials.username}&&skip=0&&limit=6`).as(
+                    "fetchImages"
+                );
+
                 expect(res.status).eq(200);
                 expect(res.body).to.haveOwnProperty("msg", "successful");
 
@@ -184,24 +232,33 @@ describe("profile page", () => {
                     .first()
                     .find(">button")
                     .first()
-                    .should("contain.text", "edit")
+                    .should("contain.text", "Edit")
                     .click();
 
                 cy.url().should("include", "/profile/edit/collection");
+                cy.wait("@fetchImages");
 
                 cy.get("div[data-within=collectionDetails]").first().find(">span").should("have.length", 3);
                 cy.get("div[data-within=collectionDetails]").first().find(">span").first().should("have.text", "Arts");
 
-                cy.get("div[data-within=collectionDetails]").first().find(">button").should("have.length", 2);
                 cy.get("div[data-within=collectionDetails]")
+                    .first()
+                    .find(">section")
+                    .first()
+                    .find(">button")
+                    .should("have.length", 2);
+
+                cy.get("div[data-within=collectionDetails]")
+                    .first()
+                    .find(">section")
                     .first()
                     .find(">button")
                     .last()
                     .should("have.text", "Edit")
                     .click();
 
-                cy.intercept("updateCollection").as("updateCollection");
-                cy.intercept("removeImage").as("removeImage");
+                cy.intercept("api/collection/:arts").as("updateCollection");
+                cy.intercept("api/collection/image/:Crafts").as("removeImage");
 
                 //Update collection data.
                 cy.get("div[data-within=editCollection]").first().should("exist");
@@ -215,6 +272,7 @@ describe("profile page", () => {
                     .should("contain.text", "Update")
                     .click();
                 cy.wait("@updateCollection");
+
                 cy.get("div[data-within=collectionDetails]")
                     .first()
                     .find(">span")
@@ -222,10 +280,16 @@ describe("profile page", () => {
                     .should("have.text", "Crafts");
 
                 //remove Image
-                cy.get("div[data-within=images]").first().find(">section").should("have.length", 3);
-                cy.get("div[data-within=images]").first().find(">section").find("button").first().click();
-                cy.wait("removeImage");
-                cy.get("div[data-within=images]").first().find(">section").should("have.length", 2);
+                cy.get("div[data-within=images]").first().find(">section").should("have.length", 1);
+                cy.get("div[data-within=images]")
+                    .first()
+                    .find(">section")
+                    .find("button")
+                    .first()
+                    .should("have.text", "Remove")
+                    .click();
+                cy.wait("@removeImage");
+                cy.get("div[data-within=images]").first().find(">section").should("have.length", 0);
             });
         });
     });
@@ -240,7 +304,7 @@ describe("profile page", () => {
                 expect(res.status).eq(200);
                 expect(res.body).to.haveOwnProperty("msg", "successful");
 
-                cy.intercept("/api/collection/:arts").as("deleteCollection");
+                cy.intercept("/api/collection/:Crafts").as("deleteCollection");
                 cy.intercept(`/api/collection/:${credentials.username}`).as("fetchCollections");
 
                 cy.visit("/profile");
@@ -250,7 +314,7 @@ describe("profile page", () => {
                 cy.get("div[data-within=collection]").should("exist");
                 cy.get("div[data-within=collection]").should("have.length", 1);
 
-                cy.get("div[data-within=collection]").first().find(">p").first().should("contain.text", "Arts");
+                cy.get("div[data-within=collection]").first().find(">p").first().should("contain.text", "Crafts");
                 cy.get("div[data-within=collection]").first().find(">p").last().should("contain.text", "0 items");
 
                 cy.get("div[data-within=collection]").first().find(">button").first().should("contain.text", "Edit");

@@ -128,7 +128,7 @@ export async function getUsersImages(req: Request, res: Response) {
             limit: parseInt(limit as string, 10),
         });
 
-        if (readRes.records && readRes.records[0].length > 0) {
+        if (readRes.records && readRes.records[0] && readRes.records[0].length > 0) {
             res.json({ msg: "found", images: readRes.records.map((record) => toNativeTypes(record.get("image"))) });
             return;
         }
