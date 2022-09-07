@@ -41,9 +41,12 @@ router.get("/data/:public_id", parseParams, async (req, res) => {
     //todo get image data from cloudinary
     const { public_id } = req.params;
     try {
-        const cloudinaryRes = await getImageData(public_id.replace(/_/g, "/"));
-        console.log(cloudinaryRes);
-        res.json({ msg: "ok", image: cloudinaryRes });
+        const { tags, description } = (await getImageData(public_id.replace(/_/g, "/"))) as {
+            tags?: string;
+            description?: string;
+        };
+
+        res.json({ msg: "ok", imgData: { tags: tags ? tags : [], description: description ? description : "" } });
     } catch (error) {
         console.log(error);
         res.status(500).json({ msg: "could not get image data." });
@@ -74,11 +77,19 @@ router.put("/data/:public_id", requireAuth, parseParams, updateUserImages);
 
 router.delete("/:public_id", requireAuth, parseParams, async (req, res) => {
     const { public_id } = req.params;
-
+    const { username } = req.user as UserSafeProps;
     const parsedId = public_id.replace(/_/g, "/");
 
-    Promise.all([deleteAsset(parsedId), deleteImgNode(parsedId)])
-        .then(() => {
+    Promise.all([deleteAsset(parsedId), deleteImgNode(parsedId, username)])
+        .then((result) => {
+            if (typeof result[0] !== "string") {
+                return req.login(result[0], (err) => {
+                    if (err) {
+                        res.json({ msg: "ok" });
+                    }
+                    res.json({ msg: "ok" });
+                });
+            }
             res.json({ msg: "ok" });
         })
         .catch(() => {

@@ -2,6 +2,7 @@
 describe("profile page", () => {
     beforeEach(() => {
         cy.fixture("user.json").as("userData");
+        cy.fixture("/cloudinaryImages/id1.json").as("testImage");
     });
 
     it("should not allow user to visit profile while unauthenticated", () => {
@@ -106,6 +107,12 @@ describe("profile page", () => {
                 cy.get("#createCollection").should("exist").find("#closeIcon").click();
 
                 cy.get("#createCollection").should("not.exist");
+
+                cy.get<TestImg>("@testImage").then((imgData: TestImg) => {
+                    cy.request("post", "api/image/publish", imgData).then((res) => {
+                        expect(res.status).eq(201);
+                    });
+                });
             });
         });
     });
@@ -163,8 +170,6 @@ describe("profile page", () => {
     });
 
     it("should add image to collection", () => {
-        cy.fixture("/cloudinaryImages/id1.json").as("testImage");
-
         cy.get<User>("@userData").then((credentials: User) => {
             //login first
             cy.request("post", "api/user/login", {
@@ -346,15 +351,125 @@ describe("profile page", () => {
             }).then((res) => {
                 expect(res.status).eq(200);
                 expect(res.body).to.haveOwnProperty("msg", "successful");
+
+                cy.intercept(`/api/image/:${credentials.username}?skip=${0}&&limit=6`).as("getUserImages");
+
+                cy.visit("/profile");
+                cy.wait("@getUserImages");
+                cy.wait(3000);
+
+                cy.get("#imageTab").should("exist").and("contain.text", "images 1");
+                cy.get("div[data-within=images]").should("exist");
+                cy.get("div[data-within=images]").should("have.length", 1);
+                cy.get("div[data-within=images]").first().find(">section").first().find(">img").first().should("exist");
+                cy.get("div[data-within=images]")
+                    .first()
+                    .find(">section")
+                    .first()
+                    .find(">div")
+                    .find(">button")
+                    .first()
+                    .should("have.text", "Edit");
+                cy.get("div[data-within=images]")
+                    .first()
+                    .find(">section")
+                    .find(">div")
+                    .first()
+                    .find(">button")
+                    .last()
+                    .should("have.text", "Delete");
             });
         });
     });
 
-    // it("should display image modal on edit image button click.", () => {});
+    it("should edit tags and description of a specific image.", () => {
+        cy.get<User>("@userData").then((credentials: User) => {
+            //login first
+            cy.request("post", "api/user/login", {
+                username: credentials.username,
+                password: credentials.password,
+            }).then((res) => {
+                cy.get<TestImg>("@testImage").then((imgData: TestImg) => {
+                    expect(res.status).eq(200);
+                    expect(res.body).to.haveOwnProperty("msg", "successful");
 
-    // it("should edit tags and description of a specific image.", () => {});
+                    cy.intercept(`/api/image/:${credentials.username}?skip=${0}&&limit=6`).as("getUserImages");
+                    cy.intercept("get", `/api/image/data/:${imgData.public_id.replace("/", "_")}`).as("getImageData");
+                    cy.intercept("put", `/api/image/data/:${imgData.public_id.replace("/", "_")}`).as(
+                        "updateUserImage"
+                    );
+                    cy.visit("/profile");
+                    cy.wait("@getUserImages");
 
-    // it("should delete selected image.", () => {});
+                    cy.get("div[data-within=images]")
+                        .first()
+                        .find(">section")
+                        .first()
+                        .find(">div")
+                        .first()
+                        .find(">button")
+                        .first()
+                        .click();
+
+                    cy.wait("@getImageData");
+                    cy.get("#tagInput").type("hello{enter}");
+                    cy.get("#description").type("This is description");
+
+                    cy.get("#editUserImage")
+                        .find(">button")
+                        .last()
+                        .should("exist")
+                        .and("have.text", "Update")
+                        .focus()
+                        .click();
+
+                    cy.wait("@updateUserImage").then((result) => {
+                        expect(result.response?.statusCode).to.eq(200);
+                        expect(result.response?.body).to.haveOwnProperty("imgData");
+                        expect(result.response?.body.imgData).to.haveOwnProperty("tags");
+                        expect(result.response?.body.imgData.tags[0]).to.eq("hello");
+                        expect(result.response?.body.imgData).to.haveOwnProperty("description", "This is description");
+                        cy.get("#description").should("have.value", "This is a description");
+                    });
+                });
+            });
+        });
+    });
+
+    it("should delete selected image.", () => {
+        cy.get<User>("@userData").then((credentials: User) => {
+            //login first
+            cy.request("post", "api/user/login", {
+                username: credentials.username,
+                password: credentials.password,
+            }).then((res) => {
+                cy.get<TestImg>("@testImage").then((imgData: TestImg) => {
+                    expect(res.status).eq(200);
+                    expect(res.body).to.haveOwnProperty("msg", "successful");
+
+                    cy.intercept(`/api/image/:${credentials.username}?skip=${0}&&limit=6`).as("getUserImages");
+                    cy.intercept("get", `/api/image/data/:${imgData.public_id.replace("/", "_")}`).as("getImageData");
+                    cy.intercept("delete", `/api/image/:${imgData.public_id.replace("/", "_")}`).as("deleteImage");
+                    cy.visit("/profile");
+                    cy.wait("@getUserImages");
+
+                    cy.get("div[data-within=images]")
+                        .first()
+                        .find(">section")
+                        .first()
+                        .find(">div")
+                        .first()
+                        .find(">button")
+                        .last()
+                        .click();
+                    cy.wait("@deleteImage");
+                    cy.visit("/profile");
+                    // cy.get("#imageTab").should("exist").and("contain.text", "images 0");
+                    cy.get("div[data-within=images]").should("not.exist");
+                });
+            });
+        });
+    });
 
     after(() => {
         cy.fixture("user.json").as("userData");

@@ -68,14 +68,26 @@ export function generateSignature(preset: string, extraParams?: SignatureExtrapa
 
 export async function updateImage<T>(public_id: string, updateData: T) {
     return await new Promise((resolve, reject) => {
-        cloudinary.uploader.explicit(public_id, updateData as UploadApiOptions, (err, result) => {
-            if (err) {
-                reject(err);
+        cloudinary.uploader.explicit(
+            public_id,
+            { type: "upload", ...updateData } as UploadApiOptions,
+            (err: unknown, result: unknown) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                const { tags, context } = result as CloudinaryRes;
+                let description;
+
+                if (context && context.custom && context.custom.alt) {
+                    description = context.custom.alt;
+                }
+
+                resolve({ tags, description });
                 return;
             }
-            resolve(result);
-            return;
-        });
+        );
     });
 }
 
@@ -83,6 +95,7 @@ export async function getImageData(public_id: string) {
     return new Promise((resolve, reject) => {
         cloudinary.api.resource(public_id, undefined, (err, result) => {
             if (err) {
+                console.log(err, "cd");
                 reject(err);
                 return;
             }

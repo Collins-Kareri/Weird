@@ -14,7 +14,7 @@ export async function publish(req: Request, res: Response) {
     const session = driver.session();
 
     const query = `MATCH (usr:User {name:$username})
-    CREATE (img:Image 
+    MERGE (img:Image 
         {
             name:$asset_id,
             url:$url,
@@ -65,23 +65,33 @@ export async function publish(req: Request, res: Response) {
  * Deletes image from neo4j using public_id
  * @param  {string} public_id
  */
-export async function deleteImgNode(public_id: string) {
+export async function deleteImgNode(public_id: string, username: string) {
     const driver = getDriver();
     const session = driver.session();
-    const query = `MATCH (img:Image {public_id:$public_id})
-    DETACH DELETE img`;
+
+    const query = `MATCH (usr:User {name:$username})-[:UPLOADED]->(img:Image {public_id:$public_id})
+    CALL{
+        WITH img
+        DETACH DELETE img
+    }
+    return { id: usr.id, username: usr.name, email: usr.email, public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user`;
 
     try {
-        const dbRes = await writeService(session, query, { public_id });
+        const dbRes = await writeService(session, query, { public_id, username });
         const nodesDeleted = dbRes.summary.counters.updates().nodesDeleted;
         const relationshipsDeleted = dbRes.summary.counters.updates().relationshipsDeleted;
 
         if (nodesDeleted === 1 && relationshipsDeleted === 1) {
-            return "ok";
+            let user;
+            if (dbRes.records && dbRes.records[0]) {
+                user = dbRes.records[0].get("user");
+            }
+            return user ? user : "ok";
         }
 
         return "not found";
     } catch (error) {
+        console.log(error);
         throw "error deleting node";
     }
 }
@@ -136,6 +146,7 @@ export async function getUsersImages(req: Request, res: Response) {
 
         return res.json({ msg: "no images found" });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ msg: "can't read images" });
     }
 }
@@ -156,9 +167,19 @@ export async function updateUserImages(req: Request, res: Response) {
     }
 
     try {
-        const cloudinaryRes = await updateImage(public_id as string, uploadData);
-        res.json({ msg: "ok", imgData: cloudinaryRes });
+        const { tags, description } = (await updateImage(public_id.replace("_", "/") as string, uploadData)) as {
+            tags?: string;
+            description?: string;
+        };
+        res.json({
+            msg: "ok",
+            imgData: {
+                tags: tags ? tags : [],
+                description: description ? description : "",
+            },
+        });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ msg: "couldn't update image." });
     }
 }

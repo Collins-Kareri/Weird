@@ -12,8 +12,7 @@ function EditUserImage({ url, public_id, toggleEditImageModal }: UserProfileImag
     const { data, isError, error, isLoading, isSuccess, refetch } = useQuery(
         "fetchImageData",
         async () => {
-            public_id;
-            return (await fetch(`/api/image/data/:${public_id}`, { method: "get" })).json();
+            return (await fetch(`/api/image/data/:${public_id.replace("/", "_")}`, { method: "get" })).json();
         },
         { refetchInterval: false, retry: false }
     );
@@ -21,14 +20,14 @@ function EditUserImage({ url, public_id, toggleEditImageModal }: UserProfileImag
     const { addNotification } = useNotification();
 
     useEffect(() => {
-        if (isSuccess && data && data.imageData && data.imageData.tags) {
-            setTags(data.imageData.tags);
+        if (isSuccess && data && data.imgData && data.imgData.tags) {
+            setTags(data.imgData.tags);
         }
 
         if (isError) {
             addNotification({ type: "error", msg: "Could not fetch image data." });
         }
-    }, [error, isError, isSuccess]);
+    }, [error, isError, isSuccess, data]);
 
     function editImageDetails() {
         const descriptionEl = document.querySelector("#description") as HTMLTextAreaElement;
@@ -41,7 +40,7 @@ function EditUserImage({ url, public_id, toggleEditImageModal }: UserProfileImag
             let results = true;
 
             for (let index = 0; index <= arr1.length - 1; index++) {
-                if (arr1[index] !== arr2[index]) {
+                if (arr1[index].toLowerCase() !== arr2[index].toLowerCase()) {
                     results = false;
                     break;
                 }
@@ -53,11 +52,11 @@ function EditUserImage({ url, public_id, toggleEditImageModal }: UserProfileImag
         //run only when tags or description not equal to the previous value
         if (
             data &&
-            data.images &&
-            ((data.images.description && descriptionEl.value !== data.images.description) ||
-                (data.images.tags && !isEqual(tags, data.images.tags)))
+            data.imgData &&
+            ((data.imgData.description && descriptionEl.value.toLowerCase() !== data.imgData.description) ||
+                (data.imgData.tags && !isEqual(tags, data.imgData.tags)))
         ) {
-            fetch(`/api/image/data/:${public_id}`, {
+            fetch(`/api/image/data/:${public_id.replace("/", "_")}`, {
                 method: "put",
                 body: JSON.stringify({ tags, descriptionEl: descriptionEl.value }),
                 headers: {
@@ -71,7 +70,7 @@ function EditUserImage({ url, public_id, toggleEditImageModal }: UserProfileImag
                     return res.json();
                 })
                 .then((parsedRes) => {
-                    if (parsedRes.msg === "ok" && parsedRes.images) {
+                    if (parsedRes.msg === "ok" && parsedRes.imgData) {
                         addNotification({ type: "success", msg: "Successfully updated." });
                         refetch();
                     }
@@ -86,7 +85,10 @@ function EditUserImage({ url, public_id, toggleEditImageModal }: UserProfileImag
     return (
         <>
             <div className="tw-w-screen tw-h-screen tw-absolute tw-top-0 tw-left-0 tw-z-50 tw-bg-neutral-500 tw-bg-opacity-50 tw-flex tw-flex-col tw-items-center tw-justify-center">
-                <div className=" tw-bg-neutral-50 tw-drop-shadow-xl tw-shadow-neutral-900 tw-p-4 tw-rounded-md tw-w-11/12 tw-font-Quicksand tw-py-5 md:tw-max-w-md lg:tw-max-w-lg">
+                <div
+                    className=" tw-bg-neutral-50 tw-drop-shadow-xl tw-shadow-neutral-900 tw-p-4 tw-rounded-md tw-w-11/12 tw-font-Quicksand tw-py-5 md:tw-max-w-md lg:tw-max-w-lg"
+                    id="editUserImage"
+                >
                     <CloseIcon
                         backgroundColor={"tw-bg-neutral-50"}
                         shadowColor={"tw-shadow-neutral-50"}
@@ -108,9 +110,14 @@ function EditUserImage({ url, public_id, toggleEditImageModal }: UserProfileImag
                         />
                     </section>
 
-                    {isSuccess && <TagsInput tags={data.image.tags} setTags={setTags} />}
+                    {isSuccess && <TagsInput tags={tags} setTags={setTags} />}
                     {isSuccess && (
-                        <TextArea name={"description"} label={"description"} placeHolder={"image description"} />
+                        <TextArea
+                            name={"description"}
+                            label={"description"}
+                            placeHolder={"image description"}
+                            value={data.imgData.description}
+                        />
                     )}
                     {isLoading && <h1>Please wait</h1>}
                     {isError && <h1>{"Could not fetch image data."}</h1>}
