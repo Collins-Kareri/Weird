@@ -2,7 +2,7 @@
 import React, { useRef, useState } from "react";
 import Logo from "@components/logo";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import Form, { FormPropTypes } from "@components/form";
+import Form, { FormPropTypes } from "@components/form/form";
 import { useNotification } from "@context/notifications.context";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
 

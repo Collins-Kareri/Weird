@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
-import Popover from "@components/popover";
+import Popover from "@components/modals/popover";
 import checkAuth from "@clientUtils/checkAuth";
 import { useUser } from "@context/user.context";
 

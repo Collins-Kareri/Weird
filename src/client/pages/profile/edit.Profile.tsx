@@ -2,7 +2,7 @@ import React, { useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser, AuthenticatedUserSafeProps } from "@context/user.context";
 import { useNotification } from "@context/notifications.context";
-import Input from "@components/inputField";
+import Input from "@components/form/inputField";
 import Button from "@components/button";
 import ProfilePic from "@pages/profile/profilePic";
 import { isValidEmail, isValidUsername, checkIfCredentialExist } from "@pages/createAccount/createAccount.validators";

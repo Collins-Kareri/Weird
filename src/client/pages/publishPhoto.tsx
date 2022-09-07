@@ -1,15 +1,15 @@
 import React, { useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import ImageInput, { ImgObj } from "@components/imageInput";
+import ImageInput, { ImgObj } from "@components/image/imageInput";
 import Button from "@components/button";
-import AddIcon from "@components/addIcon";
+import AddIcon from "@components/icons/addIcon";
 import { useNotification } from "@context/notifications.context";
 import { useUser } from "@context/user.context";
 import Spinner from "@components/spinner";
-import Close from "@components/closeIcon";
-import TagsInput from "@components/tagsInput";
-import TextArea from "@components/textArea";
-import Popover from "@components/popover";
+import Close from "@components/icons/closeIcon";
+import TagsInput from "@components/image/tagsInput";
+import TextArea from "@components/form/textArea";
+import Popover from "@components/modals/popover";
 
 interface PageBodyProps {
     currentImg: ImgObj | undefined;

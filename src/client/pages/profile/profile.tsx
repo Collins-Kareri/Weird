@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import Collections from "@components/collections";
-import CreateCollection from "@src/client/components/createCollection";
+import Collections from "@components/collections/collections";
+import CreateCollection from "@components/modals/createCollection";
 import Button from "@components/button";
 import Logo from "@assets/logo.svg";
 import ProfilePic from "@pages/profile/profilePic";
-import Image from "@components/image";
+import Image from "@components/image/image";
 import { useUser } from "@context/user.context";
 
 interface PlaceHolderContentPropTypes {

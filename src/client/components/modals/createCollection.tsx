@@ -1,7 +1,7 @@
 import React from "react";
-import CloseIcon from "@components/closeIcon";
-import Input from "@components/inputField";
-import TextArea from "@components/textArea";
+import CloseIcon from "@components/icons/closeIcon";
+import Input from "@components/form/inputField";
+import TextArea from "@components/form/textArea";
 import Button from "@components/button";
 import { useUser } from "@context/user.context";
 import { useNotification } from "@context/notifications.context";

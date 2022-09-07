@@ -1,5 +1,5 @@
 import React from "react";
-import Close from "@components/closeIcon";
+import Close from "@components/icons/closeIcon";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
 import generateKey from "@src/shared/utils/generateKeys";
 import { useNotification } from "@context/notifications.context";

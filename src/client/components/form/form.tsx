@@ -1,6 +1,6 @@
 import React from "react";
-import InputField, { InputPropsTypes } from "@components/inputField";
-import CheckBox, { CheckBoxPropTypes } from "@components/checkbox";
+import InputField, { InputPropsTypes } from "@components/form/inputField";
+import CheckBox, { CheckBoxPropTypes } from "@components/form/checkbox";
 import Button, { ButtonPropTypes } from "@components/button";
 
 export type FormPropTypes = {

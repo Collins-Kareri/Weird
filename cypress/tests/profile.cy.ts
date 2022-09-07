@@ -337,13 +337,22 @@ describe("profile page", () => {
 
     //test image logic
 
-    // it("displays user images.", () => {});
+    it("displays user images.", () => {
+        cy.get<User>("@userData").then((credentials: User) => {
+            //login first
+            cy.request("post", "api/user/login", {
+                username: credentials.username,
+                password: credentials.password,
+            }).then((res) => {
+                expect(res.status).eq(200);
+                expect(res.body).to.haveOwnProperty("msg", "successful");
+            });
+        });
+    });
 
-    // it("should display image modal on image click.", () => {});
+    // it("should display image modal on edit image button click.", () => {});
 
-    // it("should display edit image modal on image edit button click.", () => {});
-
-    // it("should edit tags of a specific image.", () => {});
+    // it("should edit tags and description of a specific image.", () => {});
 
     // it("should delete selected image.", () => {});
 

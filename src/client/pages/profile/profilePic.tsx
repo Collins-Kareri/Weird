@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@context/user.context";
-import ImageInput from "@components/imageInput";
+import ImageInput from "@components/image/imageInput";
 import EditIcon from "@assets/edit.svg";
 import Button from "@components/button";
 import Spinner from "@components/spinner";

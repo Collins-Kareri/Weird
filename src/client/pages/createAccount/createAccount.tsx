@@ -1,6 +1,6 @@
 import React, { useState, useReducer, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import Form, { FormPropTypes } from "@components/form";
+import Form, { FormPropTypes } from "@components/form/form";
 import { useNotification } from "@context/notifications.context";
 import Logo from "@components/logo";
 import {

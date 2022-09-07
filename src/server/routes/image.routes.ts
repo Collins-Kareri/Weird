@@ -1,10 +1,23 @@
 import { Router } from "express";
-import { publish, deleteImgNode, deleteProfileImage, getUsersImages } from "@server/handlers/image.handlers";
-import { deleteAsset, generateSignature } from "@server/cloudinary";
+import {
+    publish,
+    deleteImgNode,
+    deleteProfileImage,
+    getUsersImages,
+    updateUserImages,
+} from "@server/handlers/image.handlers";
+import { deleteAsset, generateSignature, getImageData } from "@server/cloudinary";
 import requireAuth from "@server/middleware/requireAuth";
 import parseParams from "@server/middleware/parseParam";
 
 const router = Router();
+
+interface AuthenticatedUser extends Omit<UserSafeProps, "public_id" | "url"> {
+    profilePic: {
+        public_id: string;
+        url: string;
+    };
+}
 
 router.get("/signature/:upload_preset", requireAuth, parseParams, (req, res) => {
     const { upload_preset } = req.params;
@@ -23,6 +36,19 @@ router.get("/signature/:upload_preset", requireAuth, parseParams, (req, res) => 
 });
 
 router.get("/:username", parseParams, getUsersImages);
+
+router.get("/data/:public_id", parseParams, async (req, res) => {
+    //todo get image data from cloudinary
+    const { public_id } = req.params;
+    try {
+        const cloudinaryRes = await getImageData(public_id.replace(/_/g, "/"));
+        console.log(cloudinaryRes);
+        res.json({ msg: "ok", image: cloudinaryRes });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "could not get image data." });
+    }
+});
 
 router.post("/publish", requireAuth, publish);
 
@@ -44,6 +70,8 @@ router.post("/signature/:upload_preset", requireAuth, parseParams, (req, res) =>
     return;
 });
 
+router.put("/data/:public_id", requireAuth, parseParams, updateUserImages);
+
 router.delete("/:public_id", requireAuth, parseParams, async (req, res) => {
     const { public_id } = req.params;
 
@@ -59,11 +87,10 @@ router.delete("/:public_id", requireAuth, parseParams, async (req, res) => {
 });
 
 router.delete("/profileImage/delete", requireAuth, async (req, res) => {
-    const { id, public_id } = req.user as UserSafeProps;
-
+    const { id, profilePic } = req.user as AuthenticatedUser;
     const deleteRes: [UserSafeProps | undefined, string] = await Promise.all([
         deleteProfileImage(id),
-        deleteAsset(public_id),
+        deleteAsset(profilePic.public_id),
     ]);
 
     if (typeof deleteRes[0] === "undefined" || deleteRes[1] === "failed") {

@@ -6,7 +6,7 @@ import { useUser } from "@context/user.context";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
 import generateKey from "@src/shared/utils/generateKeys";
 import Button from "@components/button";
-import AddIcon from "@components/addIcon";
+import AddIcon from "@components/icons/addIcon";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface CollectionContent {

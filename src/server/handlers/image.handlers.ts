@@ -2,6 +2,7 @@ import { writeService, readService } from "@server/neo4j/neo4j.transactions";
 import { getDriver } from "@server/neo4j/neo4j.driver";
 import { toNativeTypes } from "@serverUtils/neo4j.utils";
 import { Request, Response } from "express";
+import { updateImage } from "@server/cloudinary";
 
 /**
  * Creates image node in neo4j db
@@ -136,5 +137,28 @@ export async function getUsersImages(req: Request, res: Response) {
         return res.json({ msg: "no images found" });
     } catch (error) {
         return res.status(500).json({ msg: "can't read images" });
+    }
+}
+
+export async function updateUserImages(req: Request, res: Response) {
+    const { public_id } = req.params;
+    const { tags, description } = req.body as { tags: string[]; description: string };
+
+    if (tags.length <= 0) {
+        res.status(400).json({ msg: "cannot update." });
+    }
+
+    let uploadData;
+    if (description) {
+        uploadData = { context: `alt=${description}` };
+    } else {
+        uploadData = { tags };
+    }
+
+    try {
+        const cloudinaryRes = await updateImage(public_id as string, uploadData);
+        res.json({ msg: "ok", imgData: cloudinaryRes });
+    } catch (error) {
+        res.status(500).json({ msg: "couldn't update image." });
     }
 }

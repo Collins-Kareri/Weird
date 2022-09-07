@@ -4,21 +4,14 @@ import { useNotification } from "@context/notifications.context";
 import { useUser } from "@context/user.context";
 import { useLocation, useNavigate } from "react-router-dom";
 import Button from "@components/button";
-import Input from "@components/inputField";
-import TextArea from "@components/textArea";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
-import Image from "@components/image";
-import CloseIcon from "@components/closeIcon";
+import Image from "@components/image/image";
+import EditCollectionModal from "@components/modals/editCollection";
 
 export interface CollectionInfo {
     collectionName: string;
     description: string;
     noOfItems: number;
-}
-
-interface EditCollectionModalProps extends Omit<CollectionInfo, "noOfItems"> {
-    toggleModalStatus: () => void;
-    setCollectionDetails: React.Dispatch<React.SetStateAction<CollectionInfo>>;
 }
 
 function usePersistantState<T>(defaultValue: T, itemName: string) {
@@ -30,91 +23,6 @@ function usePersistantState<T>(defaultValue: T, itemName: string) {
     }, [value]);
 
     return [value, setValue] as [T, React.Dispatch<React.SetStateAction<T>>];
-}
-
-function EditCollectionModal({
-    collectionName,
-    description,
-    toggleModalStatus,
-    setCollectionDetails,
-}: EditCollectionModalProps) {
-    const { addNotification } = useNotification();
-
-    function update() {
-        const descriptionEl = document.querySelector("#description") as HTMLTextAreaElement;
-        const nameEl = document.querySelector("#collectionName") as HTMLInputElement;
-
-        if (nameEl.value !== collectionName || descriptionEl.value !== description) {
-            fetch(`/api/collection/:${collectionName}`, {
-                method: "put",
-                body: JSON.stringify({ description: descriptionEl.value, name: nameEl.value }),
-                headers: { "Content-Type": "application/json" },
-            })
-                .then((res) => res.json())
-                .then((parsedRes) => {
-                    switch (parsedRes.msg.toLowerCase()) {
-                        case "ok":
-                            addNotification({ type: "success", msg: "succefully updated" });
-                            toggleModalStatus();
-                            setCollectionDetails({ ...parsedRes.collection });
-                            return;
-                        case "not updated":
-                            addNotification({ type: "info", msg: "not updated" });
-                            return;
-                        default:
-                            addNotification({ type: "error", msg: "Error occurred updating collection" });
-                            return;
-                    }
-                })
-                .catch(() => {
-                    addNotification({ type: "error", msg: "Error occurred updating collection" });
-                    return;
-                });
-        }
-
-        return;
-    }
-
-    return (
-        <div className="tw-absolute tw-w-full tw-h-full tw-z-30 tw-bg-neutral-700 tw-top-0 tw-bg-opacity-80 tw-flex tw-flex-col tw-items-center tw-justify-center">
-            <div
-                className="tw-relative tw-bg-neutral-50  tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-fit tw-p-4 tw-w-11/12 md:tw-w-2/4 md:tw-mx-auto tw-drop-shadow-xl tw-shadow-neutral-500 tw-rounded-md tw-my-4"
-                data-within="editCollection"
-            >
-                <CloseIcon
-                    backgroundColor={"tw-bg-neutral-50"}
-                    shadowColor={"tw-shadow-neutral-50"}
-                    fillColor={"tw-fill-neutral-800"}
-                    strokeColor={"tw-stroke-neutral-800"}
-                    position={"tw-absolute -tw-top-4 -tw-right-2"}
-                    onClick={toggleModalStatus}
-                />
-                <Input
-                    type={"text"}
-                    label={"name"}
-                    placeholder={"collection name"}
-                    name={"collectionName"}
-                    handleChange={() => {
-                        return;
-                    }}
-                    value={capitalizeFirstChar(collectionName)}
-                />
-                <TextArea
-                    label={"description"}
-                    name={"description"}
-                    placeHolder={"Collection description"}
-                    value={description}
-                />
-                <section
-                    className="tw-flex tw-flex-row tw-justify-between tw-w-full"
-                    id="updateCollectionDataCtaContainer"
-                >
-                    <Button priority={"secondary"} value={"cancel"} handleClick={toggleModalStatus} />
-                    <Button priority={"primary"} value={"update"} extraStyles="tw-mr-4" handleClick={update} />
-                </section>
-            </div>
-        </div>
-    );
 }
 
 function PageBody({
@@ -232,7 +140,7 @@ function PageBody({
                         <Image
                             images={data.images}
                             collectionName={collectionDetails.collectionName}
-                            refetch={refetch}
+                            refetchCollectionImages={refetch}
                             setCollectionDetails={setCollectionDetails}
                         />
                     )}
