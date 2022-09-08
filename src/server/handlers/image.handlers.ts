@@ -74,7 +74,8 @@ export async function deleteImgNode(public_id: string, username: string) {
         WITH img
         DETACH DELETE img
     }
-    return { id: usr.id, username: usr.name, email: usr.email, public_id: usr.profilePicPublicId, url: usr.profilePicUrl } as user`;
+    RETURN { id: usr.id, username: usr.name, email: usr.email , 
+        public_id: usr.profilePicPublicId, url: usr.profilePicUrl, noOfUploadedImages:  SIZE((usr)-[:UPLOADED]->(:Image)), noOfCollections: SIZE( (:Collection)-[:CURATED_BY]->(usr) )  } as user`;
 
     try {
         const dbRes = await writeService(session, query, { public_id, username });
@@ -86,12 +87,11 @@ export async function deleteImgNode(public_id: string, username: string) {
             if (dbRes.records && dbRes.records[0]) {
                 user = dbRes.records[0].get("user");
             }
-            return user ? user : "ok";
+            return user ? toNativeTypes(user) : "ok";
         }
 
         return "not found";
     } catch (error) {
-        console.log(error);
         throw "error deleting node";
     }
 }
@@ -146,7 +146,6 @@ export async function getUsersImages(req: Request, res: Response) {
 
         return res.json({ msg: "no images found" });
     } catch (error) {
-        console.log(error);
         return res.status(500).json({ msg: "can't read images" });
     }
 }
@@ -161,7 +160,7 @@ export async function updateUserImages(req: Request, res: Response) {
 
     let uploadData;
     if (description) {
-        uploadData = { context: `alt=${description}` };
+        uploadData = { context: `alt=${description}`, tags };
     } else {
         uploadData = { tags };
     }
@@ -179,7 +178,6 @@ export async function updateUserImages(req: Request, res: Response) {
             },
         });
     } catch (error) {
-        console.log(error);
         res.status(500).json({ msg: "couldn't update image." });
     }
 }

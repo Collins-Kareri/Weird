@@ -1,5 +1,5 @@
 import React from "react";
-import Close from "@components/icons/closeIcon";
+import Close from "@src/client/components/iconsComponents/closeIcon";
 import generateKeys from "@src/shared/utils/generateKeys";
 
 interface TagsProps {

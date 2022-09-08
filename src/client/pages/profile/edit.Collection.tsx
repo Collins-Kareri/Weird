@@ -5,7 +5,7 @@ import { useUser } from "@context/user.context";
 import { useLocation, useNavigate } from "react-router-dom";
 import Button from "@components/button";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
-import Image from "@components/image/image";
+import Image from "@src/client/components/imageComponents/image";
 import EditCollectionModal from "@components/modals/editCollection";
 
 export interface CollectionInfo {

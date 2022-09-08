@@ -95,7 +95,6 @@ export async function getImageData(public_id: string) {
     return new Promise((resolve, reject) => {
         cloudinary.api.resource(public_id, undefined, (err, result) => {
             if (err) {
-                console.log(err, "cd");
                 reject(err);
                 return;
             }

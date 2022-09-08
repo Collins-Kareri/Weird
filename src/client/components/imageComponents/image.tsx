@@ -4,8 +4,8 @@ import generateKey from "@src/shared/utils/generateKeys";
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters, useQuery } from "react-query";
 import { CollectionInfo } from "@pages/profile/edit.Collection";
 import { useLocation } from "react-router-dom";
-import CollectionImage from "@components/image/CollectionImage";
-import UserImage from "@components/image//UserImage";
+import CollectionImage from "@src/client/components/imageComponents/collection.image";
+import UserImage from "@src/client/components/imageComponents/user.image";
 
 export interface ImageProps {
     images?: { url: string; public_id?: string }[];

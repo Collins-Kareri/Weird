@@ -1,5 +1,5 @@
 import React from "react";
-import CloseIcon from "@components/icons/closeIcon";
+import CloseIcon from "@src/client/components/iconsComponents/closeIcon";
 import Input from "@components/form/inputField";
 import TextArea from "@components/form/textArea";
 import Button from "@components/button";

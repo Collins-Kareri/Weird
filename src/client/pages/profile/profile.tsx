@@ -5,7 +5,7 @@ import CreateCollection from "@components/modals/createCollection";
 import Button from "@components/button";
 import Logo from "@assets/logo.svg";
 import ProfilePic from "@pages/profile/profilePic";
-import Image from "@components/image/image";
+import Image from "@src/client/components/imageComponents/image";
 import { useUser } from "@context/user.context";
 
 interface PlaceHolderContentPropTypes {
@@ -138,6 +138,8 @@ function Profile() {
         return;
     }
 
+    console.log(currentUser);
+
     return location.pathname === "/profile" ? (
         <>
             <div className=" tw-flex tw-flex-col tw-justify-center tw-items-center  tw-font-Quicksand tw-font-semibold tw-p-4 tw-text-neutral-800 md:tw-flex-row">
@@ -181,7 +183,7 @@ function Profile() {
             {collectionsModalStatus === "open" && <CreateCollection closeCollectionModal={closeCollectionModal} />}
 
             {/**collection grid container */}
-            {activeTab === "collections" && (
+            {activeTab === "collections" && currentUser?.noOfUploadedImages && currentUser?.noOfCollections > 0 && (
                 <Collections
                     username={currentUser?.username}
                     noOfCollections={currentUser ? currentUser.noOfCollections : 0}
@@ -189,7 +191,9 @@ function Profile() {
             )}
 
             {/**image grid container */}
-            {activeTab === "images" && <Image username={currentUser?.username} />}
+            {activeTab === "images" && currentUser?.noOfUploadedImages && currentUser?.noOfUploadedImages > 0 && (
+                <Image username={currentUser?.username} />
+            )}
         </>
     ) : (
         <Outlet />

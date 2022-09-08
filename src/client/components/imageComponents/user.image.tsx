@@ -17,7 +17,7 @@ export interface UserProfileImageBodyProps {
 function UserImage({ url, public_id, refetchUserImages }: UserProfileImageBodyProps) {
     const [editImageModalStatus, setEditImageModalStatus] = useState(false);
     const { addNotification } = useNotification();
-    const { currentUser, setUser } = useUser();
+    const { setUser } = useUser();
 
     function toggleEditImageModal() {
         setEditImageModalStatus(!editImageModalStatus);
@@ -37,9 +37,8 @@ function UserImage({ url, public_id, refetchUserImages }: UserProfileImageBodyPr
             .then((parsedRes) => {
                 if (parsedRes.msg === "ok") {
                     addNotification({ type: "success", msg: "Successfully delete." });
-                    if (currentUser) {
-                        const { noOfUploadedImages, ...others } = currentUser;
-                        setUser({ noOfUploadedImages: noOfUploadedImages, ...others });
+                    if (parsedRes.user) {
+                        setUser(parsedRes.user);
                     }
 
                     if (refetchUserImages) {

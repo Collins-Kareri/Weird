@@ -1,13 +1,13 @@
 import React, { useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import ImageInput, { ImgObj } from "@components/image/imageInput";
+import ImageInput, { ImgObj } from "@src/client/components/imageComponents/image.input";
 import Button from "@components/button";
-import AddIcon from "@components/icons/addIcon";
+import AddIcon from "@src/client/components/iconsComponents/addIcon";
 import { useNotification } from "@context/notifications.context";
 import { useUser } from "@context/user.context";
 import Spinner from "@components/spinner";
-import Close from "@components/icons/closeIcon";
-import TagsInput from "@components/image/tagsInput";
+import Close from "@src/client/components/iconsComponents/closeIcon";
+import TagsInput from "@src/client/components/imageComponents/tags.input";
 import TextArea from "@components/form/textArea";
 import Popover from "@components/modals/popover";
 

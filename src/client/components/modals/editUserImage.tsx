@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { useNotification } from "@context/notifications.context";
-import TagsInput from "@components/image/tagsInput";
+import TagsInput from "@src/client/components/imageComponents/tags.input";
 import TextArea from "@components/form/textArea";
-import CloseIcon from "@components/icons/closeIcon";
-import { UserProfileImageBodyProps } from "@components/image//UserImage";
+import CloseIcon from "@src/client/components/iconsComponents/closeIcon";
+import { UserProfileImageBodyProps } from "@src/client/components/imageComponents/user.image";
 import Button from "@components/button";
 
 function EditUserImage({ url, public_id, toggleEditImageModal }: UserProfileImageBodyProps) {
@@ -58,7 +58,7 @@ function EditUserImage({ url, public_id, toggleEditImageModal }: UserProfileImag
         ) {
             fetch(`/api/image/data/:${public_id.replace("/", "_")}`, {
                 method: "put",
-                body: JSON.stringify({ tags, descriptionEl: descriptionEl.value }),
+                body: JSON.stringify({ tags, description: descriptionEl.value }),
                 headers: {
                     "Content-Type": "application/json",
                 },

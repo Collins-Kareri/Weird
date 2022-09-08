@@ -2,7 +2,7 @@ import { useNotification } from "@context/notifications.context";
 import { CollectionInfo } from "@pages/profile/edit.Collection";
 import React from "react";
 import Button from "@components/button";
-import { ImageProps } from "@components/image/image";
+import { ImageProps } from "@src/client/components/imageComponents/image";
 
 interface EditCollectionImageBody extends Omit<ImageProps, "images" | "username"> {
     url: string;

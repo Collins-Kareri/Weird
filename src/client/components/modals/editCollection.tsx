@@ -4,7 +4,7 @@ import React from "react";
 import Button from "@components/button";
 import TextArea from "@components/form/textArea";
 import Input from "@components/form/inputField";
-import CloseIcon from "@components/icons/closeIcon";
+import CloseIcon from "@src/client/components/iconsComponents/closeIcon";
 import { CollectionInfo } from "@pages/profile/edit.Collection";
 
 interface EditCollectionModalProps extends Omit<CollectionInfo, "noOfItems"> {

@@ -42,13 +42,12 @@ router.get("/data/:public_id", parseParams, async (req, res) => {
     const { public_id } = req.params;
     try {
         const { tags, description } = (await getImageData(public_id.replace(/_/g, "/"))) as {
-            tags?: string;
+            tags?: string[];
             description?: string;
         };
 
         res.json({ msg: "ok", imgData: { tags: tags ? tags : [], description: description ? description : "" } });
     } catch (error) {
-        console.log(error);
         res.status(500).json({ msg: "could not get image data." });
     }
 });
@@ -82,15 +81,18 @@ router.delete("/:public_id", requireAuth, parseParams, async (req, res) => {
 
     Promise.all([deleteAsset(parsedId), deleteImgNode(parsedId, username)])
         .then((result) => {
-            if (typeof result[0] !== "string") {
-                return req.login(result[0], (err) => {
+            if (typeof result[1] !== "string") {
+                return req.login(result[1], (err) => {
                     if (err) {
-                        res.json({ msg: "ok" });
+                        res.json({ msg: "ok", user: result[1] });
+                        return;
                     }
-                    res.json({ msg: "ok" });
+                    res.json({ msg: "ok", user: result[1] });
+                    return;
                 });
             }
             res.json({ msg: "ok" });
+            return;
         })
         .catch(() => {
             res.status(500).json({ msg: "fail" });

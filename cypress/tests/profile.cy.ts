@@ -54,11 +54,9 @@ describe("profile page", () => {
             }).then((res) => {
                 expect(res.status).eq(200);
                 expect(res.body).to.haveOwnProperty("msg", "successful");
-                cy.intercept(`/api/image/:${credentials.username}?skip=${0}&&limit=6`).as("fetchUserImages");
 
                 cy.visit("/profile");
                 cy.get("#imageTab").click();
-                cy.wait("@fetchUserImages");
 
                 cy.get("#placeholderContent")
                     .should("exist")
@@ -132,7 +130,6 @@ describe("profile page", () => {
 
                 cy.visit("/profile");
                 cy.get("#collectionTab").click();
-                cy.wait("@fetchCollections");
 
                 cy.get("#placeholderContent")
                     .should("exist")
@@ -429,7 +426,7 @@ describe("profile page", () => {
                         expect(result.response?.body.imgData).to.haveOwnProperty("tags");
                         expect(result.response?.body.imgData.tags[0]).to.eq("hello");
                         expect(result.response?.body.imgData).to.haveOwnProperty("description", "This is description");
-                        cy.get("#description").should("have.value", "This is a description");
+                        cy.get("#description").should("have.value", "This is description");
                     });
                 });
             });
@@ -463,8 +460,8 @@ describe("profile page", () => {
                         .last()
                         .click();
                     cy.wait("@deleteImage");
-                    cy.visit("/profile");
-                    // cy.get("#imageTab").should("exist").and("contain.text", "images 0");
+                    cy.get("#imageTab").should("exist").and("contain.text", "images 0");
+                    cy.wait("@getUserImages");
                     cy.get("div[data-within=images]").should("not.exist");
                 });
             });
