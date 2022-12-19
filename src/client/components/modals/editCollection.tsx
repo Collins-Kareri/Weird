@@ -20,6 +20,7 @@ function EditCollectionModal({
 }: EditCollectionModalProps) {
     const { addNotification } = useNotification();
 
+    //updating collection details
     function update() {
         const descriptionEl = document.querySelector("#description") as HTMLTextAreaElement;
         const nameEl = document.querySelector("#collectionName") as HTMLInputElement;

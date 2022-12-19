@@ -102,7 +102,7 @@ function CollectionContent({ name, coverImage, noOfItems, key, description, refe
     );
 }
 
-function Collections({ username, noOfCollections }: { username?: string; noOfCollections: number }) {
+function Collections({ username, noOfCollections }: { username?: string; noOfCollections: number | 0 }) {
     const { isLoading, data, isError, refetch } = useQuery("collections", async () => {
         if (username) {
             return await (await fetch(`/api/collection/:${username}`, { method: "get" })).json();

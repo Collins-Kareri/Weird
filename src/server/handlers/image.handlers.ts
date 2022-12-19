@@ -3,6 +3,7 @@ import { getDriver } from "@server/neo4j/neo4j.driver";
 import { toNativeTypes } from "@serverUtils/neo4j.utils";
 import { Request, Response } from "express";
 import { updateImage } from "@server/cloudinary";
+import { addImageDataToDb } from "@server/neo4j/neo4j.handlers";
 
 /**
  * Creates image node in neo4j db
@@ -10,22 +11,6 @@ import { updateImage } from "@server/cloudinary";
  * @param  {Response} res
  */
 export async function publish(req: Request, res: Response) {
-    const driver = getDriver();
-    const session = driver.session();
-
-    const query = `MATCH (usr:User {name:$username})
-    MERGE (img:Image 
-        {
-            name:$asset_id,
-            url:$url,
-            secure_url:$secure_url,
-            public_id:$public_id,
-            asset_id:$asset_id,
-            createdAt:dateTime()
-        })
-    MERGE (img)<-[rel:UPLOADED]-(usr)
-    RETURN img as image, rel, SIZE((usr)-[:UPLOADED]->(:Image)) as noOfUploadedImages, SIZE( (:Collection)-[:CURATED_BY]->(usr) ) as noOfCollections, {id: usr.id, username: usr.name, email: usr.email, public_id: usr.profilePicPublicId, url: usr.profilePicUrl} as user`;
-
     const { username } = req.user as User;
     const { public_id, asset_id, url, secure_url } = req.body;
 
@@ -35,26 +20,9 @@ export async function publish(req: Request, res: Response) {
     }
 
     try {
-        const dbRes = await writeService(session, query, { username, url, secure_url, public_id, asset_id });
-
-        if (dbRes.records[0].length > 0) {
-            const { public_id, url, ...others } = dbRes.records[0].get("user");
-            const noOfUploadedImages = dbRes.records[0].get("noOfUploadedImages").toNumber();
-            const noOfCollections = dbRes.records[0].get("noOfCollections").toNumber();
-
-            let userProps;
-
-            if (public_id && url) {
-                userProps = { profilePic: { public_id, url }, ...others };
-            } else {
-                userProps = others;
-            }
-
-            res.status(201).json({ msg: "published", user: { ...userProps, noOfUploadedImages, noOfCollections } });
-            return;
-        }
-
-        res.json({ msg: "failed" });
+        const result = await addImageDataToDb({ username, public_id, asset_id, url, secure_url });
+        res.status(201).json({ msg: "published", user: result });
+        return;
     } catch (error) {
         res.status(500).json({ msg: "failed" });
         return;

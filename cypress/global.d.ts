@@ -6,7 +6,7 @@ declare namespace Cypress {
          */
         createUser(credentials: User): void;
         /**
-         * Create a new user by using UI.
+         * Checks the authentication status.
          * @example cy.checkAuthStatus(credentials)
          */
         checkAuthStatus(credentials: User): void;
@@ -16,5 +16,10 @@ declare namespace Cypress {
          * Check if you can make request to server from client.
          */
         ping(): void;
+        /**
+         * Uploads image to cloudinary
+         * @example cy.uploadImg(public_id)
+         */
+        uploadImg(imageData: TestImg): void;
     }
 }

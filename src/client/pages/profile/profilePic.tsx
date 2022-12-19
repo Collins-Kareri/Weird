@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, { useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@context/user.context";
@@ -34,13 +35,14 @@ function ProfilePic() {
      * @returns Promise<boolean>
      */
     async function publishProfilePic(base64Str: string | ArrayBuffer): Promise<boolean> {
-        //todo send to cloudinary then send to neo4j
-        //todo delete current image
+        //sends to cloudinary then send to neo4j
+        //deletes current profile image
 
         try {
             const signatureRes = await (await fetch("/api/image/signature/:profilePic", { method: "get" })).json();
-            const cloudinaryUrl = "https://api.cloudinary.com/v1_1/karerisspace/image/upload";
-            const cloudinaryDeleteByToken = "https://api.cloudinary.com/v1_1/karerisspace/delete_by_token";
+            console.log(signatureRes);
+            const cloudinaryUrl = process.env.My_CLOUDINARY_URL as string;
+            const cloudinaryDeleteByToken = process.env.My_CLOUDINARY_URL as string;
 
             if (signatureRes.msg === "fail" || typeof signatureRes.msg === "undefined") {
                 setIsLoading(!isLoading);
@@ -67,6 +69,7 @@ function ProfilePic() {
                 await fetch(cloudinaryUrl, { method: "post", body: uploadData })
             ).json();
 
+            console.log(uploadImage);
             //update user details
 
             if (uploadImage.url && currentUser) {
@@ -96,11 +99,13 @@ function ProfilePic() {
                 }
 
                 setUser({ profilePic: { public_id: public_id, url: secure_url }, ...currentUser });
+
                 return true;
             }
 
             return false;
         } catch (error) {
+            console.log(error);
             return false;
         }
     }

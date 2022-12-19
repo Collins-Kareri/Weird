@@ -1,8 +1,5 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 describe("publish image to neo4j and cloudinary", () => {
-    //todo cancel button should take you back to previous page.
-    //todo check if image preview works and when the remove button is clicked the image display is removed.
-    //todo check if that one cannot upload image while unauthenticated.
     beforeEach(() => {
         cy.fixture("user.json").as("userData");
         cy.fixture("testImg-unsplash.jpg", null).as("testImg");
@@ -65,9 +62,7 @@ describe("publish image to neo4j and cloudinary", () => {
                 cy.intercept("post", "api/image/publish").as("publishImage");
 
                 //cloudinary request to upload image to cloudinary
-                cy.intercept("post", "https://api.cloudinary.com/v1_1/karerisspace/image/upload").as(
-                    "cloudinaryUpload"
-                );
+                cy.intercept("post", Cypress.env("cloudinary_upload_url")).as("cloudinaryUpload");
 
                 //upload image by ui
                 cy.visit("/publish");

@@ -178,7 +178,7 @@ export async function findUser(id: string) {
     }
 }
 
-export async function updateUser(updateData: UpdateUser, id: string): Promise<UserSafeProps | undefined> {
+export async function updateUserData(updateData: UpdateUser, id: string): Promise<UserSafeProps | undefined> {
     const { username, email, public_id, url } = updateData;
 
     const driver = getDriver();

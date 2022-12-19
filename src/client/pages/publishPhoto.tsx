@@ -179,9 +179,9 @@ function Publish() {
     }
 
     async function publishPhoto(): Promise<void> {
-        //todo send tags, description and image base 64 url to cloudinary, then send the public url to backend to store in server
+        //send tags, description and image base 64 url to cloudinary, then send the public url to backend to store in server
         const description = (document.getElementById("description") as HTMLTextAreaElement).value;
-        const cloudinaryUrl = "https://api.cloudinary.com/v1_1/karerisspace/image/upload";
+        const cloudinaryUrl = process.env.My_CLOUDINARY_URL as string;
 
         if (!imgData) {
             addNotification({ type: "error", msg: "no image was selected." });
@@ -198,7 +198,8 @@ function Publish() {
             return;
         }
 
-        const signatureRes = await (
+        // eslint-disable-next-line prettier/prettier
+        const signatureRes = await(
             await fetch("/api/image/signature/:weird", {
                 method: "post",
                 body: JSON.stringify({ context: `alt=${description}`, tags: tags.toString().replace(/\[|\]/g, "") }),
@@ -223,6 +224,8 @@ function Publish() {
         uploadData.append("timestamp", signatureRes.timestamp);
         uploadData.append("api_key", signatureRes.apiKey);
         uploadData.append("folder", "weird");
+        uploadData.append("detection", "unidet");
+        uploadData.append("auto_tagging", "0.5");
 
         fetch(cloudinaryUrl, { body: uploadData, method: "post" })
             .then((res) => {

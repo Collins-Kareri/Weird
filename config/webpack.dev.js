@@ -4,6 +4,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const common = require("./webpack.common.js");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const { resolve } = require("path");
+require("dotenv").config();
+const Dotenv = require("dotenv-webpack");
 
 const config = merge(common, {
     mode: "development",
@@ -34,9 +36,9 @@ const config = merge(common, {
         hot: true,
         open: true,
         proxy: {
-            "/api": "http://localhost:5000",
+            "/api": `http://localhost:${process.env.server_port}`,
         },
-        port: 3001,
+        port: process.env.client_port,
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -45,6 +47,7 @@ const config = merge(common, {
             filename: "index.html", // output file
         }),
         new ReactRefreshWebpackPlugin(),
+        new Dotenv(),
     ],
 });
 

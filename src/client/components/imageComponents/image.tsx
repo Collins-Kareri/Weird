@@ -17,10 +17,12 @@ export interface ImageProps {
     setCollectionDetails?: React.Dispatch<React.SetStateAction<CollectionInfo>>;
 }
 
+//displays images in a collection or owned by a specific user
 function Image({ images, collectionName, refetchCollectionImages, setCollectionDetails, username }: ImageProps) {
     const [skip, setSkip] = useState(0);
     const location = useLocation();
 
+    //fetch images using username or collection name
     const { data, isSuccess, isLoading, refetch } = useQuery(
         "fetchUserImages",
         async () => {

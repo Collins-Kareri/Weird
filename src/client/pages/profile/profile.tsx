@@ -138,8 +138,6 @@ function Profile() {
         return;
     }
 
-    console.log(currentUser);
-
     return location.pathname === "/profile" ? (
         <>
             <div className=" tw-flex tw-flex-col tw-justify-center tw-items-center  tw-font-Quicksand tw-font-semibold tw-p-4 tw-text-neutral-800 md:tw-flex-row">
@@ -167,8 +165,8 @@ function Profile() {
             <Tabs
                 setActiveTab={setActiveTab}
                 activeTab={activeTab}
-                noOfImages={currentUser ? currentUser.noOfUploadedImages : 0}
-                noOfCollections={currentUser ? currentUser.noOfCollections : 0}
+                noOfImages={currentUser && currentUser.noOfUploadedImages ? currentUser.noOfUploadedImages : 0}
+                noOfCollections={currentUser && currentUser.noOfUploadedImages ? currentUser.noOfCollections : 0}
             />
 
             {/**placeholder */}
@@ -184,10 +182,7 @@ function Profile() {
 
             {/**collection grid container */}
             {activeTab === "collections" && currentUser?.noOfUploadedImages && currentUser?.noOfCollections > 0 && (
-                <Collections
-                    username={currentUser?.username}
-                    noOfCollections={currentUser ? currentUser.noOfCollections : 0}
-                />
+                <Collections username={currentUser?.username} noOfCollections={currentUser.noOfCollections} />
             )}
 
             {/**image grid container */}

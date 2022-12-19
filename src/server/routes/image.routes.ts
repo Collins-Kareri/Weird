@@ -23,14 +23,16 @@ router.get("/signature/:upload_preset", requireAuth, parseParams, (req, res) => 
     const { upload_preset } = req.params;
 
     const { public_id } = req.user as UserSafeProps;
-    const signature = generateSignature(upload_preset, { public_id });
+    const signature_Generate_Res = generateSignature(upload_preset, {
+        public_id,
+    });
 
-    if (typeof signature === "string") {
-        res.json({ msg: signature });
+    if (typeof signature_Generate_Res === "string") {
+        res.json({ msg: signature_Generate_Res });
         return;
     }
 
-    res.json({ msg: "ok", ...signature });
+    res.json({ msg: "ok", ...signature_Generate_Res });
 
     return;
 });

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser, deleteUser, findUser, updateUser } from "@server/handlers/user.handlers";
+import { createUser, deleteUser, findUser, updateUserData } from "@server/handlers/user.handlers";
 import passport from "passport";
 import parseParam from "@server/middleware/parseParam";
 import requireAuth from "@server/middleware/requireAuth";
@@ -57,7 +57,7 @@ router.put("/update", requireAuth, async (req, res) => {
 
     const { id } = req.user as UserSafeProps;
 
-    const updatedUserData = await updateUser(newUserData, id);
+    const updatedUserData = await updateUserData(newUserData, id);
 
     if (typeof updatedUserData === "undefined") {
         res.status(500).json({ msg: "failed" });

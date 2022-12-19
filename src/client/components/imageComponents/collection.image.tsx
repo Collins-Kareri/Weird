@@ -42,6 +42,7 @@ function CollectionImage({
                 } else {
                     addNotification({ type: "info", msg: parsedRes.msg as string });
                 }
+                window.location.reload();
             })
             .catch(() => {
                 addNotification({ type: "error", msg: "Could not remove image." });

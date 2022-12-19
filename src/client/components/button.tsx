@@ -24,7 +24,7 @@ function Button({ typeOfButton, priority, value, isLoading, extraStyles, handleC
             typeof extraStyles === "string" && extraStyles
         } ${
             isLoading ? "tw-cursor-wait" : "tw-cursor-pointer"
-        } tw-font-Quicksand tw-text-neutral-900 tw-align-middle tw-font-medium tw-text-base tw-w-fit tw-h-fit tw-p-2.5 tw-mt-4 tw-rounded main-transition md:tw-p-3`,
+        } tw-font-Quicksand tw-text-neutral-900 tw-align-middle tw-font-medium tw-text-base tw-w-fit tw-h-fit tw-p-2.5 tw-rounded main-transition md:tw-p-3`,
         primary:
             "tw-ring-1  tw-bg-primary-800 tw-text-primary-200  hover:tw-bg-primary-900 hover:tw-ring-offset-1 hover:tw-ring-offset-primary-900 focus:tw-text-primary-400",
         secondary:

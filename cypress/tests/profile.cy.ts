@@ -207,9 +207,6 @@ describe("profile page", () => {
     });
 
     it("should allow editing of collection.", () => {
-        //todo visit edit collection page.
-        //todo remove image from collection.
-        //todo edit collection details.
         cy.get<User>("@userData").then((credentials: User) => {
             //login first
             cy.request("post", "api/user/login", {
@@ -291,7 +288,7 @@ describe("profile page", () => {
                     .should("have.text", "Remove")
                     .click();
                 cy.wait("@removeImage");
-                cy.get("div[data-within=images]").first().find(">section").should("have.length", 0);
+                cy.get("div[data-within=images]").should("not.exist");
             });
         });
     });
@@ -390,11 +387,14 @@ describe("profile page", () => {
                     expect(res.status).eq(200);
                     expect(res.body).to.haveOwnProperty("msg", "successful");
 
+                    cy.uploadImg(imgData);
+
                     cy.intercept(`/api/image/:${credentials.username}?skip=${0}&&limit=6`).as("getUserImages");
                     cy.intercept("get", `/api/image/data/:${imgData.public_id.replace("/", "_")}`).as("getImageData");
                     cy.intercept("put", `/api/image/data/:${imgData.public_id.replace("/", "_")}`).as(
                         "updateUserImage"
                     );
+
                     cy.visit("/profile");
                     cy.wait("@getUserImages");
 
@@ -424,7 +424,8 @@ describe("profile page", () => {
                         expect(result.response?.statusCode).to.eq(200);
                         expect(result.response?.body).to.haveOwnProperty("imgData");
                         expect(result.response?.body.imgData).to.haveOwnProperty("tags");
-                        expect(result.response?.body.imgData.tags[0]).to.eq("hello");
+                        const tags = result.response?.body.imgData.tags;
+                        expect(tags[tags.length - 1]).to.eq("hello");
                         expect(result.response?.body.imgData).to.haveOwnProperty("description", "This is description");
                         cy.get("#description").should("have.value", "This is description");
                     });

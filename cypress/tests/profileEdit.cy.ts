@@ -42,7 +42,7 @@ describe("profile edit page functionality", () => {
                 password: credentials.password,
             }).then((res) => {
                 cy.intercept("/api/image/signature/:profilePic").as("signatureGeneration");
-                cy.intercept("https://api.cloudinary.com/v1_1/karerisspace/image/upload").as("profilePicUpload");
+                cy.intercept(Cypress.env("cloudinary_upload_url")).as("profilePicUpload");
                 cy.intercept("/api/user/update").as("updateUser");
 
                 expect(res.status).eq(200);
@@ -64,11 +64,8 @@ describe("profile edit page functionality", () => {
                 );
 
                 cy.wait("@signatureGeneration");
-                cy.wait(1000);
                 cy.wait("@profilePicUpload");
-                cy.wait(1000);
                 cy.wait("@updateUser");
-                cy.wait(1000);
 
                 cy.request("/api/auth").then((res) => {
                     expect(res.body).to.haveOwnProperty("user");
@@ -100,7 +97,6 @@ describe("profile edit page functionality", () => {
                     .contains("delete", { matchCase: false })
                     .click();
 
-                cy.wait(1000);
                 cy.wait("@deleteProfilePic");
 
                 cy.get("#profilePic").should("not.exist");

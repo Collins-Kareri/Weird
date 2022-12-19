@@ -39,13 +39,13 @@ function ImageInput({ browseFilesElement, setParentImageData, setIsLoading, publ
                             setParentImageData({ url: URL.createObjectURL(imgData), base64Rep: base64Str });
                         }
 
-                        addNotification({ type: "success", msg: "profile picture updated successfuly." });
+                        addNotification({ type: "success", msg: "profile picture updated." });
 
                         if (setIsLoading) {
                             setIsLoading(false);
                         }
                     } else {
-                        addNotification({ type: "error", msg: "couldn't change profile picture." });
+                        addNotification({ type: "error", msg: "couldn't update profile picture." });
                         if (setIsLoading) {
                             setIsLoading(false);
                         }

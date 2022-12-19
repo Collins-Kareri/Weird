@@ -38,6 +38,7 @@ function PageBody({
     const { addNotification } = useNotification();
     const redirect = useNavigate();
 
+    //fetching collection images
     const { data, isLoading, isFetching, isError, isSuccess, refetch } = useQuery(
         "fetchCollectionImages",
         async () => {
@@ -54,6 +55,7 @@ function PageBody({
         { refetchInterval: false }
     );
 
+    //use effect listening on the status of fetching collection images
     useEffect(() => {
         if (isSuccess && collectionDetails.noOfItems > 6) {
             setSkip(skip + data.images.length);
@@ -66,6 +68,7 @@ function PageBody({
         return;
     }, [isSuccess, isError]);
 
+    //open edit collection modal to edit it's details
     function toggleModalStatus() {
         setOpenModalStatus(!openModalStatus);
         return;

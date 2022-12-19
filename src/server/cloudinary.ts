@@ -1,9 +1,12 @@
 import "dotenv/config";
 import { UploadApiOptions, v2 as cloudinary } from "cloudinary";
+
 interface SignatureExtraparams {
     context?: string;
     tag?: string;
     public_id?: string | undefined;
+    auto_tagging?: number;
+    detection?: string;
 }
 
 cloudinary.config({
@@ -47,6 +50,10 @@ export function generateSignature(preset: string, extraParams?: SignatureExtrapa
         folder = "profilePictures_Weird";
     } else {
         folder = "weird";
+        if (extraParams) {
+            extraParams.detection = "unidet";
+            extraParams.auto_tagging = 0.5;
+        }
     }
 
     if (extraParams) {
@@ -109,5 +116,29 @@ export async function getImageData(public_id: string) {
             resolve({ tags, description });
             return;
         });
+    });
+}
+
+export async function uploadImage(imageData: { imagePath: string; public_id: string }) {
+    return new Promise((resolve, reject) => {
+        cloudinary.uploader.upload(
+            imageData.imagePath,
+            {
+                public_id: imageData.public_id,
+                overwrite: true,
+                detection: "unidet",
+                upload_preset: "weird",
+                folder: "weird",
+                auto_tagging: 0.5,
+            },
+            (err, result) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve(result?.public_id);
+            }
+        );
     });
 }

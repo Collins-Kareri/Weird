@@ -1,24 +1,31 @@
+# WEIRD
+
 A stock site to display weird images.
 
 NOTE: requires setup credentials of a neo4j database as well as cloudinary in a .env file.
 
 NOTE: add constraints to user node in neo4j. ie name and email constraints.
 
-# DEPENDENCIES
+## DEPENDENCIES
+
 npm install
 
-# DEV ENVIROMENT
+## DEV ENVIROMENT
+
 npm run dev
 
-# CYPRESS
+## CYPRESS
+
 Open cypress gui: npm run cypress:open
 
-run tests in terminal: npm run cypress 
+run tests in terminal: npm run cypress
 
-# CLIENT
+## CLIENT
+
 npm run client:dev -- development
 
 npm run client:build -- production then npm run server
 
-# SERVER
+## SERVER
+
 npm run server
