@@ -10,7 +10,9 @@ interface TabsPropTypes {
     activeTab: string;
     tabs: TabProps[];
 }
-
+/**
+ * Build a navigation tab takes activeTab and setActiveTab from useState
+ */
 function My_Tabs({ setActiveTab, activeTab, tabs }: TabsPropTypes) {
     const tabStyles = {
         active: "tw-underline tw-underline-offset-8 hover:tw-underline-offset-4",
