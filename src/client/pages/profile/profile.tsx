@@ -5,7 +5,8 @@ import CreateCollection from "@components/modals/createCollection";
 import Button from "@components/button";
 import Logo from "@assets/logo.svg";
 import ProfilePic from "@pages/profile/profilePic";
-import Image from "@src/client/components/imageComponents/image";
+import Image from "@components/imageComponents/image";
+import My_Tabs from "@components/tabs";
 import { useUser } from "@context/user.context";
 
 interface PlaceHolderContentPropTypes {
@@ -18,13 +19,6 @@ interface PlaceHolderContentPropTypes {
 interface PlaceholderContentToShow {
     images: { msg: string; callToAction: string };
     collections: { msg: string; callToAction: string };
-}
-
-interface TabsPropTypes {
-    setActiveTab: React.Dispatch<React.SetStateAction<string>>;
-    activeTab: string;
-    noOfImages: number;
-    noOfCollections: number;
 }
 
 function PlaceHolderContent({
@@ -80,51 +74,6 @@ function PlaceHolderContent({
     );
 }
 
-function Tabs({ setActiveTab, activeTab, noOfImages, noOfCollections }: TabsPropTypes) {
-    const tabStyles = {
-        active: "tw-underline tw-underline-offset-8 hover:tw-underline-offset-4",
-        inactive: "tw-font-medium  hover:tw-font-semibold hover:tw-underline hover:tw-underline-offset-8",
-    };
-
-    function toggleActiveTab(tabName: string) {
-        if (activeTab === tabName) {
-            return;
-        }
-
-        setActiveTab(tabName);
-    }
-    return (
-        <div
-            className="tw-flex tw-flex-row tw-justify-start tw-font-Quicksand tw-font-bold tw-text-lg tw-text-neutral-800 tw-p-2 lg:tw-p-4"
-            id="tab"
-        >
-            <span
-                className={`tw-p-2 tw-cursor-pointer ${
-                    activeTab.toLowerCase() === "images" ? tabStyles.active : tabStyles.inactive
-                } main-transition`}
-                onClick={() => {
-                    toggleActiveTab("images");
-                }}
-                id="imageTab"
-            >
-                {`images ${noOfImages}`}
-            </span>
-
-            <span
-                className={`tw-p-2 tw-cursor-pointer ${
-                    activeTab.toLowerCase() === "collections" ? tabStyles.active : tabStyles.inactive
-                } main-transition`}
-                onClick={() => {
-                    toggleActiveTab("collections");
-                }}
-                id="collectionTab"
-            >
-                {`collections ${noOfCollections}`}
-            </span>
-        </div>
-    );
-}
-
 function Profile() {
     //todo fetch profile images and collections
     const [activeTab, setActiveTab] = useState("images");
@@ -161,12 +110,24 @@ function Profile() {
                 </section>
             </div>
 
-            {/**tabs */}
-            <Tabs
+            {/*tabs component takes an array of tabs with information to display and name to be displayed of the tab*/}
+            <My_Tabs
                 setActiveTab={setActiveTab}
                 activeTab={activeTab}
-                noOfImages={currentUser && currentUser.noOfUploadedImages ? currentUser.noOfUploadedImages : 0}
-                noOfCollections={currentUser && currentUser.noOfUploadedImages ? currentUser.noOfCollections : 0}
+                tabs={[
+                    {
+                        name: "images",
+                        information: `images ${
+                            currentUser && currentUser.noOfUploadedImages ? currentUser.noOfUploadedImages : 0
+                        }`,
+                    },
+                    {
+                        name: "collections",
+                        information: `collections ${
+                            currentUser && currentUser.noOfUploadedImages ? currentUser.noOfUploadedImages : 0
+                        }`,
+                    },
+                ]}
             />
 
             {/**placeholder */}

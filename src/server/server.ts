@@ -10,7 +10,7 @@ import passport from "passport";
 import "@server/passport/passport";
 
 const APP = EXPRESS();
-const PORT = process.env.server_port || 3000;
+const PORT = process.env.server_port || 5000;
 
 // Connect to Neo4j and Verify Connectivity
 const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
@@ -19,7 +19,7 @@ initDriver(NEO4J_URI as string, NEO4J_USERNAME as string, NEO4J_PASSWORD as stri
 
 const CORS_OPTIONS = {
     credentials: true,
-    origin: "http://localhost:3á001",
+    origin: `http://localhost:${process.env.client_port}`,
     methods: ["post", "get", "put", "delete"],
 };
 

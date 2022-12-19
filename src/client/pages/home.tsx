@@ -1,54 +1,31 @@
 import React from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import My_Nav from "@components/nav";
+import Button from "@components/button";
+import Search from "@components/iconsComponents/searchIcon";
 
 function Home() {
-    const navigate = useNavigate();
-    const location = useLocation();
-
     return (
-        <div className="tw-flex tw-h-screen tw-w-full tw-justify-center tw-items-center tw-font-extrabold tw-flex-wrap">
-            <Link
-                className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-text-xl tw-uppercase tw-mr-4"
-                to={"/createAccount"}
-                onClick={async (evt) => {
-                    evt.preventDefault();
-                    navigate("/createAccount", { state: { from: location.pathname }, replace: false });
-                    return;
-                }}
-            >
-                create account
-            </Link>
-
-            <Link
-                className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-uppercase tw-text-xl tw-mr-4"
-                to={"/login"}
-                onClick={async (evt) => {
-                    evt.preventDefault();
-                    navigate("/login", { state: { from: location.pathname }, replace: true });
-                    return;
-                }}
-            >
-                login
-            </Link>
-
-            <Link
-                className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-uppercase tw-text-xl tw-mr-4"
-                to={"/publish"}
-                onClick={(evt) => {
-                    evt.preventDefault();
-                    navigate("/publish", { state: { from: location.pathname }, replace: false });
-                    return;
-                }}
-            >
-                publish
-            </Link>
-
-            <Link
-                className="tw-underline tw-text-normal-500 tw-font-Taviraj tw-uppercase tw-text-xl tw-mr-4"
-                to={"/profile"}
-            >
-                profile
-            </Link>
+        <div className="container">
+            <My_Nav />
+            <div className="tw-flex tw-h-4/5 tw-w-full tw-justify-center tw-items-center tw-font-extrabold tw-flex-wrap tw-overflow-hidden">
+                <section className="tw-w-full tw-flex tw-justify-center tw-flex-col tw-items-center">
+                    <div className="tw-w-9/12 lg:tw-w-96 tw-flex tw-justify-center tw-flex-row tw-items-center tw-ring-1 tw-ring-neutral-900 tw-rounded-lg">
+                        <Search fillColor={""} strokeColor={""} />
+                        <input
+                            type={"search"}
+                            placeholder={"Search photos"}
+                            className={
+                                "tw-rounded-lg tw-w-10/12 tw-py-3 tw-border-0 tw-outline-0 tw-ring-0 focus:tw-ring-0"
+                            }
+                        />
+                    </div>
+                    <p className="tw-my-4">or</p>
+                    <section className="tw-flex tw-py-4 tw-justify-center">
+                        <Button priority={"primary"} value={"Browse Photos"} extraStyles={"tw-mr-4"} />
+                        <Button priority={"secondary"} value={"Trending"} />
+                    </section>
+                </section>
+            </div>
         </div>
     );
 }
