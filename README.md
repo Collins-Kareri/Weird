@@ -6,11 +6,31 @@ NOTE: requires setup credentials of a neo4j database as well as cloudinary in a 
 
 NOTE: add constraints to user node in neo4j. ie name and email constraints.
 
+## DEV ENVIRONMENT VARIABLES
+
+### These environment variables must be included
+
+CLOUDINARY_CLOUD_NAME
+CLOUDINARY_API_SECRET
+CLOUDINARY_API_KEY
+
+session_secret
+
+NEO4J_URI
+NEO4J_USERNAME
+NEO4J_PASSWORD
+
+server_port
+client_port
+
+My_CLOUDINARY_URL
+My_CLOUDINARY_DELETE_TOKEN_URL
+
 ## DEPENDENCIES
 
 npm install
 
-## DEV ENVIROMENT
+## DEV ENVIRONMENT
 
 npm run dev
 
