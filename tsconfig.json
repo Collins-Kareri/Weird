@@ -1,40 +1,32 @@
 {
     "compilerOptions": {
-      "target": "es5",
-      "module": "commonjs",
-      "lib": [
-        "dom",
-        "ESNext"
-      ],
-      "allowJs": true,
-      "jsx": "react",
-      "sourceMap": true,
-      "outDir":"./dist",
-      "downlevelIteration": true,
-      "isolatedModules": true,
-      "esModuleInterop": true,
-      "strict": true,
-      "noImplicitAny": true,
-      "noFallthroughCasesInSwitch": true,
-      "moduleResolution": "node",
-      "baseUrl": ".",
-      "types": [
-        "node",
-        "react",
-        "react-dom",
-        "./src/shared/types/"
-      ],
-      "paths": {
-        "@src/*":["./src/*"],
-        "@client/*":["./src/client/*"],
-        "@components/*":["./src/client/components/*"],
-        "@context/*":["./src/client/context/*"],
-        "@assets/*":["./src/assets/*"],
-        "@clientUtils/*":["./src/client/utils/*"],
-        "@pages/*":["./src/client/pages/*"],
-        "@server/*":["./src/server/*"],
-        "@serverUtils/*":["./src/server/utils/*"],
-      }
+        "target": "es5",
+        "module": "CommonJS",
+        "lib": ["dom", "ESNext"],
+        "allowJs": true,
+        "jsx": "react",
+        "sourceMap": true,
+        "outDir": "./dist",
+        "downlevelIteration": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "noFallthroughCasesInSwitch": true,
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "types": ["node", "react", "react-dom", "./src/shared/types/"],
+        "paths": {
+            "@src/*": ["./src/*"],
+            "@client/*": ["./src/client/*"],
+            "@components/*": ["./src/client/components/*"],
+            "@context/*": ["./src/client/context/*"],
+            "@assets/*": ["./src/assets/*"],
+            "@clientUtils/*": ["./src/client/utils/*"],
+            "@pages/*": ["./src/client/pages/*"],
+            "@server/*": ["./src/server/*"],
+            "@serverUtils/*": ["./src/server/utils/*"]
+        }
     },
     "include": [
       "./src/**/*"
