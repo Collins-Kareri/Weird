@@ -43,7 +43,7 @@ const Popover = ({
                     <Button
                         priority={"secondary"}
                         value={secondaryActionValue || "cancel"}
-                        extraStyles={"tw-mr-4"}
+                        extraStyles={"tw-mr-4 tw-mt-4"}
                         handleClick={handleSecondaryAction || cancel}
                     />
                 )}
@@ -51,6 +51,7 @@ const Popover = ({
                     priority={"primary"}
                     value={primaryActionValue}
                     handleClick={handlePrimaryAction}
+                    extraStyles={"tw-mt-4"}
                     typeOfButton={"submit"}
                 />
             </div>

@@ -68,6 +68,7 @@ function PlaceHolderContent({
             <Button
                 priority={"secondary"}
                 value={placeholderContent[active as keyof PlaceholderContentToShow].callToAction}
+                extraStyles={"tw-mt-4"}
                 handleClick={handleClick}
             />
         </div>
@@ -75,7 +76,6 @@ function PlaceHolderContent({
 }
 
 function Profile() {
-    //todo fetch profile images and collections
     const [activeTab, setActiveTab] = useState("images");
     const [collectionsModalStatus, setCollectionsModalStatus] = useState("closed");
     const { currentUser } = useUser();
@@ -124,7 +124,7 @@ function Profile() {
                     {
                         name: "collections",
                         information: `collections ${
-                            currentUser && currentUser.noOfUploadedImages ? currentUser.noOfUploadedImages : 0
+                            currentUser && currentUser.noOfCollections ? currentUser.noOfCollections : 0
                         }`,
                     },
                 ]}

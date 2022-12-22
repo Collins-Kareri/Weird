@@ -123,6 +123,7 @@ function PageBody({
                     <Button
                         priority={"primary"}
                         value={"publish"}
+                        isLoading={isLoading}
                         handleClick={() => {
                             publishPhoto();
                             return;

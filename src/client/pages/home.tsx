@@ -19,10 +19,11 @@ function Home() {
                             }
                         />
                     </div>
-                    <p className="tw-my-4">or</p>
-                    <section className="tw-flex tw-py-4 tw-justify-center">
-                        <Button priority={"primary"} value={"Browse Photos"} extraStyles={"tw-mr-4"} />
-                        <Button priority={"secondary"} value={"Trending"} />
+
+                    <section className="tw-flex tw-py-4 tw-justify-center tw-items-center">
+                        <Button priority={"primary"} value={"Search Photos"} extraStyles={"tw-mr-4"} />
+                        <p className="tw-mr-4">or</p>
+                        <Button priority={"secondary"} value={"Browse Photos"} />
                     </section>
                 </section>
             </div>
