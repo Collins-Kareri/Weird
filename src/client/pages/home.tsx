@@ -1,9 +1,32 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import My_Nav from "@components/nav";
 import Button from "@components/button";
 import Search from "@components/iconsComponents/searchIcon";
 
 function Home() {
+    const navigate = useNavigate();
+
+    function handleTerms(url: string) {
+        return navigate(url);
+    }
+
+    function search() {
+        const searchEl = document.querySelector("#searchPhotos") as HTMLInputElement;
+        const terms = searchEl.value.replace(" ", ",");
+        if (terms.length <= 0) {
+            return;
+        }
+        handleTerms(`photos/:${terms}`);
+        return;
+    }
+
+    function onkeydown(evt: React.KeyboardEvent<HTMLInputElement>) {
+        if (evt.key.toLowerCase() === "enter") {
+            search();
+        }
+    }
+
     return (
         <div className="container">
             <My_Nav />
@@ -15,15 +38,32 @@ function Home() {
                             type={"search"}
                             placeholder={"Search photos"}
                             className={
-                                "tw-rounded-lg tw-w-10/12 tw-py-3 tw-border-0 tw-outline-0 tw-ring-0 focus:tw-ring-0"
+                                "tw-rounded-lg tw-w-10/12 tw-py-3 tw-border-0 tw-outline-0 tw-ring-0 focus:tw-ring-0 tw-text-primary-800"
                             }
+                            id={"searchPhotos"}
+                            onKeyDown={onkeydown}
                         />
                     </div>
 
                     <section className="tw-flex tw-py-4 tw-justify-center tw-items-center">
-                        <Button priority={"primary"} value={"Search Photos"} extraStyles={"tw-mr-4"} />
+                        <Button
+                            priority={"primary"}
+                            value={"Search Photos"}
+                            extraStyles={"tw-mr-4"}
+                            handleClick={() => {
+                                search();
+                                return;
+                            }}
+                        />
                         <p className="tw-mr-4">or</p>
-                        <Button priority={"secondary"} value={"Browse Photos"} />
+                        <Button
+                            priority={"secondary"}
+                            value={"Browse Photos"}
+                            handleClick={() => {
+                                handleTerms("photos/:browse");
+                                return;
+                            }}
+                        />
                     </section>
                 </section>
             </div>

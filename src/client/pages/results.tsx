@@ -1,9 +1,10 @@
+/* eslint-disable prettier/prettier */
 import React from "react";
 import My_Nav from "@components/nav";
 import { useQuery } from "react-query";
 import UserIcon from "@components/iconsComponents/userIcon";
-// import HeartIcon from "@components/iconsComponents/heartIcon";
 import generateKey from "@src/shared/utils/generateKeys";
+import { useParams } from "react-router-dom";
 
 interface unsplashResponse {
     alt_description: string;
@@ -33,13 +34,20 @@ interface unsplashResponse {
 }
 
 function SearchResults() {
-    // const [activeTab, setActiveTab] = useState("images");
+    const { term } = useParams();
 
     const { data, isLoading, isError } = useQuery(
         "fetchSearchedImages",
         async () => {
-            const data = await (await fetch("api/unsplash/list", { method: "GET" })).json();
-            return data.results;
+            let serverRes;
+            const parsedTerms = term?.replace(":", "");
+            if (parsedTerms === "browse") {
+                serverRes = await (await fetch("/api/unsplash/list", { method: "GET" })).json();
+            } else {
+                serverRes = await (await fetch(`/api/unsplash/search?terms=${parsedTerms}`, { method: "GET" })).json();
+            }
+
+            return serverRes.results;
         },
         { refetchInterval: false }
     );
@@ -50,6 +58,10 @@ function SearchResults() {
 
     if (isError) {
         return <p>{"Couldn't fetch images"}</p>;
+    }
+
+    if (data && data.length <= 0) {
+        return <p>No images match your searched terms</p>;
     }
 
     return (

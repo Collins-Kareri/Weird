@@ -49,7 +49,7 @@ function App() {
                         </Route>
 
                         {/* Search results route*/}
-                        <Route path="search" element={<SearchResults />} />
+                        <Route path="photos/:term" element={<SearchResults />} />
                     </Routes>
                 </QueryClientProvider>
             </UserProvider>

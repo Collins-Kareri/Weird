@@ -13,8 +13,8 @@ async function fetchWrapper(url: string) {
     });
 }
 
-router.get("/list", async (req, res) => {
-    const my_url = `https://api.unsplash.com/photos?page=1&client_id=${process.env.UNSPLASH_ACCESS_KEY}`;
+router.get("/list", async (_, res) => {
+    const my_url = `https://api.unsplash.com/photos?page=1&order_by=latest&per_page=50&client_id=${process.env.UNSPLASH_ACCESS_KEY}`;
 
     try {
         const results = await fetchWrapper(my_url);
@@ -26,7 +26,8 @@ router.get("/list", async (req, res) => {
 
 router.get("/search", async (req, res) => {
     const terms = req.query.terms;
-    const my_url = `https://api.unsplash.com/photos?query=${terms}&page=1&client_id=${process.env.UNSPLASH_ACCESS_KEY}`;
+
+    const my_url = `https://api.unsplash.com/photos?query=${terms},weird&per_page=30&order_by=relevant&client_id=${process.env.UNSPLASH_ACCESS_KEY}`;
 
     try {
         const results = await fetchWrapper(my_url);
