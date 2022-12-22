@@ -18,3 +18,5 @@ npm-error.log*
 
 generateFakeUser.ts
 constants.ts
+
+unsplashexampleres.json
