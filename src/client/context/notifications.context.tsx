@@ -29,10 +29,10 @@ export const NotificationProvider = ({ children }: NotificationProps) => {
             if (currentNotifications.length > 0) {
                 removeNotification(0);
             }
-        }, 4000);
-
+        }, 10000);
         return clearInterval(interval);
     }, [currentNotifications]);
+
     const removeNotification = (index: number) => {
         setCurrentNotifications(
             currentNotifications.filter((_, i) => {
@@ -45,7 +45,7 @@ export const NotificationProvider = ({ children }: NotificationProps) => {
         setCurrentNotifications([...currentNotifications, notification]);
         setTimeout(() => {
             removeNotification(0);
-        }, 2000);
+        }, 10000);
     };
 
     return (

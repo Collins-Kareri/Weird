@@ -3,7 +3,7 @@ import React, { useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@context/user.context";
 import ImageInput from "@src/client/components/imageComponents/image.input";
-import EditIcon from "@assets/edit.svg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Button from "@components/button";
 import Spinner from "@components/spinner";
 import { useNotification } from "@context/notifications.context";
@@ -180,14 +180,22 @@ function ProfilePic() {
                     )}
                 </span>
 
-                {/**edit profie pic icon*/}
+                {/**edit profie pic icon and delete icon*/}
                 {isLoading === false && (
                     <div
-                        className="tw-absolute tw-bottom-0 tw-right-0 tw-w-8 tw-h-8 tw-bg-neutral-800 tw-rounded-full tw-flex tw-flex-row tw-justify-center tw-items-center tw-cursor-pointer md:tw-h-9 md:tw-w-9 tw-ring tw-ring-neutral-800 tw-border-0 hover:tw-ring-offset-1 hover:tw-ring-offset-neutral-800 main-transition"
-                        onClick={openFileBrowser}
+                        className="tw-absolute tw-bottom-0 tw-right-0 tw-w-8 tw-h-8 tw-bg-neutral-800 tw-rounded-full tw-flex tw-flex-row tw-justify-center tw-items-center tw-cursor-pointer md:tw-h-9 md:tw-w-9 tw-ring tw-ring-neutral-800 tw-border-0 hover:tw-ring-offset-1 hover:tw-ring-offset-neutral-800 main-transition tw-text-primary-300"
+                        onClick={(evt) => {
+                            currentUser?.profilePic && currentUser.profilePic.url
+                                ? deleteProfilePic()
+                                : openFileBrowser(evt);
+                        }}
                         id="editProfilePic"
                     >
-                        <img src={EditIcon as string} alt="edit icon" className="tw-w-9/12" />
+                        {currentUser?.profilePic && currentUser.profilePic.url ? (
+                            <FontAwesomeIcon icon={"trash"} />
+                        ) : (
+                            <FontAwesomeIcon icon={"pencil"} />
+                        )}
                     </div>
                 )}
             </section>

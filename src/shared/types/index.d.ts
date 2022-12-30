@@ -1,3 +1,5 @@
+import React from "react";
+
 export {};
 
 declare global {
@@ -15,7 +17,7 @@ declare global {
         noOfCollections: number;
     }
 
-    interface IconProps {
+    interface IconProps extends React.PropsWithChildren {
         backgroundColor: string;
         shadowColor: string;
         fillColor: string;

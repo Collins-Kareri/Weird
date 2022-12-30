@@ -4,7 +4,7 @@ import React from "react";
 import Button from "@components/button";
 import TextArea from "@components/form/textArea";
 import Input from "@components/form/inputField";
-import CloseIcon from "@src/client/components/iconsComponents/closeIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CollectionInfo } from "@pages/profile/edit.Collection";
 
 interface EditCollectionModalProps extends Omit<CollectionInfo, "noOfItems"> {
@@ -62,12 +62,10 @@ function EditCollectionModal({
                 className="tw-relative tw-bg-neutral-50  tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-fit tw-p-4 tw-w-11/12 md:tw-w-2/4 md:tw-mx-auto tw-drop-shadow-xl tw-shadow-neutral-500 tw-rounded-md tw-my-4"
                 data-within="editCollection"
             >
-                <CloseIcon
-                    backgroundColor={"tw-bg-neutral-50"}
-                    shadowColor={"tw-shadow-neutral-50"}
-                    fillColor={"tw-fill-neutral-800"}
-                    strokeColor={"tw-stroke-neutral-800"}
-                    position={"tw-absolute -tw-top-4 -tw-right-2"}
+                <FontAwesomeIcon
+                    icon={"xmark"}
+                    size="2xl"
+                    className="tw-absolute tw-right-4 tw-top-2 tw-cursor-pointer"
                     onClick={toggleModalStatus}
                 />
                 <Input

@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import My_Nav from "@components/nav";
 import Button from "@components/button";
-import Search from "@components/iconsComponents/searchIcon";
 
 function Home() {
     const navigate = useNavigate();
@@ -33,7 +33,7 @@ function Home() {
             <div className="tw-flex tw-h-4/5 tw-w-full tw-justify-center tw-items-center tw-font-extrabold tw-flex-wrap tw-overflow-hidden">
                 <section className="tw-w-full tw-flex tw-justify-center tw-flex-col tw-items-center">
                     <div className="tw-w-9/12 lg:tw-w-96 tw-flex tw-justify-center tw-flex-row tw-items-center tw-ring-1 tw-ring-neutral-900 tw-rounded-lg">
-                        <Search fillColor={""} strokeColor={""} />
+                        <FontAwesomeIcon icon={"search"} />
                         <input
                             type={"search"}
                             placeholder={"Search photos"}

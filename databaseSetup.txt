@@ -1,4 +1,7 @@
 CREATE (usr:User {name:"first",email:"mail",password:"pswd"}) RETURN usr;
+
 CREATE CONSTRAINT unique_username IF NOT EXISTS FOR (usr:User) REQUIRE usr.name IS UNIQUE;
+
 CREATE CONSTRAINT unique_email IF NOT EXISTS FOR (usr:User) REQUIRE usr.email IS UNIQUE;
+
 SHOW CONSTRAINTS;

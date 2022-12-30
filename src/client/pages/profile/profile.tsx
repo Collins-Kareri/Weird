@@ -142,7 +142,7 @@ function Profile() {
             {collectionsModalStatus === "open" && <CreateCollection closeCollectionModal={closeCollectionModal} />}
 
             {/**collection grid container */}
-            {activeTab === "collections" && currentUser?.noOfUploadedImages && currentUser?.noOfCollections > 0 && (
+            {activeTab === "collections" && currentUser?.noOfCollections && currentUser?.noOfCollections > 0 && (
                 <Collections username={currentUser?.username} noOfCollections={currentUser.noOfCollections} />
             )}
 

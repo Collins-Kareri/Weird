@@ -30,6 +30,9 @@
     },
     "devDependencies": {
         "@faker-js/faker": "^7.3.0",
+        "@fortawesome/fontawesome-svg-core": "^6.2.1",
+        "@fortawesome/free-solid-svg-icons": "^6.2.1",
+        "@fortawesome/react-fontawesome": "^0.2.0",
         "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
         "@tailwindcss/forms": "^0.5.2",
         "@types/bcryptjs": "^2.4.2",

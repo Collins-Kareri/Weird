@@ -1,5 +1,5 @@
 import React from "react";
-import Close from "@src/client/components/iconsComponents/closeIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
 import generateKey from "@src/shared/utils/generateKeys";
 import { useNotification } from "@context/notifications.context";
@@ -23,10 +23,7 @@ interface notificationStateStyleTypes {
 }
 
 /**
- * Takes an array of notifications
- * @param {}
- * @returns Notification element
- */
+ * Takes an array of notifications */
 function Notification() {
     const notificationStateStyles: notificationStateStyleTypes = {
         error: { textColor: "tw-text-error-800", fillColor: "tw-fill-error-800", strokeColor: "tw-stroke-error-800" },
@@ -56,19 +53,16 @@ function Notification() {
             {currentNotifications.map(({ type, msg }, index) => {
                 return (
                     <div
-                        className={`tw-relative tw-container tw-mx-auto tw-font-Taviraj tw-border tw-border-solid tw-border-neutral-100 tw-mb-6 tw-p-4 ${notificationStateStyles[type].textColor} tw-bg-neutral-100 tw-shadow-md tw-shadow-neutral-700 tw-rounded-lg`}
+                        className={`tw-relative tw-container tw-mx-auto tw-font-Taviraj tw-border tw-border-solid tw-border-neutral-300 tw-mb-6 tw-p-4 ${notificationStateStyles[type].textColor} tw-bg-neutral-50 tw-shadow-md tw-shadow-neutral-300 tw-rounded-lg`}
                         key={generateKey()}
                     >
-                        <Close
-                            backgroundColor={"tw-bg-neutral-100"}
-                            shadowColor={"tw-shadow-neutral-500"}
-                            fillColor={`${notificationStateStyles[type].fillColor}`}
-                            strokeColor={`${notificationStateStyles[type].strokeColor}`}
-                            position={"tw-absolute -tw-right-2 -tw-top-3"}
+                        <FontAwesomeIcon
+                            icon={"xmark"}
                             onClick={() => {
                                 closeNotification(index);
-                                return;
                             }}
+                            className={"tw-absolute tw-right-3 tw-top-2 hover:tw-cursor-pointer"}
+                            size="lg"
                         />
                         <h1 className="tw-text-left tw-capitalize tw-font-extrabold">{capitalizeFirstChar(type)}</h1>
                         <p className="tw-font-Quicksand tw-font-semibold">{capitalizeFirstChar(msg)}</p>

@@ -2,9 +2,9 @@
 
 A stock site to display weird images.
 
-NOTE: requires setup credentials of a neo4j database as well as cloudinary in a .env file.
+**NOTE: requires setup credentials of a neo4j database as well as cloudinary in a .env file.**
 
-NOTE: add constraints to user node in neo4j. ie name and email constraints.
+**NOTE: add constraints to user node in neo4j. ie name and email constraints. [Database setup](./databaseSetup.txt)**
 
 ## DEV ENVIRONMENT VARIABLES
 
@@ -22,7 +22,6 @@ NOTE: add constraints to user node in neo4j. ie name and email constraints.
 * My_CLOUDINARY_URL
 * My_CLOUDINARY_DELETE_TOKEN_URL
 * UNSPLASH_ACCESS_KEY
-* UNSPLASH_SECRET_KEY
 
 ## DEPENDENCIES
 

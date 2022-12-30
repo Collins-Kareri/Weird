@@ -6,7 +6,7 @@ import { useUser } from "@context/user.context";
 import capitalizeFirstChar from "@clientUtils/capitalizeFirstChar";
 import generateKey from "@src/shared/utils/generateKeys";
 import Button from "@components/button";
-import AddIcon from "@src/client/components/iconsComponents/addIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface CollectionContent {
@@ -57,7 +57,7 @@ function CollectionContent({ name, coverImage, noOfItems, key, description, refe
 
     return (
         <div
-            className="tw-inline-block tw-bg-neutral-100 tw-w-80 tw-mx-2 tw-h-fit tw-rounded-md tw-px-4 tw-py-4 tw-mb-10 tw-ring-1 tw-ring-neutral-300 tw-font-Quicksand main-transition"
+            className="tw-inline-block tw-bg-neutral-100 tw-w-full md:tw-w-80 tw-mx-2 tw-h-96 tw-rounded-md tw-px-4 tw-py-4 tw-mb-10 tw-ring-1 tw-ring-neutral-300 tw-font-Quicksand main-transition"
             key={key}
             data-within="collection"
         >
@@ -65,7 +65,7 @@ function CollectionContent({ name, coverImage, noOfItems, key, description, refe
             <Button priority={"tertiary"} value={"delete"} handleClick={deleteCollection} />
 
             {/**cover image or browse images button*/}
-            <section className="tw-relative tw-bg-neutral-100 tw-my-4 tw-h-44 tw-rounded-md tw-shadow-inner tw-shadow-neutral-800 ">
+            <section className="tw-relative tw-bg-neutral-100 tw-my-4 tw-h-4/6 tw-rounded-md tw-shadow-inner tw-shadow-neutral-800 ">
                 {noOfItems > 0 ? (
                     <img
                         src={coverImage}
@@ -74,18 +74,13 @@ function CollectionContent({ name, coverImage, noOfItems, key, description, refe
                     />
                 ) : (
                     <section className="tw-absolute tw-w-full tw-h-full tw-bg-neutral-400 tw-shadow-2xl tw-bg-opacity-70 tw-flex tw-flex-row tw-justify-center tw-items-center tw-rounded-md tw-z-30">
-                        <AddIcon
-                            backgroundColor={"tw-bg-neutral-300"}
-                            shadowColor={"tw-shadow-neutral-300"}
-                            fillColor={"tw-fill-neutral-700"}
-                            strokeColor={"tw-stroke-neutral-700"}
-                            position={""}
-                            extraStyle={
-                                "tw-ring-1 tw-ring-neutral-500 hover:tw-ring-offset-2 hover:tw-ring-offset-neutral-900 main-transition"
-                            }
+                        <FontAwesomeIcon
+                            icon={"file-circle-plus"}
+                            className="tw-cursor-pointer"
                             onClick={() => {
                                 return;
                             }}
+                            size="xl"
                         />
                     </section>
                 )}
@@ -128,7 +123,7 @@ function Collections({ username, noOfCollections }: { username?: string; noOfCol
     }
 
     return (
-        <div className="tw-container tw-mx-auto tw-p-4 tw-grid tw-grid-flow-row tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 xl:tw-grid-4 2xl:tw-grid-5 tw-place-content-center tw-place-items-center">
+        <div className="tw-container tw-mx-auto tw-p-4 tw-grid tw-grid-flow-row tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 xl:tw-grid-4 2xl:tw-grid-5 tw-place-content-center tw-place-items-center tw-w-full">
             {data &&
                 data.collections &&
                 (data.collections as CollectionContent[]).map(({ name, coverImage, noOfItems, description }) => {

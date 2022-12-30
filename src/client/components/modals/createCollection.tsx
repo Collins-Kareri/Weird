@@ -1,5 +1,5 @@
 import React from "react";
-import CloseIcon from "@src/client/components/iconsComponents/closeIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Input from "@components/form/inputField";
 import TextArea from "@components/form/textArea";
 import Button from "@components/button";
@@ -56,18 +56,17 @@ function CollectionsModal({ closeCollectionModal }: PropTypes) {
         addNotification({ type: "info", msg: "Login to create a collection." });
         return;
     }
+
     return (
         <div className="tw-w-screen tw-h-screen tw-absolute tw-top-0 tw-left-0 tw-z-50 tw-bg-neutral-500 tw-bg-opacity-50 tw-flex tw-flex-col tw-items-center tw-justify-center">
             <div
                 className=" tw-bg-neutral-50 tw-drop-shadow-xl tw-shadow-neutral-900 tw-p-4 tw-rounded-md tw-w-11/12 tw-font-Quicksand tw-py-5 md:tw-max-w-md lg:tw-max-w-lg"
                 id="createCollection"
             >
-                <CloseIcon
-                    backgroundColor={"tw-bg-neutral-50"}
-                    shadowColor={"tw-shadow-neutral-50"}
-                    fillColor={"tw-fill-neutral-800"}
-                    strokeColor={"tw-stroke-neutral-800"}
-                    position={"tw-absolute -tw-top-4 -tw-right-2"}
+                <FontAwesomeIcon
+                    icon={"xmark"}
+                    size="2xl"
+                    className="tw-absolute tw-right-4 tw-top-2 tw-cursor-pointer"
                     onClick={closeCollectionModal}
                 />
                 <Input
@@ -80,13 +79,20 @@ function CollectionsModal({ closeCollectionModal }: PropTypes) {
                     }}
                 />
                 <TextArea name={"description"} label={"description"} placeHolder={"Collection description"} />
-                <Button
-                    priority={"secondary"}
-                    value={"cancel"}
-                    extraStyles={"tw-mr-8"}
-                    handleClick={closeCollectionModal}
-                />
-                <Button priority={"primary"} value={"create"} handleClick={createCollection} typeOfButton={"submit"} />
+                <div className="tw-mt-4">
+                    <Button
+                        priority={"secondary"}
+                        value={"cancel"}
+                        extraStyles={"tw-mr-8"}
+                        handleClick={closeCollectionModal}
+                    />
+                    <Button
+                        priority={"primary"}
+                        value={"create"}
+                        handleClick={createCollection}
+                        typeOfButton={"submit"}
+                    />
+                </div>
             </div>
         </div>
     );

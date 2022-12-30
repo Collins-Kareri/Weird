@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import { useNotification } from "@context/notifications.context";
 import TagsInput from "@src/client/components/imageComponents/tags.input";
 import TextArea from "@components/form/textArea";
-import CloseIcon from "@src/client/components/iconsComponents/closeIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { UserProfileImageBodyProps } from "@src/client/components/imageComponents/user.image";
 import Button from "@components/button";
 
@@ -89,20 +89,17 @@ function EditUserImage({ url, public_id, toggleEditImageModal }: UserProfileImag
                     className=" tw-bg-neutral-50 tw-drop-shadow-xl tw-shadow-neutral-900 tw-p-4 tw-rounded-md tw-w-11/12 tw-font-Quicksand tw-py-5 md:tw-max-w-md lg:tw-max-w-lg"
                     id="editUserImage"
                 >
-                    <CloseIcon
-                        backgroundColor={"tw-bg-neutral-50"}
-                        shadowColor={"tw-shadow-neutral-50"}
-                        fillColor={"tw-fill-neutral-800"}
-                        strokeColor={"tw-stroke-neutral-800"}
-                        position={"tw-absolute -tw-top-4 -tw-right-2"}
+                    <FontAwesomeIcon
+                        icon={"xmark"}
+                        size="2xl"
+                        className="tw-absolute tw-z-10 tw-right-4 tw-top-2 tw-cursor-pointer"
                         onClick={() => {
                             if (toggleEditImageModal) {
                                 toggleEditImageModal();
                             }
-                            return;
                         }}
                     />
-                    <section className="tw-w-36 tw-h-36 tw-rounded-md tw-ring-1 tw-ring-neutral-800">
+                    <section className="tw-w-36 tw-h-36 tw-rounded-md tw-ring-1 tw-ring-neutral-800 tw-mb-4">
                         <img
                             src={url}
                             alt="random image from fakerjs"
@@ -122,18 +119,20 @@ function EditUserImage({ url, public_id, toggleEditImageModal }: UserProfileImag
                     {isLoading && <h1>Please wait</h1>}
                     {isError && <h1>{"Could not fetch image data."}</h1>}
 
-                    <Button
-                        priority={"secondary"}
-                        value={"cancel"}
-                        extraStyles={"tw-mr-8"}
-                        handleClick={() => {
-                            if (toggleEditImageModal) {
-                                toggleEditImageModal();
-                            }
-                            return;
-                        }}
-                    />
-                    <Button priority={"primary"} value={"update"} handleClick={editImageDetails} />
+                    <div className="tw-mt-5">
+                        <Button
+                            priority={"secondary"}
+                            value={"cancel"}
+                            extraStyles={"tw-mr-8"}
+                            handleClick={() => {
+                                if (toggleEditImageModal) {
+                                    toggleEditImageModal();
+                                }
+                                return;
+                            }}
+                        />
+                        <Button priority={"primary"} value={"update"} handleClick={editImageDetails} />
+                    </div>
                 </div>
             </div>
         </>

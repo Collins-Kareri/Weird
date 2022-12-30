@@ -1,6 +1,19 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { QueryClientProvider, QueryClient } from "react-query";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {
+    faSearch,
+    faPencil,
+    faXmark,
+    faTrash,
+    faFileCirclePlus,
+    faSpinner,
+    faHeart,
+    faPlus,
+    faDownload,
+    faUserLarge,
+} from "@fortawesome/free-solid-svg-icons";
 import Notification from "@components/notification";
 import Home from "@pages/home";
 import CreateAccount from "@pages/createAccount/createAccount";
@@ -16,6 +29,19 @@ import RequireAuth from "./requireAuth";
 import HiddenWhileAuthenticated from "./hiddenWhileAuthenticated";
 
 const queryClient = new QueryClient();
+
+library.add(
+    faSearch,
+    faPencil,
+    faXmark,
+    faTrash,
+    faFileCirclePlus,
+    faSpinner,
+    faHeart,
+    faPlus,
+    faDownload,
+    faUserLarge
+);
 
 function App() {
     return (

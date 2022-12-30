@@ -1,5 +1,5 @@
 import React from "react";
-import Close from "@src/client/components/iconsComponents/closeIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import generateKeys from "@src/shared/utils/generateKeys";
 
 interface TagsProps {
@@ -71,7 +71,7 @@ function TagsInput({ tags, setTags }: TagsProps) {
                         return (
                             <div
                                 data-within="tags"
-                                className="tw-inline-flex tw-flex-row tw-items-center tw-bg-neutral-300 tw-w-fit tw-h-fit tw-p-1.5 tw-rounded-xl tw-ring-1 tw-ring-neutral-400 tw-mr-3 tw-mb-3"
+                                className="tw-inline-flex tw-flex-row tw-items-center tw-bg-neutral-50 tw-w-fit tw-h-fit tw-py-2 tw-px-4 tw-rounded-full tw-ring-1 tw-ring-neutral-900 tw-mr-3 tw-mb-3"
                                 key={generateKeys()}
                             >
                                 <span
@@ -82,16 +82,12 @@ function TagsInput({ tags, setTags }: TagsProps) {
                                 >
                                     {value}
                                 </span>
-                                <Close
-                                    backgroundColor={"tw-bg-neutral-500"}
-                                    shadowColor={"tw-shadow-neutral-500"}
-                                    fillColor={"tw-fill-neutral-300"}
-                                    strokeColor={"tw-stroke-neutral-300"}
-                                    position={"tw-relative"}
-                                    extraStyle={"tw-h-7 tw-w-7 tw-ml-1"}
+                                <FontAwesomeIcon
+                                    icon={"xmark"}
+                                    size="lg"
+                                    className="tw-pl-2 tw-cursor-pointer"
                                     onClick={() => {
                                         removeTag(index);
-                                        return;
                                     }}
                                 />
                             </div>
@@ -101,7 +97,8 @@ function TagsInput({ tags, setTags }: TagsProps) {
                     type="text"
                     placeholder="Type tags..."
                     id="tagInput"
-                    className="tw-border-none tw-p-0 tw-ring-0 focus:tw-ring-0 tw-inline-block tw-bg-neutral-200 tw-text-neutral-500"
+                    autoComplete="off"
+                    className="tw-border-none tw-p-0 tw-ring-0 focus:tw-ring-0 tw-inline-block tw-bg-neutral-200 tw-text-neutral-900"
                     onKeyDown={handleKeyDown}
                     onInput={handleInput}
                 />

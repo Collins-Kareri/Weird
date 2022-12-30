@@ -1,12 +1,10 @@
 import React, { useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ImageInput, { ImgObj } from "@src/client/components/imageComponents/image.input";
 import Button from "@components/button";
-import AddIcon from "@src/client/components/iconsComponents/addIcon";
 import { useNotification } from "@context/notifications.context";
 import { useUser } from "@context/user.context";
-import Spinner from "@components/spinner";
-import Close from "@src/client/components/iconsComponents/closeIcon";
 import TagsInput from "@src/client/components/imageComponents/tags.input";
 import TextArea from "@components/form/textArea";
 import Popover from "@components/modals/popover";
@@ -47,36 +45,32 @@ function PageBody({
             />
 
             {/* container */}
-            <div className="tw-w-full tw-border-neutral-300 tw-shadow-md tw-shadow-neutral-400 tw-bg-neutral-100  tw-border-solid tw-border tw-p-4 tw-h-fit tw-rounded-md">
+            <div className="tw-w-full tw-border-neutral-300 tw-shadow-md tw-shadow-neutral-300 tw-bg-neutral-50  tw-border-solid tw-border tw-p-4 tw-h-fit tw-rounded-md">
                 {/* image container */}
-                <div className="tw-w-full tw-h-56 tw-relative tw-rounded-md tw-mb-2 tw-shadow-inner tw-shadow-neutral-700 tw-bg-neutral-300 ">
+                <div
+                    className="tw-w-full tw-h-56 tw-relative tw-rounded-md tw-mb-2 tw-shadow-inner tw-shadow-neutral-400 tw-bg-neutral-200 tw-border-neutral-300 tw-border
+                "
+                >
                     {
                         /*browse images */
                         !currentImg && (
                             <section
-                                className="tw-relative tw-w-full tw-h-full hover:tw-cursor-pointer"
+                                className="tw-relative tw-w-full tw-h-full hover:tw-cursor-pointer tw-text-center"
                                 onClick={browseFiles}
                             >
-                                <AddIcon
-                                    backgroundColor={"tw-bg-neutral-800"}
-                                    shadowColor={"tw-shadow-neutral-800"}
-                                    fillColor={"tw-fill-neutral-300"}
-                                    strokeColor={"tw-stroke-neutral-300"}
-                                    position={"tw-absolute -tw-translate-x-1/2 tw-inset-1/2 -tw-translate-y-1/2"}
-                                    extraStyle={
-                                        "tw-mix-blend-hard-light tw-ring-1 hover:tw-ring-offset-2 hover:tw-ring-offset-neutral-800"
-                                    }
-                                    onClick={browseFiles}
-                                />
+                                <div className="tw-absolute tw-top-1/2 tw-left-1/2 -tw-translate-x-1/2 -tw-translate-y-1/2">
+                                    <p className="tw-text-primary-900 tw-font-bold">Browse files</p>
+                                    <FontAwesomeIcon
+                                        icon={"file-circle-plus"}
+                                        className=" tw-p-4 tw-rounded-lg tw-cursor-pointer"
+                                        size="xl"
+                                    />
+                                </div>
+
                                 {/*loading image display spinner */}
                                 {isLoading && (
-                                    <section className="tw-flex tw-h-full tw-w-full tw-bg-neutral-300 tw-opacity-70 tw-flex-row tw-justify-center tw-items-center tw-flex-wrap tw-z-40 tw-absolute">
-                                        <Spinner
-                                            height={"tw-h-12"}
-                                            width={"tw-w-12"}
-                                            borderColor={"tw-border-neutral-800"}
-                                            position={"tw-relative"}
-                                        />
+                                    <section className="tw-flex tw-h-full tw-w-full tw-bg-neutral-400 tw-opacity-95 tw-flex-row tw-justify-center tw-items-center tw-flex-wrap tw-z-40 tw-absolute">
+                                        <FontAwesomeIcon icon={"spinner"} spin size="xl" />
                                     </section>
                                 )}
                             </section>
@@ -85,20 +79,17 @@ function PageBody({
 
                     {currentImg && (
                         <section className="tw-relative tw-w-full tw-h-full ">
-                            <Close
-                                backgroundColor={"tw-bg-neutral-800"}
-                                shadowColor={"tw-shadow-neutral-800"}
-                                fillColor={"tw-fill-neutral-300"}
-                                strokeColor={"tw-stroke-neutral-300"}
-                                position={"tw-absolute tw-z-50 tw-right-2 tw-top-2"}
-                                extraStyle={
-                                    "tw-mix-blend-hard-light hover:tw-cursor-pointer tw-shadow-lg tw-shadow-neutral-700"
-                                }
+                            <FontAwesomeIcon
+                                icon={"xmark"}
+                                className="tw-absolute tw-z-10 tw-right-4 tw-top-2 tw-bg-primary-300 tw-border tw-border-primary-300 tw-py-2 tw-px-4 tw-rounded-lg tw-shadow-inner tw-text-primary-900 tw-cursor-pointer tw-mix-blend-luminosity"
+                                size="xl"
                                 onClick={removeImg}
                             />
                             <img
                                 src={currentImg.url}
-                                className={" tw-relative tw-w-full tw-h-full tw-object-cover tw-rounded-md"}
+                                className={
+                                    " tw-relative tw-w-full tw-h-full tw-object-cover tw-rounded-md tw-opacity-90"
+                                }
                                 id="imageEl"
                             />
                         </section>
