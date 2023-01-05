@@ -90,6 +90,32 @@ export async function deleteProfileImage(id: string): Promise<UserSafeProps | un
     }
 }
 
+export async function getAllImages(req: Request, res: Response) {
+    const { skip, limit } = req.query;
+
+    const driver = getDriver();
+    const session = driver.session();
+
+    const query = `MATCH (img:Image)-[:UPLOADED]-(usr:User)
+    RETURN { url: img.secure_url, public_id: img.public_id,user:{name:usr.name,profilePic:usr.profilePicUrl} } as image ORDER BY img.createdAt DESC SKIP $skip LIMIT $limit`;
+
+    try {
+        const readRes = await readService<{ skip: number; limit: number }>(session, query, {
+            skip: parseInt(skip as string, 10),
+            limit: parseInt(limit as string, 10),
+        });
+
+        if (readRes.records && readRes.records[0] && readRes.records[0].length > 0) {
+            res.json({ msg: "found", images: readRes.records.map((record) => toNativeTypes(record.get("image"))) });
+            return;
+        }
+
+        return res.json({ msg: "no images found" });
+    } catch (error) {
+        return res.status(500).json({ msg: "can't read images" });
+    }
+}
+
 export async function getUsersImages(req: Request, res: Response) {
     const { username } = req.params;
     const { skip, limit } = req.query;
@@ -98,7 +124,7 @@ export async function getUsersImages(req: Request, res: Response) {
     const session = driver.session();
 
     const query = `MATCH ( usr:User { name:$username } )-[:UPLOADED]->( img:Image )
-    RETURN { url: img.secure_url, public_id: img.public_id, noOfImages: SIZE((usr)-[:UPLOADED]->(:Image)) } as image ORDER BY img.createdAt DESC SKIP $skip LIMIT $limit`;
+    RETURN { url: img.secure_url, public_id: img.public_id, user:{name:usr.name,profilePic:usr.profilePicUrl} } as image ORDER BY img.createdAt DESC SKIP $skip LIMIT $limit`;
 
     try {
         const readRes = await readService<{ username: string; skip: number; limit: number }>(session, query, {

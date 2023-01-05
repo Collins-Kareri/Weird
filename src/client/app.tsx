@@ -22,6 +22,7 @@ import Publish from "@pages/publishPhoto";
 import Profile from "@pages/profile/profile";
 import EditProfile from "@pages/profile/edit.Profile";
 import EditCollection from "@pages/profile/edit.Collection";
+import User from "@pages/user";
 import SearchResults from "@pages/results";
 import { NotificationProvider, NotificationConsumer } from "@context/notifications.context";
 import { UserProvider, UserConsumer } from "./context/user.context";
@@ -76,6 +77,9 @@ function App() {
 
                         {/* Search results route*/}
                         <Route path="photos/:term" element={<SearchResults />} />
+
+                        {/*route for collections*/}
+                        <Route path="user/:username" element={<User />} />
                     </Routes>
                 </QueryClientProvider>
             </UserProvider>

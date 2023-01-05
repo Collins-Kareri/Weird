@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import Collections from "@components/collections/collections";
+import Collections from "@src/client/components/collections/collections.currentUser";
 import CreateCollection from "@components/modals/createCollection";
 import Button from "@components/button";
 import Logo from "@assets/logo.svg";
@@ -106,11 +106,12 @@ function Profile() {
                             redirect("/profile/edit");
                             return;
                         }}
+                        extraStyles={"tw-mt-2"}
                     />
                 </section>
             </div>
 
-            {/*tabs component takes an array of tabs with information to display and name to be displayed of the tab*/}
+            {/*tabs component takes an array of tabs with information to display and name to be displayed*/}
             <My_Tabs
                 setActiveTab={setActiveTab}
                 activeTab={activeTab}

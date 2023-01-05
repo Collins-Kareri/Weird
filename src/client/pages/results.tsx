@@ -4,37 +4,18 @@ import My_Nav from "@components/nav";
 import { useQuery } from "react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Tooltip from "@components/tooltip";
+import Masonary from "@components/my_layouts/masonary";
 import generateKey from "@src/shared/utils/generateKeys";
 import { useParams } from "react-router-dom";
 
-interface unsplashResponse {
-    alt_description: string;
-    urls: {
-        raw: string;
-        full: string;
-        regular: string;
-        small: string;
-        thumb: string;
-        small_s3: string;
-    };
-    links: {
-        self: string;
-        html: string;
-        download: string;
-        download_location: string;
-    };
-    likes: number;
+interface ImageProps {
     user: {
-        username: string;
-        links: {
-            html: string;
-        };
-        profile_image: {
-            small: string;
-            medium: string;
-            large: string;
-        };
+        profilePic?: string;
+        name: string;
     };
+    url: string;
+    public_id: string;
+    alt_description: string;
 }
 
 function SearchResults() {
@@ -51,8 +32,8 @@ function SearchResults() {
             let server_results;
             const parsedTerms = term?.replace(":", "");
             if (parsedTerms === "browse") {
-                const serverRes = await(await fetch("/api/unsplash/list", { method: "GET" })).json();
-                server_results = serverRes.results;
+                const serverRes = await(await fetch("/api/image/?skip=0&limit=6", { method: "GET" })).json();
+                server_results = serverRes.images;
             } else {
                 const serverRes = await(
                     await fetch(`/api/unsplash/search?terms=${parsedTerms}`, { method: "GET" })
@@ -81,33 +62,36 @@ function SearchResults() {
     return (
         <>
             <My_Nav />
-            <div className="tw-w-11/12 tw-columns-1 lg:tw-columns-3 xl:tw-columns-3 md:tw-columns-2 tw-gap-9 tw-container tw-mx-auto tw-mt-10">
+            <Masonary>
                 {data &&
-                    (data as unsplashResponse[]).map((val) => {
+                    (data as ImageProps[]).map((val) => {
                         return (
                             <div key={generateKey()} className="tw-w-full tw-inline-block tw-mb-6">
                                 <img
-                                    src={val.urls.regular}
+                                    src={val.url}
                                     alt={val.alt_description}
                                     className="tw-w-full tw-relative tw-rounded-lg"
                                 />
                                 <section className="tw-flex tw-flex-row tw-justify-between tw-items-center tw-text-primary-800 tw-font-Quicksand tw-relative">
                                     <div className="tw-flex tw-flex-row tw-items-center tw-absolute tw-z-10 tw-bg-primary-200 tw-w-full tw-bottom-0 tw-rounded-b-lg tw-p-2 tw-bg-opacity-70 tw-bg-blend-hard-light tw-justify-between">
                                         <section className="tw-flex tw-flex-row tw-items-center tw-w-fit">
-                                            {val.user.profile_image && val.user.profile_image.small ? (
+                                            {val.user.profilePic ? (
                                                 <img
-                                                    src={val.user.profile_image.small}
-                                                    className="tw-rounded-md tw-mr-1"
+                                                    src={val.user.profilePic}
+                                                    className="tw-rounded-md tw-mr-2 tw-w-8 tw-h-8 tw-object-fill"
                                                 />
                                             ) : (
                                                 <FontAwesomeIcon
                                                     icon={"user-large"}
-                                                    className={`tw-shadow-inner tw-mr-1 ${shadowColor} ${backgroundColor} tw-p-3 tw-rounded-md`}
+                                                    className={`tw-shadow-inner tw-mr-2 ${shadowColor} ${backgroundColor} tw-p-3 tw-rounded-md`}
                                                     size="lg"
                                                 />
                                             )}
-                                            <a href={`${val.user.links.html}?utm_source=Weird&utm_medium=referral`}>
-                                                {val.user.username}
+                                            <a
+                                                href={`/user/:${val.user.name}`}
+                                                className="tw-text-primary-800 tw-font-bold"
+                                            >
+                                                {val.user.name}
                                             </a>
                                         </section>
                                         <section className="tw-flex tw-flex-row tw-items-center tw-w-fit">
@@ -138,7 +122,7 @@ function SearchResults() {
                             </div>
                         );
                     })}
-            </div>
+            </Masonary>
         </>
     );
 }

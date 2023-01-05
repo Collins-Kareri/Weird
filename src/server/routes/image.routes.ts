@@ -5,6 +5,7 @@ import {
     deleteProfileImage,
     getUsersImages,
     updateUserImages,
+    getAllImages,
 } from "@server/handlers/image.handlers";
 import { deleteAsset, generateSignature, getImageData } from "@server/cloudinary";
 import requireAuth from "@server/middleware/requireAuth";
@@ -18,6 +19,8 @@ interface AuthenticatedUser extends Omit<UserSafeProps, "public_id" | "url"> {
         url: string;
     };
 }
+
+router.get("/", parseParams, getAllImages);
 
 router.get("/signature/:upload_preset", requireAuth, parseParams, (req, res) => {
     const { upload_preset } = req.params;

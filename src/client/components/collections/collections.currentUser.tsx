@@ -97,6 +97,14 @@ function CollectionContent({ name, coverImage, noOfItems, key, description, refe
     );
 }
 
+export function My_Grid({ children }: React.PropsWithChildren) {
+    return (
+        <div className="tw-container tw-mx-auto tw-p-4 tw-grid tw-grid-flow-row tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 xl:tw-grid-4 2xl:tw-grid-5 tw-place-content-center tw-place-items-center tw-w-full">
+            {children}
+        </div>
+    );
+}
+
 function Collections({ username, noOfCollections }: { username?: string; noOfCollections: number | 0 }) {
     const { isLoading, data, isError, refetch } = useQuery("collections", async () => {
         if (username) {
@@ -123,7 +131,7 @@ function Collections({ username, noOfCollections }: { username?: string; noOfCol
     }
 
     return (
-        <div className="tw-container tw-mx-auto tw-p-4 tw-grid tw-grid-flow-row tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 xl:tw-grid-4 2xl:tw-grid-5 tw-place-content-center tw-place-items-center tw-w-full">
+        <My_Grid>
             {data &&
                 data.collections &&
                 (data.collections as CollectionContent[]).map(({ name, coverImage, noOfItems, description }) => {
@@ -138,7 +146,7 @@ function Collections({ username, noOfCollections }: { username?: string; noOfCol
                         />
                     );
                 })}
-        </div>
+        </My_Grid>
     );
 }
 

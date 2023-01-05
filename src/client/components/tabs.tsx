@@ -12,6 +12,7 @@ interface TabsPropTypes {
 }
 /**
  * Build a navigation tab takes activeTab and setActiveTab from useState
+ * it also takes a tabs array of objects with information to display property and name to the tab
  */
 function My_Tabs({ setActiveTab, activeTab, tabs }: TabsPropTypes) {
     const tabStyles = {

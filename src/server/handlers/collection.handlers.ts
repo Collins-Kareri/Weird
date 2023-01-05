@@ -85,7 +85,7 @@ export async function getCollections(req: Request, res: Response) {
 
         res.json({
             msg: "ok",
-            collections: undefined,
+            collections: [],
         });
         return;
     } catch (error) {
