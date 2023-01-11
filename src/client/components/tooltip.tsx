@@ -5,7 +5,11 @@ interface ToolTipProps extends React.PropsWithChildren {
 }
 
 function Tooltip({ msg, children }: ToolTipProps) {
-    return <a title={msg}>{children}</a>;
+    return (
+        <a aria-label={msg} title={msg}>
+            {children}
+        </a>
+    );
 }
 
 export default Tooltip;

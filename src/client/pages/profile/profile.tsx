@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import { useQuery } from "react-query";
 import Collections from "@src/client/components/collections/collections.currentUser";
 import CreateCollection from "@components/modals/createCollection";
 import Button from "@components/button";
 import Logo from "@assets/logo.svg";
 import ProfilePic from "@pages/profile/profilePic";
-import Image from "@components/imageComponents/image";
+import Masonary from "@components/my_layouts/masonary";
 import My_Tabs from "@components/tabs";
 import { useUser } from "@context/user.context";
+import { ProfileBody, UserImage } from "@pages/user";
+import { useNotification } from "@context/notifications.context";
+import generateKey from "@src/shared/utils/generateKeys";
 
 interface PlaceHolderContentPropTypes {
     active: string;
@@ -78,9 +82,57 @@ function PlaceHolderContent({
 function Profile() {
     const [activeTab, setActiveTab] = useState("images");
     const [collectionsModalStatus, setCollectionsModalStatus] = useState("closed");
-    const { currentUser } = useUser();
+    const { currentUser, setUser } = useUser();
     const redirect = useNavigate();
     const location = useLocation();
+    const [editImageModalStatus, setEditImageModalStatus] = useState(false);
+    const { addNotification } = useNotification();
+    const { data, isSuccess, refetch } = useQuery(
+        ["fetchUserMedia", activeTab, currentUser],
+        async () => {
+            let results;
+            if (activeTab === "images" && currentUser && currentUser?.noOfUploadedImages > 0) {
+                results = await (await fetch(`/api/image/${currentUser.username}?skip=0&limit=6`)).json();
+                return results.images;
+            } else if (activeTab === "collections" && currentUser && currentUser.noOfCollections > 0) {
+                results = await (await fetch(`/api/collection/${currentUser.username}}?skip=0&limit=6`)).json();
+                return results.collections;
+            } else {
+                return [];
+            }
+        },
+        { refetchInterval: false }
+    );
+
+    function toggleEditImageModal() {
+        setEditImageModalStatus(!editImageModalStatus);
+        return;
+    }
+
+    function deleteImage(public_id: string) {
+        fetch(`/api/image/:${public_id.replace("/", "_")}`, {
+            method: "delete",
+        })
+            .then((res) => {
+                if (res.status >= 400) {
+                    throw "cannot delete";
+                }
+                return res.json();
+            })
+            .then((parsedRes) => {
+                if (parsedRes.msg === "ok") {
+                    addNotification({ type: "success", msg: "Successfully delete." });
+                    if (parsedRes.user) {
+                        setUser(parsedRes.user);
+                    }
+
+                    refetch();
+                }
+            })
+            .catch(() => {
+                addNotification({ type: "error", msg: "Could not delete image." });
+            });
+    }
 
     function closeCollectionModal() {
         setCollectionsModalStatus("closed");
@@ -88,28 +140,26 @@ function Profile() {
     }
 
     return location.pathname === "/profile" ? (
-        <>
-            <div className=" tw-flex tw-flex-col tw-justify-center tw-items-center  tw-font-Quicksand tw-font-semibold tw-p-4 tw-text-neutral-800 md:tw-flex-row">
-                <ProfilePic />
+        <ProfileBody>
+            <ProfilePic />
 
-                <section className="tw-flex tw-flex-col tw-items-center tw-justify-center" id="profileInfo">
-                    <span className="tw-text-lg" id="username">
-                        {currentUser?.username}
-                    </span>
-                    <span className="tw-text-lg" id="email">
-                        {currentUser?.email}
-                    </span>
-                    <Button
-                        priority={"primary"}
-                        value={"edit profile"}
-                        handleClick={() => {
-                            redirect("/profile/edit");
-                            return;
-                        }}
-                        extraStyles={"tw-mt-2"}
-                    />
-                </section>
-            </div>
+            <section className="tw-flex tw-flex-col tw-items-center tw-justify-center" id="profileInfo">
+                <span className="tw-text-lg" id="username">
+                    {currentUser?.username}
+                </span>
+                <span className="tw-text-lg" id="email">
+                    {currentUser?.email}
+                </span>
+                <Button
+                    priority={"primary"}
+                    value={"edit profile"}
+                    handleClick={() => {
+                        redirect("/profile/edit");
+                        return;
+                    }}
+                    extraStyles={"tw-mt-2"}
+                />
+            </section>
 
             {/*tabs component takes an array of tabs with information to display and name to be displayed*/}
             <My_Tabs
@@ -143,15 +193,41 @@ function Profile() {
             {collectionsModalStatus === "open" && <CreateCollection closeCollectionModal={closeCollectionModal} />}
 
             {/**collection grid container */}
-            {activeTab === "collections" && currentUser?.noOfCollections && currentUser?.noOfCollections > 0 && (
+            {activeTab === "collections" && currentUser?.noOfCollections && currentUser?.noOfCollections > 0 ? (
                 <Collections username={currentUser?.username} noOfCollections={currentUser.noOfCollections} />
+            ) : (
+                <></>
             )}
 
             {/**image grid container */}
-            {activeTab === "images" && currentUser?.noOfUploadedImages && currentUser?.noOfUploadedImages > 0 && (
-                <Image username={currentUser?.username} />
+            {activeTab === "images" && currentUser?.noOfUploadedImages && currentUser?.noOfUploadedImages > 0 ? (
+                <Masonary>
+                    {data.map((val: { url: string; public_id: string }) => {
+                        return (
+                            <UserImage src={val.url} key={generateKey()} alt_description={""}>
+                                <div className="tw-absolute tw-p-2 tw-px-4 tw-z-10 tw-top-0 tw-bg-neutral-100 tw-w-full tw-bg-opacity-50 tw-bg-blend-soft-light">
+                                    <Button
+                                        priority={"secondary"}
+                                        value={"edit"}
+                                        extraStyles={"tw-ring-neutral-900"}
+                                        handleClick={toggleEditImageModal}
+                                    />
+                                    <Button
+                                        priority={"tertiary"}
+                                        value={"delete"}
+                                        handleClick={() => {
+                                            deleteImage(val.public_id);
+                                        }}
+                                    />
+                                </div>
+                            </UserImage>
+                        );
+                    })}
+                </Masonary>
+            ) : (
+                <></>
             )}
-        </>
+        </ProfileBody>
     ) : (
         <Outlet />
     );

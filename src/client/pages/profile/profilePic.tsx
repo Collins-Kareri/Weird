@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Button from "@components/button";
 import Spinner from "@components/spinner";
 import { useNotification } from "@context/notifications.context";
+import { ProfilePic as My_Profile_Pic } from "@pages/user";
 
 function ProfilePic() {
     /**Contains ref to hidden input type file */
@@ -157,7 +158,7 @@ function ProfilePic() {
 
             {/**profile image*/}
             <section
-                className={`tw-relative tw-mb-4 md:tw-mx-4 tw-flex tw-flex-col tw-items-center tw-justify-center ${
+                className={`tw-relative tw-mb-4 md:tw-mx-4 tw-flex tw-flex-row tw-items-center tw-justify-center ${
                     isLoading ? "tw-cursor-wait" : "tw-cursor-auto"
                 }`}
             >
@@ -166,38 +167,29 @@ function ProfilePic() {
                         <Spinner height={"tw-h-8"} width={"tw-w-8"} borderColor={""} position={""} />
                     </div>
                 )}
-                <span
-                    className={"tw-bg-neutral-300 tw-rounded-full tw-inline-block tw-w-28 tw-h-28"}
-                    id="profilePicContainer"
-                >
-                    {currentUser?.profilePic && (
-                        <img
-                            className="tw-object-cover tw-rounded-full tw-w-full tw-h-full tw-relative"
-                            src={currentUser.profilePic.url}
-                            alt={"profile picture"}
-                            id="profilePic"
-                        />
-                    )}
-                </span>
 
-                {/**edit profie pic icon and delete icon*/}
-                {isLoading === false && (
-                    <div
-                        className="tw-absolute tw-bottom-0 tw-right-0 tw-w-8 tw-h-8 tw-bg-neutral-800 tw-rounded-full tw-flex tw-flex-row tw-justify-center tw-items-center tw-cursor-pointer md:tw-h-9 md:tw-w-9 tw-ring tw-ring-neutral-800 tw-border-0 hover:tw-ring-offset-1 hover:tw-ring-offset-neutral-800 main-transition tw-text-primary-300"
-                        onClick={(evt) => {
-                            currentUser?.profilePic && currentUser.profilePic.url
-                                ? deleteProfilePic()
-                                : openFileBrowser(evt);
-                        }}
-                        id="editProfilePic"
-                    >
-                        {currentUser?.profilePic && currentUser.profilePic.url ? (
-                            <FontAwesomeIcon icon={"trash"} />
-                        ) : (
-                            <FontAwesomeIcon icon={"pencil"} />
+                <span id="profilePicContainer">
+                    <My_Profile_Pic src={currentUser?.profilePic?.url || ""}>
+                        {/**edit profie pic icon and delete icon*/}
+                        {isLoading === false && (
+                            <div
+                                className="tw-absolute tw-bottom-0 tw-right-0 tw-w-8 tw-h-8 tw-bg-neutral-800 tw-rounded-full tw-flex tw-flex-row tw-justify-center tw-items-center tw-cursor-pointer md:tw-h-8 md:tw-w-8 tw-ring tw-ring-neutral-800 tw-border-0 hover:tw-ring-offset-1 hover:tw-ring-offset-neutral-800 main-transition tw-text-primary-300"
+                                onClick={(evt) => {
+                                    currentUser?.profilePic && currentUser.profilePic.url
+                                        ? deleteProfilePic()
+                                        : openFileBrowser(evt);
+                                }}
+                                id="editProfilePic"
+                            >
+                                {currentUser?.profilePic && currentUser.profilePic.url ? (
+                                    <FontAwesomeIcon icon={"trash"} />
+                                ) : (
+                                    <FontAwesomeIcon icon={"pencil"} />
+                                )}
+                            </div>
                         )}
-                    </div>
-                )}
+                    </My_Profile_Pic>
+                </span>
             </section>
 
             {location.pathname === "/profile/edit" && (

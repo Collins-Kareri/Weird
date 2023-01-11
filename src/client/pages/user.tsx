@@ -37,7 +37,7 @@ interface ImageProps {
 //     noOfItems: number;
 // }
 
-interface userProps {
+interface UserProps {
     profilePic?: {
         url: string;
     };
@@ -46,6 +46,26 @@ interface userProps {
     username: string;
     noOfCollections: number;
     noOfUploadedImages: number;
+}
+
+interface UserProfilePicProps {
+    src?: string;
+}
+
+interface ProfilePicProps extends React.PropsWithChildren {
+    src: string;
+}
+
+function UserProfilePic({ src }: UserProfilePicProps) {
+    return (
+        <section className="tw-rounded-full tw-w-8 tw-h-8 tw-relative tw-shadow-inner tw-shadow-primary-500 tw-bg-primary-200 tw-flex tw-flex-col tw-justify-center tw-items-center tw-text-primary-900">
+            {src ? (
+                <img src={src} className="tw-object-fill tw-w-full tw-h-full tw-rounded-full" />
+            ) : (
+                <FontAwesomeIcon icon={"user-large"} />
+            )}
+        </section>
+    );
 }
 
 function PlaceholderContent({ children }: React.PropsWithChildren) {
@@ -57,7 +77,7 @@ function PlaceholderContent({ children }: React.PropsWithChildren) {
     );
 }
 
-function ImageActions({ msg, action, icon }: ImageActionsProps) {
+function ImageControls({ msg, action, icon }: ImageActionsProps) {
     return (
         <Tooltip msg={msg}>
             <FontAwesomeIcon
@@ -72,37 +92,31 @@ function ImageActions({ msg, action, icon }: ImageActionsProps) {
     );
 }
 
-function ToImplement({ profile_image, username }: { profile_image: string; username: string }) {
+export function ImageDetailsAndControls({ profile_image, username }: { profile_image: string; username: string }) {
     return (
         <>
             <section className="tw-flex tw-flex-row tw-items-center tw-w-fit">
-                {profile_image ? (
-                    <img src={profile_image} className="tw-rounded-full tw-mr-1 tw-w-9 tw-h-9 tw-object-fill" />
-                ) : (
-                    <FontAwesomeIcon
-                        icon={"user-large"}
-                        className={"tw-shadow-inner tw-mr-1 tw-p-3 tw-rounded-md"}
-                        size="lg"
-                    />
-                )}
-                <a href={`/user/:${username}`}>{username}</a>
+                <UserProfilePic src={profile_image} />
+                <a href={`/user/:${username}`} className="tw-ml-2">
+                    {username}
+                </a>
             </section>
             <section className="tw-flex tw-flex-row tw-items-center tw-w-fit">
-                <ImageActions
+                <ImageControls
                     msg="Add to collection"
                     icon={"plus"}
                     action={() => {
                         return;
                     }}
                 />
-                <ImageActions
+                <ImageControls
                     msg="Like image"
                     icon={"heart"}
                     action={() => {
                         return;
                     }}
                 />
-                <ImageActions
+                <ImageControls
                     msg="Download image"
                     icon={"download"}
                     action={() => {
@@ -114,7 +128,7 @@ function ToImplement({ profile_image, username }: { profile_image: string; usern
     );
 }
 
-function UserImage({ src, alt_description, children }: UserImageProps) {
+export function UserImage({ src, alt_description, children }: UserImageProps) {
     return (
         <div className="tw-w-full tw-inline-block tw-mb-6 tw-relative">
             <img src={src} alt={alt_description} className="tw-w-full tw-relative tw-rounded-lg" />
@@ -126,10 +140,55 @@ function UserImage({ src, alt_description, children }: UserImageProps) {
     );
 }
 
+export function ProfilePic({ src, children }: ProfilePicProps) {
+    return (
+        <div className="tw-relative">
+            {src ? (
+                <img
+                    src={src}
+                    alt="user profile pic"
+                    className="tw-rounded-full tw-shadow-inner tw-shadow-primary-200 tw-w-28 tw-h-28 tw-object-cover tw-text-primary-700"
+                />
+            ) : (
+                <FontAwesomeIcon
+                    icon={"user-large"}
+                    className="tw-rounded-full tw-bg-primary-200 tw-shadow-inner tw-shadow-primary-200 tw-p-8 tw-w-20 tw-h-20 tw-text-primary-700"
+                    size="lg"
+                />
+            )}
+            {children}
+        </div>
+    );
+}
+
+export function ProfileDetails({
+    username,
+    email,
+    children,
+}: React.PropsWithChildren<{ username: string; email: string }>) {
+    return (
+        <>
+            <section className="tw-text-center tw-text-primary-700 tw-mt-3">
+                <h1 className="tw-text-2xl tw-capitalize  tw-font-bold">{username}</h1>
+                <p>{email}</p>
+                {children}
+            </section>
+        </>
+    );
+}
+
+export function ProfileBody({ children }: React.PropsWithChildren) {
+    return (
+        <div className="tw-container tw-mx-auto">
+            <section className="tw-w-full tw-mt-7 tw-flex tw-flex-col tw-items-center"> {children}</section>
+        </div>
+    );
+}
+
 function User() {
     const [activeTab, setActiveTab] = useState("images");
     const { username } = useParams();
-    const [userData, setUserData] = useState<null | userProps>(null);
+    const [userData, setUserData] = useState<null | UserProps>(null);
 
     const { data, isSuccess } = useQuery(
         ["fetchUserMedia", activeTab, userData],
@@ -167,72 +226,57 @@ function User() {
     return (
         <>
             <My_Nav />
-            <div className="tw-container tw-mx-auto">
-                <section className="tw-w-full tw-mt-7 tw-flex tw-flex-col tw-items-center">
-                    {userData.profilePic && userData.profilePic.url ? (
-                        <img
-                            src={userData.profilePic.url}
-                            alt="user profile pic"
-                            className="tw-rounded-full
-                            tw-shadow-inner tw-shadow-primary-200 tw-w-28 tw-h-28 tw-object-cover tw-text-primary-700"
-                        />
-                    ) : (
-                        <FontAwesomeIcon
-                            icon={"user-large"}
-                            className="tw-rounded-full tw-bg-primary-200 tw-shadow-inner tw-shadow-primary-200 tw-p-8 tw-w-20 tw-h-20 tw-text-primary-700"
-                            size="lg"
-                        />
+            <ProfileBody>
+                {userData.profilePic && <ProfilePic src={userData.profilePic.url} />}
+
+                <ProfileDetails email={userData.email} username={userData.username} />
+
+                <My_Tabs
+                    setActiveTab={setActiveTab}
+                    activeTab={activeTab}
+                    tabs={[
+                        {
+                            information: `images ${userData.noOfUploadedImages}`,
+                            name: "images",
+                        },
+                        {
+                            information: `collections ${userData.noOfCollections}`,
+                            name: "collections",
+                        },
+                    ]}
+                />
+
+                <section className="tw-w-full tw-flex tw-flex-col tw-items-center">
+                    {userData.noOfUploadedImages === 0 && activeTab === "images" && (
+                        <PlaceholderContent>
+                            <p>{"no images"}</p>
+                        </PlaceholderContent>
                     )}
 
-                    <section className="tw-text-center tw-text-primary-700 tw-mt-3">
-                        <h1 className="tw-text-2xl tw-capitalize  tw-font-bold">{userData.username}</h1>
-                        <p>{userData.email}</p>
-                    </section>
+                    {userData && userData.noOfUploadedImages > 0 && activeTab === "images" && isSuccess && (
+                        <Masonary>
+                            {data.map((val: ImageProps) => {
+                                return (
+                                    <UserImage src={val.url} key={generateKey()} alt_description={""}>
+                                        <ImageDetailsAndControls
+                                            profile_image={val.user.profilePic}
+                                            username={val.user.name}
+                                        />
+                                    </UserImage>
+                                );
+                            })}
+                        </Masonary>
+                    )}
 
-                    <My_Tabs
-                        setActiveTab={setActiveTab}
-                        activeTab={activeTab}
-                        tabs={[
-                            {
-                                information: `images ${userData.noOfUploadedImages}`,
-                                name: "images",
-                            },
-                            {
-                                information: `collections ${userData.noOfCollections}`,
-                                name: "collections",
-                            },
-                        ]}
-                    />
+                    {userData.noOfCollections === 0 && activeTab === "collections" && (
+                        <PlaceholderContent>
+                            <p>{"no collections"}</p>
+                        </PlaceholderContent>
+                    )}
 
-                    <section className="tw-w-full tw-flex tw-flex-col tw-items-center">
-                        {userData.noOfUploadedImages === 0 && activeTab === "images" && (
-                            <PlaceholderContent>
-                                <p>{"no images"}</p>
-                            </PlaceholderContent>
-                        )}
-
-                        {userData && userData.noOfUploadedImages > 0 && activeTab === "images" && isSuccess && (
-                            <Masonary>
-                                {data.map((val: ImageProps) => {
-                                    return (
-                                        <UserImage src={val.url} key={generateKey()} alt_description={""}>
-                                            <ToImplement profile_image={val.user.profilePic} username={val.user.name} />
-                                        </UserImage>
-                                    );
-                                })}
-                            </Masonary>
-                        )}
-
-                        {userData.noOfCollections === 0 && activeTab === "collections" && (
-                            <PlaceholderContent>
-                                <p>{"no collections"}</p>
-                            </PlaceholderContent>
-                        )}
-
-                        {userData.noOfCollections > 0 && activeTab === "collections" && <My_Grid>{"data"}</My_Grid>}
-                    </section>
+                    {userData.noOfCollections > 0 && activeTab === "collections" && <My_Grid>{"data"}</My_Grid>}
                 </section>
-            </div>
+            </ProfileBody>
         </>
     );
 }
