@@ -29,9 +29,9 @@ const neo4jStrategy = new Strategy({ usernameField: "username", passwordField: "
             return;
         }
 
-        done(loginResults, null, { message: loginResults });
+        done(loginResults, undefined, { message: loginResults });
     } catch (error) {
-        done(error, null);
+        done(error, undefined);
     }
 });
 
