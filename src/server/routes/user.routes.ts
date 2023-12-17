@@ -25,7 +25,7 @@ router.post("/create", createUser);
 
 router.post("/login", function (req, res, next) {
     //call passport authenticate as an iife.
-    passport.authenticate("local", { session: false }, (err, user) => {
+    passport.authenticate("local", { session: false }, (err: string | Error, user: User | null) => {
         function isUsernameExistsErr(err: string): boolean {
             // const test = err.match(/\b(username)\b/gi);
             return /\b(username)\b/gi.test(err);
@@ -40,7 +40,7 @@ router.post("/login", function (req, res, next) {
             return;
         }
 
-        return req.login(user, (loginErr) => {
+        return req.login(user as User, (loginErr) => {
             if (loginErr) {
                 res.status(401).json({ msg: "authentication failed", error: (loginErr as Error).name });
                 return;
