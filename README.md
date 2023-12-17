@@ -19,8 +19,8 @@ A stock site to display weird images.
 * NEO4J_PASSWORD
 * server_port
 * client_port
-* My_CLOUDINARY_URL
-* My_CLOUDINARY_DELETE_TOKEN_URL
+* CLOUDINARY_URL
+* CLOUDINARY_DELETE_TOKEN_URL
 * UNSPLASH_ACCESS_KEY
 
 ## DEPENDENCIES

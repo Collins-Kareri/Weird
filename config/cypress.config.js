@@ -4,7 +4,7 @@ const { defineConfig } = require("cypress");
 const { resolve } = require("path");
 const webpackConfig = require("./webpack.dev");
 const client_url = process.env.client_port;
-const cloudinary_upload_url = process.env.My_CLOUDINARY_URL;
+const cloudinary_upload_url = process.env.CLOUDINARY_URL;
 
 module.exports = defineConfig({
     e2e: {

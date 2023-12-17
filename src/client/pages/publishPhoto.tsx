@@ -173,7 +173,7 @@ function Publish() {
     async function publishPhoto(): Promise<void> {
         //send tags, description and image base 64 url to cloudinary, then send the public url to backend to store in server
         const description = (document.getElementById("description") as HTMLTextAreaElement).value;
-        const cloudinaryUrl = process.env.My_CLOUDINARY_URL as string;
+        const cloudinaryUrl = process.env.CLOUDINARY_URL as string;
 
         if (!imgData) {
             addNotification({ type: "error", msg: "no image was selected." });

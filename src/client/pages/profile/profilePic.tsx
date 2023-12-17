@@ -42,8 +42,8 @@ function ProfilePic() {
         try {
             const signatureRes = await (await fetch("/api/image/signature/:profilePic", { method: "get" })).json();
             console.log(signatureRes);
-            const cloudinaryUrl = process.env.My_CLOUDINARY_URL as string;
-            const cloudinaryDeleteByToken = process.env.My_CLOUDINARY_URL as string;
+            const cloudinaryUrl = process.env.CLOUDINARY_URL as string;
+            const cloudinaryDeleteByToken = process.env.CLOUDINARY_URL as string;
 
             if (signatureRes.msg === "fail" || typeof signatureRes.msg === "undefined") {
                 setIsLoading(!isLoading);
@@ -158,9 +158,8 @@ function ProfilePic() {
 
             {/**profile image*/}
             <section
-                className={`tw-relative tw-mb-4 md:tw-mx-4 tw-flex tw-flex-row tw-items-center tw-justify-center ${
-                    isLoading ? "tw-cursor-wait" : "tw-cursor-auto"
-                }`}
+                className={`tw-relative tw-mb-4 md:tw-mx-4 tw-flex tw-flex-row tw-items-center tw-justify-center ${isLoading ? "tw-cursor-wait" : "tw-cursor-auto"
+                    }`}
             >
                 {isLoading && (
                     <div className="tw-absolute tw-bg-primary-500 tw-bg-opacity-50 tw-w-full tw-h-full tw-rounded-full tw-flex tw-justify-center tw-items-center">
