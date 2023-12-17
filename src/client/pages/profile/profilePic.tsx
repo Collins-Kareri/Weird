@@ -42,8 +42,8 @@ function ProfilePic() {
         try {
             const signatureRes = await (await fetch("/api/image/signature/:profilePic", { method: "get" })).json();
             console.log(signatureRes);
-            const cloudinaryUrl = process.env.CLOUDINARY_URL as string;
-            const cloudinaryDeleteByToken = process.env.CLOUDINARY_URL as string;
+            const cloudinaryUrl = process.env.MY_CLOUDINARY_URL as string;
+            const cloudinaryDeleteByToken = process.env.MY_CLOUDINARY_URL as string;
 
             if (signatureRes.msg === "fail" || typeof signatureRes.msg === "undefined") {
                 setIsLoading(!isLoading);
