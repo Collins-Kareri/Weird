@@ -87,7 +87,7 @@ function Profile() {
     const location = useLocation();
     const [editImageModalStatus, setEditImageModalStatus] = useState(false);
     const { addNotification } = useNotification();
-    const { data, isSuccess, refetch } = useQuery(
+    const { data, refetch } = useQuery(
         ["fetchUserMedia", activeTab, currentUser],
         async () => {
             let results;
@@ -101,7 +101,7 @@ function Profile() {
                 return [];
             }
         },
-        { refetchInterval: false }
+        { refetchInterval: 2 }
     );
 
     function toggleEditImageModal() {
@@ -202,27 +202,28 @@ function Profile() {
             {/**image grid container */}
             {activeTab === "images" && currentUser?.noOfUploadedImages && currentUser?.noOfUploadedImages > 0 ? (
                 <Masonary>
-                    {data.map((val: { url: string; public_id: string }) => {
-                        return (
-                            <UserImage src={val.url} key={generateKey()} alt_description={""}>
-                                <div className="tw-absolute tw-p-2 tw-px-4 tw-z-10 tw-top-0 tw-bg-neutral-100 tw-w-full tw-bg-opacity-50 tw-bg-blend-soft-light">
-                                    <Button
-                                        priority={"secondary"}
-                                        value={"edit"}
-                                        extraStyles={"tw-ring-neutral-900"}
-                                        handleClick={toggleEditImageModal}
-                                    />
-                                    <Button
-                                        priority={"tertiary"}
-                                        value={"delete"}
-                                        handleClick={() => {
-                                            deleteImage(val.public_id);
-                                        }}
-                                    />
-                                </div>
-                            </UserImage>
-                        );
-                    })}
+                    {data &&
+                        data.map((val: { url: string; public_id: string }) => {
+                            return (
+                                <UserImage src={val.url} key={generateKey()} alt_description={""}>
+                                    <div className="tw-absolute tw-p-2 tw-px-4 tw-z-10 tw-top-0 tw-bg-neutral-100 tw-w-full tw-bg-opacity-50 tw-bg-blend-soft-light">
+                                        <Button
+                                            priority={"secondary"}
+                                            value={"edit"}
+                                            extraStyles={"tw-ring-neutral-900"}
+                                            handleClick={toggleEditImageModal}
+                                        />
+                                        <Button
+                                            priority={"tertiary"}
+                                            value={"delete"}
+                                            handleClick={() => {
+                                                deleteImage(val.public_id);
+                                            }}
+                                        />
+                                    </div>
+                                </UserImage>
+                            );
+                        })}
                 </Masonary>
             ) : (
                 <></>
