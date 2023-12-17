@@ -191,10 +191,13 @@ function Publish() {
         }
 
         // eslint-disable-next-line prettier/prettier
-        const signatureRes = await(
+        const signatureRes = await (
             await fetch("/api/image/signature/:weird", {
                 method: "post",
-                body: JSON.stringify({ context: `alt=${description}`, tags: tags.toString().replace(/\[|\]/g, "") }),
+                body: JSON.stringify({
+                    context: `alt=${description}`,
+                    tags: tags.toString().replace(/\[|\]/g, ""),
+                }),
                 headers: {
                     "Content-Type": "application/json",
                 },
