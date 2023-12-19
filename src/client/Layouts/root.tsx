@@ -1,10 +1,11 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
+import Nav from "../components/Nav";
 
 function Root() {
     return (
         <>
-            <nav>to be implemented</nav>
+            <Nav />
             <main>
                 <Outlet />
             </main>
