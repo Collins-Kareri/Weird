@@ -10,19 +10,18 @@ module.exports = {
             center: true,
         },
         colors: {
-            primary: colors.gray,
-            error: colors.red,
-            normal: colors.blue,
-            success: colors.emerald,
+            primary: colors.slate,
+            error: colors.slate,
+            secondary: colors.slate,
+            success: colors.slate,
             neutral: colors.slate,
-            warning: colors.amber,
+            warning: colors.slate,
         },
         extend: {
             fontFamily: {
-                Quicksand: ["Quicksand", "sans-serif"],
-                Taviraj: ["Taviraj", "serif"],
+                LogoFont: ["Gluten", "cursive"],
             },
         },
     },
-    plugins: [require("@tailwindcss/forms")],
+    plugins: [],
 };
