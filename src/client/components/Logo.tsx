@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable prettier/prettier */
 import React from "react";
 import { Link } from "react-router-dom";
@@ -8,6 +9,12 @@ interface LogoProps {
     width?: `${number}`;
     header?: boolean;
     extraTwClasses?: string;
+}
+
+export function LogoTypeFace(props: React.ComponentProps<"h1">) {
+    const baseStyles = "tw-font-LogoFont tw-font-semibold tw-uppercase tw-tracking-wider";
+
+    return <h1 className={`${baseStyles} ${props.className}`}>weird</h1>
 }
 
 function Logo({ height = "50", width = "50", header = false, extraTwClasses = "" }: LogoProps) {
@@ -23,7 +30,7 @@ function Logo({ height = "50", width = "50", header = false, extraTwClasses = ""
                     alt="Weird"
                 />
             </span>
-            {header ? <h1 className="tw-text-lg tw-uppercase tw-hidden tw-font-LogoFont tw-font-semibold md:tw-inline-block">weird</h1> : <></>}
+            {header ? <LogoTypeFace className="tw-hidden md:tw-inline-block tw-text-lg" /> : <></>}
         </Link>
     );
 }
