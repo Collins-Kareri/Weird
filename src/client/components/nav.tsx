@@ -43,7 +43,7 @@ function Nav() {
         <nav className="tw-p-4 tw-flex tw-items-center tw-justify-between tw-bg-primary-300 tw-rounded-b-2xl tw-sticky tw-z-50 tw-top-0 tw-left-0">
             <Logo header={true} />
 
-            <div className="tw-flex tw-gap-2 md:tw-flex-[0.4] tw-items-center">
+            <div className="tw-flex tw-gap-2 md:tw-flex-[0.4] tw-items-center tw-justify-end">
                 <SearchBar display={{ base: "none", lg: "block" }} />
 
                 <LoginButton display={{ base: "none", lg: "inline-flex" }} />
