@@ -6,7 +6,7 @@ function Root() {
     return (
         <>
             <Nav />
-            <main>
+            <main className="tw-overflow-clip">
                 <Outlet />
             </main>
         </>
