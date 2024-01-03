@@ -29,8 +29,6 @@ export default function Hero() {
         })();
     }, []);
 
-    console.log(backgroundImages);
-
     if (!backgroundImages) {
         return <p>....Loading</p>;
     }
@@ -40,7 +38,7 @@ export default function Hero() {
             <section className="tw-flex tw-flex-col tw-items-center tw-h-full tw-justify-center md:tw-justify-center md:tw-items-start tw-relative">
                 <section
                     className={
-                        "tw-absolute tw-top-1/2 tw-left-1/2 -tw-translate-y-1/2 -tw-translate-x-1/2 tw-rounded-3xl -tw-z-[2] tw-h-3/4 tw-w-screen lg:tw-w-1/4 lg:tw-h-full tw-opacity-70 tw-ml-10 tw-overflow-clip tw-rounded-r-full lg:tw-z-0 lg:tw-left-[70%] lg:tw-translate-x-0 tw-bg-cover tw-bg-no-repeat tw-bg-center"
+                        "tw-absolute tw-top-1/2 tw-left-1/2 -tw-translate-y-1/2 -tw-translate-x-1/2 tw-rounded-3xl -tw-z-[2] tw-h-3/4 tw-w-screen md:tw-w-1/2 md:tw-left-[80%] lg:tw-w-1/4 lg:tw-h-full tw-opacity-70 tw-ml-10 tw-overflow-clip tw-rounded-r-full lg:tw-z-0 lg:tw-left-[70%] lg:tw-translate-x-0 tw-bg-cover tw-bg-no-repeat tw-bg-center"
                     }
                     style={{ backgroundImage: `url(${backgroundImages[0]})` }}
                 ></section>
