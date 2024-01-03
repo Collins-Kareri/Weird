@@ -23,7 +23,7 @@ export default function SearchButtonIcon() {
                 aria-label="search"
                 isRound={true}
                 onClick={onOpen}
-                display={{ base: "block", md: "none" }}
+                display={{ base: "block", lg: "none" }}
             />
 
             <Modal isOpen={isOpen} onClose={onClose} isCentered>
